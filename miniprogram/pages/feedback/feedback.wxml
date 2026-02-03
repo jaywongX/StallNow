@@ -1,5 +1,86 @@
-<view class="feedback-container">
-  <view class="feedback-content">
-    <text class="content-text">{{content}}</text>
+<view class="container">
+  <!-- 页面标题 -->
+  <view class="page-header">
+    <text class="header-title">意见反馈</text>
+    <text class="header-subtitle">您的建议是我们改进的动力</text>
+  </view>
+
+  <!-- 反馈表单 -->
+  <view class="form-section">
+    <!-- 反馈类型 -->
+    <view class="form-group">
+      <view class="group-header">
+        <text class="group-title">反馈类型</text>
+        <text class="required">*</text>
+      </view>
+      <view class="type-grid">
+        <view 
+          wx:for="{{feedbackTypes}}" 
+          wx:key="id"
+          class="type-item {{form.type === item.id ? 'active' : ''}}"
+          data-id="{{item.id}}"
+          bindtap="onTypeSelect"
+        >
+          <text class="type-icon">{{item.icon}}</text>
+          <text class="type-name">{{item.name}}</text>
+        </view>
+      </view>
+      <text wx:if="{{errors.type}}" class="error-text">{{errors.type}}</text>
+    </view>
+
+    <!-- 反馈内容 -->
+    <view class="form-group">
+      <view class="group-header">
+        <text class="group-title">反馈内容</text>
+        <text class="required">*</text>
+      </view>
+      <textarea 
+        class="content-textarea"
+        placeholder="请详细描述您的问题或建议...&#10;例如：在首页地图中无法看到摊位标记"
+        value="{{form.content}}"
+        bindinput="onContentInput"
+        maxlength="500"
+      />
+      <text class="char-count">{{form.content.length}}/500</text>
+      <text wx:if="{{errors.content}}" class="error-text">{{errors.content}}</text>
+    </view>
+
+    <!-- 联系方式 -->
+    <view class="form-group">
+      <view class="group-header">
+        <text class="group-title">联系方式</text>
+        <text class="optional">（选填）</text>
+      </view>
+      <input 
+        class="form-input"
+        placeholder="手机号或微信号，方便我们回复您"
+        value="{{form.contact}}"
+        bindinput="onContactInput"
+      />
+      <text class="input-hint">留下联系方式，我们可以更好地跟进和回复您的反馈</text>
+    </view>
+  </view>
+
+  <!-- 提示说明 -->
+  <view class="tips-section">
+    <view class="tip-item">
+      <text class="tip-icon">⏱</text>
+      <text class="tip-text">一般3-7个工作日内处理</text>
+    </view>
+    <view class="tip-item">
+      <text class="tip-icon">🔒</text>
+      <text class="tip-text">您的反馈信息仅用于改进产品</text>
+    </view>
+  </view>
+
+  <!-- 提交按钮 -->
+  <view class="submit-section">
+    <button 
+      class="submit-btn" 
+      bindtap="onSubmit"
+      disabled="{{submitting}}"
+    >
+      {{submitting ? '提交中...' : '提交反馈'}}
+    </button>
   </view>
 </view>

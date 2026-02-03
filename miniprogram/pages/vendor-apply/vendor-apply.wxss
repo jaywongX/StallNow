@@ -197,6 +197,90 @@
   margin-bottom: 0;
 }
 
+/* 定位选择器 */
+.location-selector {
+  background: #F8F8F8;
+  border-radius: 12rpx;
+  padding: 30rpx;
+  min-height: 120rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.location-empty {
+  text-align: center;
+}
+
+.location-icon {
+  display: block;
+  font-size: 48rpx;
+  margin-bottom: 12rpx;
+}
+
+.location-text {
+  display: block;
+  font-size: 28rpx;
+  color: #333;
+  margin-bottom: 8rpx;
+}
+
+.location-hint {
+  display: block;
+  font-size: 24rpx;
+  color: #999;
+}
+
+.location-loading {
+  text-align: center;
+}
+
+.loading-icon {
+  display: block;
+  font-size: 48rpx;
+  margin-bottom: 12rpx;
+}
+
+.loading-text {
+  display: block;
+  font-size: 28rpx;
+  color: #666;
+}
+
+.location-selected {
+  width: 100%;
+}
+
+.location-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12rpx;
+}
+
+.location-name {
+  font-size: 30rpx;
+  font-weight: 500;
+  color: #333;
+}
+
+.location-change {
+  font-size: 26rpx;
+  color: #FF6B35;
+}
+
+.location-address {
+  display: block;
+  font-size: 26rpx;
+  color: #666;
+  margin-bottom: 8rpx;
+}
+
+.location-coords {
+  font-size: 22rpx;
+  color: #999;
+}
+
 /* 错误提示 */
 .error-text {
   display: block;

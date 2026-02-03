@@ -71,7 +71,8 @@ exports.main = async (event, context) => {
         categoryId: stallData.categoryId,
         categoryName: stallData.categoryName,
         goodsTags: stallData.goodsTags || [],
-        address: stallData.address,
+        location: stallData.location,  // 定位位置（必选）
+        address: stallData.address,    // 常出没区域（可选）
         scheduleTypes: stallData.scheduleTypes || [],
         contact: stallData.contact || {}
       },

@@ -1,0 +1,30 @@
+// WXS 辅助函数模块
+
+// 检查数组是否包含某个值
+function includes(arr, value) {
+  if (!arr || arr.length === 0) {
+    return false;
+  }
+  for (var i = 0; i < arr.length; i++) {
+    if (arr[i] === value) {
+      return true;
+    }
+  }
+  return false;
+}
+
+// 检查商品标签是否被选中
+function isGoodsTagSelected(goodsTags, tag) {
+  return includes(goodsTags, tag);
+}
+
+// 检查出摊时间是否被选中
+function isScheduleSelected(scheduleTypes, scheduleId) {
+  return includes(scheduleTypes, scheduleId);
+}
+
+module.exports = {
+  includes: includes,
+  isGoodsTagSelected: isGoodsTagSelected,
+  isScheduleSelected: isScheduleSelected
+};

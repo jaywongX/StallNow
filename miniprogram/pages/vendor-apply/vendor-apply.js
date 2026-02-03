@@ -6,12 +6,17 @@ Page({
             categoryId: '',
             categoryName: '',
             goodsTags: [],
-            address: '',
+            location: null,  // 定位位置 {latitude, longitude, name, address}
+            address: '',     // 常出没区域（可选）
             scheduleTypes: [],
             displayName: '',
             phone: '',
             wechatId: ''
         },
+        
+        // 定位状态
+        locationName: '',
+        isLocating: false,
         
         // 分类选项
         categories: [
@@ -47,7 +52,39 @@ Page({
     },
 
     onLoad() {
-        // 页面加载
+        // 页面加载，不自动获取定位，等待用户手动选择
+    },
+
+    // 选择摊位位置（用户点击后弹出地图）
+    async onSelectLocation() {
+        try {
+            const chooseRes = await wx.chooseLocation();
+            
+            this.setData({
+                'form.location': {
+                    latitude: chooseRes.latitude,
+                    longitude: chooseRes.longitude,
+                    name: chooseRes.name,
+                    address: chooseRes.address
+                },
+                locationName: chooseRes.name || chooseRes.address || '已选择位置',
+                errors: {}  // 清除错误提示
+            });
+        } catch (err) {
+            console.error('选择位置失败', err);
+            // 用户取消选择时不显示错误
+            if (err.errMsg && err.errMsg.indexOf('cancel') === -1) {
+                wx.showToast({
+                    title: '选择位置失败',
+                    icon: 'none'
+                });
+            }
+        }
+    },
+
+    // 重新选择位置
+    onReselectLocation() {
+        this.onSelectLocation();
     },
 
     // 选择分类
@@ -146,10 +183,12 @@ Page({
             errors.goods = '请至少选择一个商品标签';
         }
         
-        if (!form.address.trim()) {
-            errors.address = '请填写常出没区域';
+        // 定位位置为必填
+        if (!form.location) {
+            errors.location = '请选择摊位定位位置';
         }
         
+        // 常出没区域改为可选
         if (form.scheduleTypes.length === 0) {
             errors.schedule = '请至少选择一个出摊时间';
         }
@@ -181,7 +220,8 @@ Page({
                         categoryId: form.categoryId,
                         categoryName: form.categoryName,
                         goodsTags: form.goodsTags,
-                        address: form.address,
+                        location: form.location,       // 定位位置（必选）
+                        address: form.address,         // 常出没区域（可选）
                         scheduleTypes: form.scheduleTypes,
                         displayName: form.displayName,
                         contact: {

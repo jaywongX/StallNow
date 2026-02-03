@@ -1,5 +1,27 @@
 // 小程序入口文件
+
+// 城市配置
+const CITY_CONFIG = {
+    // 多城市支持开关：设为 true 开放多城市支持
+    multiCityEnabled: false,
+    // 默认城市（汕尾市城区二马路附近）
+    defaultCity: {
+        name: '汕尾市',
+        district: '城区',
+        address: '二马路',
+        location: {
+            latitude: 22.7863,
+            longitude: 115.3650
+        }
+    },
+    // 当前支持的城市列表
+    supportedCities: ['汕尾市', '汕尾', '城区', '海丰县', '陆河县', '陆丰市']
+};
+
 App({
+    // 导出城市配置供其他页面使用
+    CITY_CONFIG,
+
     onLaunch() {
         // 初始化云开发环境
         if (!wx.cloud) {
@@ -24,16 +46,19 @@ App({
             wx.cloud.init({ env, traceUser: true })
         }
 
+        // 初始化城市配置到全局数据
+        this.globalData.currentCity = CITY_CONFIG.defaultCity.name;
+        this.globalData.defaultLocation = CITY_CONFIG.defaultCity.location;
+        
         // 获取用户位置
         this.getUserLocation();
     },
 
     onShow() {
         // 小程序显示时的处理
-        // 已移除城市检查，使用默认城市
     },
 
-    // 获取用户位置
+    // 获取用户位置并检查城市
     getUserLocation() {
         const that = this;
         wx.getLocation({
@@ -43,21 +68,79 @@ App({
                     latitude: res.latitude,
                     longitude: res.longitude
                 };
+                // 检查城市支持
+                that.checkCitySupport(res.latitude, res.longitude);
             },
             fail(err) {
                 console.error('获取位置失败', err);
-                wx.showModal({
-                    title: '提示',
-                    content: '需要获取您的位置信息以推荐附近摊位',
-                    confirmText: '去设置',
-                    success(res) {
-                        if (res.confirm) {
-                            wx.openSetting();
-                        }
-                    }
-                });
+                // 使用默认位置
+                that.globalData.location = CITY_CONFIG.defaultCity.location;
+                that.globalData.isCitySupported = true;
+                that.globalData.citySwitched = true;
             }
         });
+    },
+
+    // 检查城市支持（通过逆地理编码）
+    checkCitySupport(latitude, longitude) {
+        const that = this;
+        
+        // 如果开启了多城市支持，直接通过
+        if (CITY_CONFIG.multiCityEnabled) {
+            that.globalData.isCitySupported = true;
+            that.globalData.cityCheckPromise = Promise.resolve({ supported: true });
+            return that.globalData.cityCheckPromise;
+        }
+
+        // 创建Promise让页面可以等待检查完成
+        that.globalData.cityCheckPromise = new Promise((resolve) => {
+            // 使用腾讯地图SDK或云函数进行逆地理编码
+            wx.cloud.callFunction({
+                name: 'checkCitySupport',
+                data: { 
+                    latitude, 
+                    longitude,
+                    checkLocation: true 
+                }
+            }).then(res => {
+                const { supported, city } = res.result;
+                
+                if (!supported) {
+                    // 不在支持的城市，切换到默认城市
+                    that.globalData.isCitySupported = false;
+                    that.globalData.citySwitched = true;
+                    that.globalData.location = CITY_CONFIG.defaultCity.location;
+                    
+                    // 触发全局城市切换事件
+                    if (that.citySwitchCallback) {
+                        that.citySwitchCallback({
+                            switched: true,
+                            fromCity: city,
+                            toCity: CITY_CONFIG.defaultCity.name
+                        });
+                    }
+                    resolve({ supported: false, citySwitched: true, fromCity: city });
+                } else {
+                    that.globalData.isCitySupported = true;
+                    that.globalData.citySwitched = false;
+                    resolve({ supported: true, citySwitched: false });
+                }
+            }).catch(err => {
+                console.error('检查城市失败', err);
+                // 失败时使用默认位置
+                that.globalData.location = CITY_CONFIG.defaultCity.location;
+                that.globalData.isCitySupported = true;
+                that.globalData.citySwitched = true;
+                resolve({ supported: false, citySwitched: true, error: err });
+            });
+        });
+        
+        return that.globalData.cityCheckPromise;
+    },
+
+    // 注册城市切换回调
+    onCitySwitch(callback) {
+        this.citySwitchCallback = callback;
     },
 
     // 获取用户信息（含角色）
@@ -79,8 +162,10 @@ App({
 
     globalData: {
         location: null,
+        defaultLocation: null,
         currentCity: '汕尾市',
         isCitySupported: true,
+        citySwitched: false,  // 是否自动切换了城市
         userInfo: null,
         role: 'user',
         isAdmin: false,

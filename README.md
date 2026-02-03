@@ -34,7 +34,7 @@
 ### 合规页面
 - **隐私政策**：明确数据收集和使用说明
 - **关于我们**：产品介绍和免责声明
-- **用户反馈说明**：反馈处理机制说明
+- **意见反馈**：用户可直接提交反馈（功能建议、Bug、内容纠错）
 - **联系方式说明**：联系方式展示规则说明
 
 ## 技术栈
@@ -174,7 +174,7 @@ StallNow/
 | **role** | String | **身份角色：user / vendor / admin** |
 | vendorInfo | Object | 摊主信息 {realName, phone, applyTime, approvedTime} |
 | stallIds | Array | 绑定的摊位ID列表 |
-| favorites | Array | 收藏的摊位ID列表 |
+| ~~favorites~~ | ~~Array~~ | ~~收藏的摊位ID列表~~（暂不实现） |
 | createTime | Date | 注册时间 |
 | updateTime | Date | 更新时间 |
 
@@ -185,9 +185,9 @@ StallNow/
 | _id | String | 唯一标识 |
 | displayName | String | 展示名（系统生成） |
 | categoryId | String | 分类ID |
-| landmark | String | 外观/地标特征 |
-| location | GeoPoint | 地理位置 |
-| address | String | 大致位置描述 |
+| goodsTags | Array | 商品标签列表 |
+| location | Object | 地理位置（用户手动选择） |
+| address | String | 常出没区域描述 |
 | city | String | 城市 |
 | schedule | Object | 出摊时间 |
 | images | Array | 图片URL数组 |
@@ -206,7 +206,7 @@ StallNow/
 | icon | String | 图标 |
 | sort | Number | 排序 |
 
-### applications（摊主申请表）⭐ 重命名
+### applications（摊主申请表）
 
 | 字段 | 类型 | 说明 |
 | --- | --- | --- |
@@ -223,8 +223,10 @@ StallNow/
 | 字段 | 类型 | 说明 |
 | --- | --- | --- |
 | _id | String | 唯一标识 |
-| stallId | String | 关联地摊ID |
-| type | String | 反馈类型 |
+| stallId | String | 关联地摊ID（摊位反馈时填写）|
+| type | String | 反馈类型：wrong_location/wrong_info/not_exist/other/feature_bug/content_error |
+| content | String | 反馈内容详情 |
+| contact | String | 联系方式（可选）|
 | status | Number | 0待处理 1已标记 2已处理 |
 | createTime | Date | 创建时间 |
 | processedAt | Date | 处理时间 |
@@ -252,6 +254,12 @@ StallNow/
 - 海丰县
 - 陆河县
 - 陆丰市
+
+### 定位处理策略
+
+- 如果用户定位不在汕尾市，**自动切换到汕尾市城区二马路**
+- 显示提示："已为您切换到汕尾市，目前仅支持该地区"
+- 多城市支持开关位于 `app.js` 的 `CITY_CONFIG.multiCityEnabled`，设为 `true` 即可开放多城市支持
 
 ## 注意事项
 

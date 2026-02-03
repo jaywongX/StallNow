@@ -25,15 +25,33 @@ Page({
 
     // UI状态
     showList: false,
-    showFilter: false
+    showFilter: false,
+    cityNoticeShown: false
   },
 
-  onLoad() {
-    this.initData();
+  async onLoad() {
+    await this.initData();
+    // 等待城市检查完成后显示提示
+    this.checkCityAfterReady();
   },
 
   onShow() {
-    // 检查城市支持
+    // 城市检查在onLoad中处理，这里只检查是否已有结果
+    if (this.cityCheckReady) {
+      this.checkCity();
+    }
+  },
+
+  // 等待城市检查完成后显示提示
+  async checkCityAfterReady() {
+    const app = getApp();
+    
+    // 如果有Promise，等待检查完成
+    if (app.globalData.cityCheckPromise) {
+      await app.globalData.cityCheckPromise;
+    }
+    
+    this.cityCheckReady = true;
     this.checkCity();
   },
 
@@ -47,39 +65,71 @@ Page({
   // 获取当前位置
   async getLocation() {
     const that = this;
+    const app = getApp();
+    const { CITY_CONFIG } = app;
+    
     try {
       const res = await wx.getLocation({
         type: 'gcj02'
       });
-      that.setData({
+      
+      // 保存用户实际位置
+      app.globalData.userLocation = {
         latitude: res.latitude,
         longitude: res.longitude
-      });
+      };
+      
+      // 如果开启了多城市支持或城市已支持，使用用户位置
+      if (CITY_CONFIG.multiCityEnabled || app.globalData.isCitySupported) {
+        that.setData({
+          latitude: res.latitude,
+          longitude: res.longitude
+        });
+      } else {
+        // 使用默认位置
+        that.setData({
+          latitude: CITY_CONFIG.defaultCity.location.latitude,
+          longitude: CITY_CONFIG.defaultCity.location.longitude
+        });
+      }
     } catch (err) {
       console.error('获取位置失败', err);
-      // 使用默认位置（汕尾市）
+      // 使用默认位置
       that.setData({
-        latitude: 22.7864,
-        longitude: 115.3649
+        latitude: CITY_CONFIG.defaultCity.location.latitude,
+        longitude: CITY_CONFIG.defaultCity.location.longitude
       });
     }
   },
 
-  // 检查城市
+  // 检查城市并显示提示
   async checkCity() {
-    const that = this;
     const app = getApp();
-    // 当前仅支持汕尾市
-    const currentCity = app.globalData.currentCity;
-    if (currentCity !== '汕尾市') {
+    const { CITY_CONFIG } = app;
+    
+    // 如果开启了多城市支持，不显示提示
+    if (CITY_CONFIG.multiCityEnabled) {
+      return;
+    }
+    
+    // 如果自动切换了城市，显示提示
+    if (app.globalData.citySwitched && !this.data.cityNoticeShown) {
+      this.setData({ cityNoticeShown: true });
+      
       wx.showModal({
-        title: '温馨提示',
-        content: '目前仅在汕尾市开放，已为您切换到汕尾市',
+        title: '已为您切换城市',
+        content: `目前仅在汕尾市开放，已为您切换到${CITY_CONFIG.defaultCity.name}${CITY_CONFIG.defaultCity.district}${CITY_CONFIG.defaultCity.address}`,
         showCancel: false,
-        success(res) {
-          if (res.confirm) {
-            that.switchCity('汕尾市');
-          }
+        confirmText: '知道了',
+        success: () => {
+          // 使用默认位置
+          this.setData({
+            latitude: CITY_CONFIG.defaultCity.location.latitude,
+            longitude: CITY_CONFIG.defaultCity.location.longitude
+          });
+          // 重新加载摊位
+          this.setData({ page: 1, stalls: [], markers: [] });
+          this.loadStalls();
         }
       });
     }

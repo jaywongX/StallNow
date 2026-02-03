@@ -25,6 +25,7 @@
   </view>
 
   <!-- 用户功能 -->
+  <!-- 
   <view class="menu-section">
     <view class="section-title">我的功能</view>
     <view class="menu-list">
@@ -44,6 +45,7 @@
       </view>
     </view>
   </view>
+  -->
 
   <!-- 辅助与合规 -->
   <view class="menu-section">

@@ -1,3 +1,5 @@
+<wxs src="./vendor-apply.wxs" module="helper" />
+
 <view class="container">
   <!-- 页面标题 -->
   <view class="page-header">
@@ -36,25 +38,56 @@
         <text class="required">*</text>
       </view>
       <view class="tags-container">
-        <view 
-          wx:for="{{currentGoodsOptions}}" 
-          wx:key="*this"
-          class="tag-item {{form.goodsTags.includes(item) ? 'active' : ''}}"
-          data-tag="{{item}}"
-          bindtap="onGoodsTagSelect"
-        >
-          {{item}}
-        </view>
+<view 
+        wx:for="{{currentGoodsOptions}}" 
+        wx:key="*this"
+        class="tag-item {{helper.isGoodsTagSelected(form.goodsTags, item) ? 'active' : ''}}"
+        data-tag="{{item}}"
+        bindtap="onGoodsTagSelect"
+      >
+        {{item}}
+      </view>
       </view>
       <text class="tags-hint">已选择 {{form.goodsTags.length}}/5 个</text>
       <text wx:if="{{errors.goods}}" class="error-text">{{errors.goods}}</text>
     </view>
 
-    <!-- Step 3: 常出没区域 -->
+    <!-- Step 3: 定位位置（必选） -->
+    <view class="form-group">
+      <view class="group-header">
+        <text class="group-title">摊位定位</text>
+        <text class="required">*</text>
+      </view>
+      
+      <!-- 定位选择区域 -->
+      <view class="location-selector" bindtap="{{form.location ? 'onReselectLocation' : 'onSelectLocation'}}">
+        <view wx:if="{{!form.location}}" class="location-empty">
+          <text class="location-icon">📍</text>
+          <text class="location-text">点击选择摊位位置</text>
+          <text class="location-hint">在地图上标记您的摊位位置</text>
+        </view>
+        
+        <view wx:if="{{form.location}}" class="location-selected">
+          <view class="location-header">
+            <text class="location-name">{{form.location.name || '已选择位置'}}</text>
+            <text class="location-change">重新选择</text>
+          </view>
+          <text class="location-address">{{form.location.address}}</text>
+          <view class="location-coords">
+            <text>纬度: {{form.location.latitude.toFixed(4)}}  经度: {{form.location.longitude.toFixed(4)}}</text>
+          </view>
+        </view>
+      </view>
+      
+      <text class="input-hint">点击上方区域，在地图上选择您的摊位位置</text>
+      <text wx:if="{{errors.location}}" class="error-text">{{errors.location}}</text>
+    </view>
+
+    <!-- Step 4: 常出没区域（可选） -->
     <view class="form-group">
       <view class="group-header">
         <text class="group-title">常出没区域</text>
-        <text class="required">*</text>
+        <text class="optional">（选填）</text>
       </view>
       <input 
         class="form-input"
@@ -62,8 +95,7 @@
         value="{{form.address}}"
         bindinput="onAddressInput"
       />
-      <text class="input-hint">填写大致位置即可，不需要精确地址</text>
-      <text wx:if="{{errors.address}}" class="error-text">{{errors.address}}</text>
+      <text class="input-hint">填写常出没的大致区域，帮助用户更容易找到你</text>
     </view>
 
     <!-- Step 4: 出摊时间 -->
@@ -73,16 +105,16 @@
         <text class="required">*</text>
       </view>
       <view class="schedule-grid">
-        <view 
-          wx:for="{{scheduleOptions}}" 
-          wx:key="id"
-          class="schedule-item {{form.scheduleTypes.includes(item.id) ? 'active' : ''}}"
-          data-id="{{item.id}}"
-          bindtap="onScheduleSelect"
-        >
-          <text class="schedule-icon">{{item.icon}}</text>
-          <text class="schedule-name">{{item.name}}</text>
-        </view>
+<view 
+        wx:for="{{scheduleOptions}}" 
+        wx:key="id"
+        class="schedule-item {{helper.isScheduleSelected(form.scheduleTypes, item.id) ? 'active' : ''}}"
+        data-id="{{item.id}}"
+        bindtap="onScheduleSelect"
+      >
+        <text class="schedule-icon">{{item.icon}}</text>
+        <text class="schedule-name">{{item.name}}</text>
+      </view>
       </view>
       <text wx:if="{{errors.schedule}}" class="error-text">{{errors.schedule}}</text>
     </view>
