@@ -1,0 +1,242 @@
+<!-- 标签栏 -->
+<view class="tab-bar">
+  <view
+    class="tab-item {{activeTab === 'applications' ? 'active' : ''}}"
+    data-tab="applications"
+    bindtap="onTabChange"
+  >
+    入驻申请
+  </view>
+  <view
+    class="tab-item {{activeTab === 'stalls' ? 'active' : ''}}"
+    data-tab="stalls"
+    bindtap="onTabChange"
+  >
+    地摊管理
+  </view>
+  <view
+    class="tab-item {{activeTab === 'feedbacks' ? 'active' : ''}}"
+    data-tab="feedbacks"
+    bindtap="onTabChange"
+  >
+    反馈管理
+  </view>
+  <view
+    class="tab-item {{activeTab === 'compliance' ? 'active' : ''}}"
+    data-tab="compliance"
+    bindtap="onTabChange"
+  >
+    合规
+  </view>
+</view>
+
+<!-- 状态筛选 -->
+<view class="status-filter" wx:if="{{activeTab !== 'applications'}}">
+  <view
+    class="filter-item {{statusFilter === 0 ? 'active' : ''}}"
+    data-status="0"
+    bindtap="onStatusFilter"
+  >
+    {{activeTab === 'stalls' ? '已上架' : '待处理'}}
+  </view>
+  <view
+    class="filter-item {{statusFilter === 1 ? 'active' : ''}}"
+    data-status="1"
+    bindtap="onStatusFilter"
+  >
+    {{activeTab === 'stalls' ? '已下架' : '已标记'}}
+  </view>
+  <view
+    class="filter-item {{statusFilter === 2 ? 'active' : ''}}"
+    data-status="2"
+    bindtap="onStatusFilter"
+    wx:if="{{activeTab === 'stalls' || activeTab === 'feedbacks'}}"
+  >
+    {{activeTab === 'stalls' ? '已下线' : '已处理'}}
+  </view>
+</view>
+
+<!-- 入驻申请列表 -->
+<view class="content-container" wx:if="{{activeTab === 'applications'}}">
+  <view class="card" wx:for="{{applications}}" wx:key="_id">
+    <view class="card-header">
+      <text class="title">{{item.stallData.vendorName || '未命名'}}</text>
+      <text class="status status-pending">待审核</text>
+    </view>
+    <view class="card-body">
+      <view class="row">
+        <text class="label">商品类型：</text>
+        <text class="value">{{item.stallData.categoryName || '-'}}</text>
+      </view>
+      <view class="row">
+        <text class="label">出摊位置：</text>
+        <text class="value">{{item.stallData.address || '-'}}</text>
+      </view>
+      <view class="row">
+        <text class="label">提交时间：</text>
+        <text class="value">{{item.submitTime}}</text>
+      </view>
+    </view>
+    <view class="card-footer">
+      <view
+        class="btn btn-danger"
+        data-id="{{item._id}}"
+        data-action="reject"
+        bindtap="onAuditApplication"
+      >
+        拒绝
+      </view>
+      <view
+        class="btn btn-primary"
+        data-id="{{item._id}}"
+        data-action="approve"
+        bindtap="onAuditApplication"
+      >
+        通过
+      </view>
+    </view>
+  </view>
+
+  <!-- 空状态 -->
+  <view class="empty" wx:if="{{applications.length === 0 && !loading}}">
+    <image src="/images/empty.png" mode="aspectFit" />
+    <text>暂无入驻申请</text>
+  </view>
+</view>
+
+<!-- 地摊管理列表 -->
+<view class="content-container" wx:if="{{activeTab === 'stalls'}}">
+  <view class="card" wx:for="{{stalls}}" wx:key="_id">
+    <view class="card-header">
+      <text class="title">{{item.displayName}}</text>
+      <text class="status">{{item.status === 1 ? '已上架' : item.status === 2 ? '已下架' : '已下线'}}</text>
+    </view>
+    <view class="card-body">
+      <view class="row">
+        <text class="label">出摊位置：</text>
+        <text class="value">{{item.address}}</text>
+      </view>
+      <view class="row">
+        <text class="label">最后确认：</text>
+        <text class="value">{{item.lastConfirmedAt || '-'}}</text>
+      </view>
+    </view>
+    <view class="card-footer">
+      <view
+        class="btn btn-secondary"
+        data-id="{{item._id}}"
+        data-action="confirm"
+        bindtap="onStallAction"
+      >
+        确认
+      </view>
+      <view
+        class="btn"
+        data-id="{{item._id}}"
+        data-action="{{item.status === 1 ? 'offline' : 'online'}}"
+        bindtap="onStallAction"
+      >
+        {{item.status === 1 ? '下架' : '上架'}}
+      </view>
+    </view>
+  </view>
+
+  <!-- 空状态 -->
+  <view class="empty" wx:if="{{stalls.length === 0 && !loading}}">
+    <image src="/images/empty.png" mode="aspectFit" />
+    <text>暂无地摊信息</text>
+  </view>
+</view>
+
+<!-- 反馈管理列表 -->
+<view class="content-container" wx:if="{{activeTab === 'feedbacks'}}">
+  <view class="card" wx:for="{{feedbacks}}" wx:key="_id">
+    <view class="card-header">
+      <text class="title">{{item.type === 'wrong_location' ? '位置不对' : item.type === 'wrong_info' ? '商品变化' : '已不存在'}}</text>
+      <text class="status">{{item.status === 0 ? '待处理' : item.status === 1 ? '已标记' : '已处理'}}</text>
+    </view>
+    <view class="card-body">
+      <view class="row">
+        <text class="label">反馈时间：</text>
+        <text class="value">{{item.createTime}}</text>
+      </view>
+      <view class="row" wx:if="{{item.processedAt}}">
+        <text class="label">处理时间：</text>
+        <text class="value">{{item.processedAt}}</text>
+      </view>
+    </view>
+    <view class="card-footer">
+      <view
+        class="btn btn-secondary"
+        data-id="{{item._id}}"
+        data-action="mark"
+        bindtap="onHandleFeedback"
+        wx:if="{{item.status === 0}}"
+      >
+        标记
+      </view>
+      <view
+        class="btn btn-primary"
+        data-id="{{item._id}}"
+        data-action="process"
+        bindtap="onHandleFeedback"
+        wx:if="{{item.status === 0 || item.status === 1}}"
+      >
+        处理
+      </view>
+    </view>
+  </view>
+
+  <!-- 空状态 -->
+  <view class="empty" wx:if="{{feedbacks.length === 0 && !loading}}">
+    <image src="/images/empty.png" mode="aspectFit" />
+    <text>暂无反馈信息</text>
+  </view>
+</view>
+
+<!-- 合规页面入口 -->
+<view class="content-container" wx:if="{{activeTab === 'compliance'}}">
+  <view class="compliance-menu">
+    <view class="menu-item" bindtap="onNavigate" data-url="/pages/about/about">
+      <view class="menu-icon">📖</view>
+      <view class="menu-content">
+        <text class="menu-title">关于我们</text>
+        <text class="menu-desc">产品介绍和免责声明</text>
+      </view>
+      <text class="menu-arrow">›</text>
+    </view>
+
+    <view class="menu-item" bindtap="onNavigate" data-url="/pages/privacy/privacy">
+      <view class="menu-icon">🔒</view>
+      <view class="menu-content">
+        <text class="menu-title">隐私政策</text>
+        <text class="menu-desc">数据收集和使用说明</text>
+      </view>
+      <text class="menu-arrow">›</text>
+    </view>
+
+    <view class="menu-item" bindtap="onNavigate" data-url="/pages/feedback/feedback">
+      <view class="menu-icon">💬</view>
+      <view class="menu-content">
+        <text class="menu-title">用户反馈说明</text>
+        <text class="menu-desc">反馈处理机制说明</text>
+      </view>
+      <text class="menu-arrow">›</text>
+    </view>
+
+    <view class="menu-item" bindtap="onNavigate" data-url="/pages/contact/contact">
+      <view class="menu-icon">📞</view>
+      <view class="menu-content">
+        <text class="menu-title">联系方式说明</text>
+        <text class="menu-desc">联系方式展示规则说明</text>
+      </view>
+      <text class="menu-arrow">›</text>
+    </view>
+  </view>
+</view>
+
+<!-- 加载状态 -->
+<view class="loading" wx:if="{{loading}}">
+  加载中...
+</view>
+

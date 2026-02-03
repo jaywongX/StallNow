@@ -1,0 +1,6 @@
+{
+  "usingComponents": {
+    "reliability-badge": "../../components/reliability-badge/reliability-badge"
+  },
+  "navigationBarTitleText": "地摊详情"
+}

@@ -1,0 +1,57 @@
+<!-- 搜索栏 -->
+<view class="search-bar">
+  <view class="search-input">
+    <text class="icon">🔍</text>
+    <input
+      placeholder="搜索地摊或商品"
+      value="{{keyword}}"
+      bindinput="onSearch"
+      bindconfirm="onSearch"
+    />
+  </view>
+</view>
+
+<!-- 筛选栏 -->
+<view class="filter-bar">
+  <category-filter
+    categories="{{categories}}"
+    selected-id="{{selectedCategory}}"
+    bindselect="onCategorySelect"
+  />
+  <time-filter
+    selected-type="{{selectedTime}}"
+    bindselect="onTimeSelect"
+  />
+</view>
+
+<!-- 地摊列表 -->
+<scroll-view
+  class="list-container"
+  scroll-y
+  bindscrolltolower="onReachBottom"
+  enable-back-to-top
+>
+  <stall-card
+    wx:for="{{stalls}}"
+    wx:key="_id"
+    stall="{{item}}"
+    show-reliability="{{true}}"
+    bindtap="onStallTap"
+  />
+
+  <!-- 加载状态 -->
+  <view class="loading-more" wx:if="{{loading}}">
+    加载中...
+  </view>
+
+  <!-- 没有更多 -->
+  <view class="no-more" wx:if="{{!hasMore && stalls.length > 0}}">
+    没有更多了
+  </view>
+
+  <!-- 空状态 -->
+  <view class="empty" wx:if="{{stalls.length === 0 && !loading}}">
+    <image src="/images/empty.png" mode="aspectFit" />
+    <text>暂无地摊信息</text>
+  </view>
+</scroll-view>

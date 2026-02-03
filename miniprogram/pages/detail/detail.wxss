@@ -1,0 +1,381 @@
+/* 加载中 */
+.loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  color: #999;
+}
+
+/* 图片轮播 */
+.image-swiper {
+  width: 100%;
+  height: 500rpx;
+  background-color: #F5F5F5;
+}
+
+.swiper-image {
+  width: 100%;
+  height: 100%;
+}
+
+/* 无图片 */
+.no-image {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 500rpx;
+  background-color: #F5F5F5;
+  color: #999;
+}
+
+/* 信息区 */
+.info-section {
+  background-color: #FFF;
+  padding: 30rpx;
+  margin-bottom: 20rpx;
+}
+
+.display-name {
+  font-size: 36rpx;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 12rpx;
+}
+
+.vendor-name {
+  font-size: 28rpx;
+  color: #666;
+  margin-bottom: 20rpx;
+}
+
+.info-row {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20rpx;
+  font-size: 28rpx;
+  color: #666;
+}
+
+.info-row .icon {
+  font-size: 32rpx;
+  margin-right: 12rpx;
+}
+
+.info-row .text {
+  flex: 1;
+}
+
+.info-row .note {
+  color: #999;
+  margin-left: 20rpx;
+  font-size: 24rpx;
+}
+
+.navigate-btn {
+  margin-top: 20rpx;
+  background-color: #FFF3E0;
+  color: #FF6B35;
+  text-align: center;
+  padding: 24rpx;
+  border-radius: 8rpx;
+  font-size: 30rpx;
+  font-weight: bold;
+}
+
+/* 联系方式区 */
+.contact-section {
+  background-color: #FFF;
+  padding: 30rpx;
+  margin-bottom: 20rpx;
+}
+
+.section-title {
+  font-size: 30rpx;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 20rpx;
+}
+
+.contact-default {
+  text-align: center;
+  padding: 40rpx 0;
+}
+
+.contact-default .icon {
+  display: block;
+  font-size: 64rpx;
+  margin-bottom: 16rpx;
+}
+
+.contact-default .text {
+  display: block;
+  color: #666;
+  margin-bottom: 30rpx;
+}
+
+.show-contact-btn {
+  display: inline-block;
+  background-color: #FF6B35;
+  color: #FFF;
+  padding: 16rpx 48rpx;
+  border-radius: 8rpx;
+  font-size: 28rpx;
+}
+
+.contact-info .contact-item {
+  display: flex;
+  flex-wrap: wrap;
+  padding: 20rpx 0;
+  border-bottom: 1rpx solid #F0F0F0;
+}
+
+.contact-item:last-child {
+  border-bottom: none;
+}
+
+.contact-item .label {
+  display: block;
+  width: 100%;
+  font-size: 28rpx;
+  color: #333;
+  margin-bottom: 12rpx;
+}
+
+.contact-item .desc {
+  display: block;
+  width: 100%;
+  font-size: 24rpx;
+  color: #999;
+  margin-bottom: 16rpx;
+}
+
+.contact-item .value {
+  flex: 1;
+  font-size: 28rpx;
+  color: #666;
+}
+
+.contact-item .copy-btn {
+  padding: 8rpx 16rpx;
+  background-color: #F5F5F5;
+  border-radius: 6rpx;
+  font-size: 24rpx;
+  color: #666;
+}
+
+.qr-code {
+  width: 400rpx;
+  height: 400rpx;
+  display: block;
+  margin: 20rpx auto;
+}
+
+.no-contact {
+  display: flex;
+  align-items: center;
+  padding: 20rpx;
+  background-color: #F9F9F9;
+  border-radius: 8rpx;
+}
+
+.no-contact .icon {
+  font-size: 40rpx;
+  margin-right: 16rpx;
+}
+
+.no-contact .text {
+  flex: 1;
+  color: #666;
+  font-size: 26rpx;
+}
+
+/* 摊主操作区 */
+.owner-section {
+  background-color: #FFF;
+  padding: 30rpx;
+  margin-bottom: 20rpx;
+}
+
+.owner-btn {
+  background-color: #FFF3E0;
+  color: #FF6B35;
+  text-align: center;
+  padding: 24rpx;
+  border-radius: 8rpx;
+  font-size: 30rpx;
+  margin-bottom: 16rpx;
+}
+
+.owner-btn.danger {
+  background-color: #FFEBEE;
+  color: #F44336;
+}
+
+/* 反馈区 */
+.feedback-section {
+  background-color: #FFF;
+  padding: 30rpx;
+  margin-bottom: 20rpx;
+}
+
+.feedback-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.feedback-header .text {
+  flex: 1;
+  font-size: 26rpx;
+  color: #999;
+}
+
+.feedback-btn {
+  padding: 12rpx 24rpx;
+  background-color: #F5F5F5;
+  border-radius: 6rpx;
+  font-size: 24rpx;
+  color: #666;
+}
+
+.feedback-options {
+  margin-top: 20rpx;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16rpx;
+}
+
+.feedback-option {
+  padding: 24rpx;
+  background-color: #F5F5F5;
+  border-radius: 8rpx;
+  text-align: center;
+  font-size: 28rpx;
+  color: #333;
+}
+
+.feedback-option.cancel {
+  grid-column: 1 / -1;
+  background-color: #FFF;
+  color: #999;
+}
+
+/* 现场提示 */
+.tips-section {
+  background-color: #FFF9E6;
+  padding: 24rpx;
+  margin-bottom: 20rpx;
+  display: flex;
+  align-items: center;
+}
+
+.tips-icon {
+  font-size: 32rpx;
+  margin-right: 12rpx;
+}
+
+.tips-text {
+  flex: 1;
+  font-size: 26rpx;
+  color: #FF9800;
+  font-weight: bold;
+}
+
+/* 合规声明 */
+.disclaimer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-color: #FFF;
+  padding: 20rpx;
+  text-align: center;
+  font-size: 24rpx;
+  color: #999;
+  border-top: 1rpx solid #F0F0F0;
+}
+
+/* 弹窗 */
+.modal-mask {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40rpx;
+}
+
+.modal-content {
+  background-color: #FFF;
+  border-radius: 16rpx;
+  width: 100%;
+  max-width: 600rpx;
+  overflow: hidden;
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 30rpx;
+  border-bottom: 1rpx solid #F0F0F0;
+}
+
+.modal-header .title {
+  font-size: 32rpx;
+  font-weight: bold;
+}
+
+.modal-header .close {
+  font-size: 40rpx;
+  color: #999;
+}
+
+.modal-body {
+  padding: 30rpx;
+}
+
+.modal-body .text {
+  display: block;
+  font-size: 28rpx;
+  color: #333;
+  margin-bottom: 16rpx;
+  line-height: 1.6;
+}
+
+.modal-footer {
+  display: flex;
+  border-top: 1rpx solid #F0F0F0;
+}
+
+.modal-footer .btn {
+  flex: 1;
+  padding: 30rpx;
+  text-align: center;
+  font-size: 28rpx;
+  border-right: 1rpx solid #F0F0F0;
+}
+
+.modal-footer .btn:last-child {
+  border-right: none;
+}
+
+.modal-footer .btn.cancel {
+  color: #666;
+}
+
+.modal-footer .btn.confirm {
+  color: #FF6B35;
+  font-weight: bold;
+}
+
+.contact-modal .modal-body {
+  background-color: #FFF9E6;
+  padding: 40rpx 30rpx;
+}

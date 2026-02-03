@@ -1,0 +1,36 @@
+<view class="stall-card" bindtap="onTap">
+  <!-- 图片 -->
+  <image
+    class="stall-image"
+    src="{{stall.images && stall.images.length > 0 ? stall.images[0] : '/images/default-stall.png'}}"
+    mode="aspectFill"
+  />
+
+  <!-- 信息区 -->
+  <view class="stall-info">
+    <!-- 展示名 -->
+    <view class="stall-name">{{stall.displayName}}</view>
+
+    <!-- 商家名称（可选） -->
+    <view class="vendor-name" wx:if="{{stall.vendorName}}">{{stall.vendorName}}</view>
+
+    <!-- 分类标签 -->
+    <view class="tags">
+      <text class="tag tag-primary">{{stall.categoryName || '其他'}}</text>
+      <text class="tag tag-secondary" wx:if="{{showReliability}}">{{getReliabilityInfo().icon}} {{getReliabilityInfo().text}}</text>
+    </view>
+
+    <!-- 位置信息 -->
+    <view class="location">
+      <text class="icon">📍</text>
+      <text class="text">{{stall.address}}</text>
+    </view>
+
+    <!-- 出摊时间 -->
+    <view class="schedule">
+      <text class="icon">🕐</text>
+      <text class="text">{{stall.schedule.timeRange || '时间待定'}}</text>
+      <text class="note" wx:if="{{stall.schedule.note}}">{{stall.schedule.note}}</text>
+    </view>
+  </view>
+</view>

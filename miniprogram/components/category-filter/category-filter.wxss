@@ -1,0 +1,26 @@
+.category-filter {
+  white-space: nowrap;
+  padding: 20rpx 0;
+  background-color: #FFF;
+}
+
+.category-item {
+  display: inline-flex;
+  align-items: center;
+  padding: 12rpx 32rpx;
+  margin-right: 16rpx;
+  border-radius: 32rpx;
+  font-size: 28rpx;
+  background-color: #F5F5F5;
+  color: #666;
+  flex-shrink: 0;
+}
+
+.category-item.active {
+  background-color: #FF6B35;
+  color: #FFF;
+}
+
+.category-item text {
+  margin-right: 6rpx;
+}

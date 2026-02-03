@@ -1,0 +1,32 @@
+.reliability-badge {
+  display: inline-flex;
+  flex-direction: column;
+  font-size: 24rpx;
+}
+
+.badge-header {
+  display: flex;
+  align-items: center;
+}
+
+.icon {
+  font-size: 32rpx;
+  margin-right: 8rpx;
+}
+
+.text {
+  font-weight: bold;
+  margin-right: 8rpx;
+}
+
+.arrow {
+  font-size: 20rpx;
+  color: #999;
+}
+
+.badge-desc {
+  font-size: 22rpx;
+  color: #666;
+  margin-top: 6rpx;
+  padding-left: 40rpx;
+}

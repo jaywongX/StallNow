@@ -1,0 +1,10 @@
+<view class="reliability-badge" style="color: {{getConfig().color}}">
+  <view class="badge-header" bindtap="onToggle">
+    <text class="icon">{{getConfig().icon}}</text>
+    <text class="text">{{getConfig().text}}</text>
+    <text class="arrow">{{expanded ? '▼' : '▶'}}</text>
+  </view>
+  <view class="badge-desc" wx:if="{{expanded}}">
+    {{getConfig().desc}}
+  </view>
+</view>

@@ -1,0 +1,11 @@
+{
+  "name": "stallnow",
+  "version": "1.0.0",
+  "description": "摆地摊了么",
+  "main": "miniprogram/app.js",
+  "scripts": {
+    "dev": "echo '使用微信开发者工具打开项目'"
+  },
+  "dependencies": {},
+  "devDependencies": {}
+}

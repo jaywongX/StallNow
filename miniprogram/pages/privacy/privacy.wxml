@@ -1,0 +1,5 @@
+<view class="privacy-container">
+  <view class="privacy-content">
+    <text class="content-text">{{content}}</text>
+  </view>
+</view>

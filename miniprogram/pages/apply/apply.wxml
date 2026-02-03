@@ -1,0 +1,167 @@
+<!-- 步骤指示器 -->
+<view class="step-indicator">
+  <view
+    class="step-item {{step >= 1 ? 'active' : ''}}"
+    wx:for="{{[1,2,3,4,5,6]}}"
+    wx:key="*this"
+  >
+    <view class="step-number">{{item}}</view>
+    <view class="step-line" wx:if="{{item < 6}}"></view>
+  </view>
+</view>
+
+<!-- 步骤1：商品类型 -->
+<view class="step-content" wx:if="{{step === 1}}">
+  <view class="step-title">你卖什么？</view>
+  <view class="step-desc">选择你的商品类型</view>
+
+  <picker
+    mode="selector"
+    range="{{categories}}"
+    range-key="name"
+    bindchange="onCategoryChange"
+  >
+    <view class="picker-btn">
+      {{categoryName || '请选择商品类型'}}
+    </view>
+  </picker>
+</view>
+
+<!-- 步骤2：外观特征 -->
+<view class="step-content" wx:if="{{step === 2}}">
+  <view class="step-title">大家怎么认出你？</view>
+  <view class="step-desc">一句话描述你的外观特征</view>
+
+  <input
+    class="form-input"
+    placeholder="例如：红色棚子、白色小推车、戴帽子的阿姨"
+    value="{{landmark}}"
+    bindinput="onLandmarkInput"
+  />
+  <view class="tip">📌 这是比店名重要10倍的信息</view>
+</view>
+
+<!-- 步骤3：出摊位置 -->
+<view class="step-content" wx:if="{{step === 3}}">
+  <view class="step-title">你一般在哪里？</view>
+  <view class="step-desc">选择你的出摊位置</view>
+
+  <view class="location-selector" bindtap="onChooseLocation">
+    <text class="icon">📍</text>
+    <text class="text">{{address || '选择位置'}}</text>
+  </view>
+
+  <input
+    class="form-input"
+    placeholder="补充描述（可选），例如：靠近入口"
+    value="{{addressDetail}}"
+    bindinput="onAddressDetailInput"
+  />
+  <view class="tip">📌 不要地图精确点，做"找得到"不是"打卡"</view>
+</view>
+
+<!-- 步骤4：出摊时间 -->
+<view class="step-content" wx:if="{{step === 4}}">
+  <view class="step-title">一般什么时候能找到你？</view>
+  <view class="step-desc">选择你的出摊时间</view>
+
+  <view class="time-types">
+    <view
+      class="time-type-item {{schedule.type === item.value ? 'active' : ''}}"
+      wx:for="{{timeTypes}}"
+      wx:key="value"
+      data-type="{{item.value}}"
+      bindtap="onTimeTypeChange"
+    >
+      {{item.label}}
+    </view>
+  </view>
+
+  <input
+    class="form-input"
+    placeholder="一般什么时间出摊（例如：18:00后）"
+    value="{{schedule.timeRange}}"
+    bindinput="onTimeRangeInput"
+  />
+
+  <input
+    class="form-input"
+    placeholder="备注（可选），例如：天气好才出摊"
+    value="{{schedule.note}}"
+    bindinput="onTimeNoteInput"
+  />
+</view>
+
+<!-- 步骤5：联系方式 -->
+<view class="step-content" wx:if="{{step === 5}}">
+  <view class="step-title">你愿意被联系吗？</view>
+  <view class="step-desc">联系方式是可选的，是否展示由你决定</view>
+
+  <view class="switch-row">
+    <text class="label">启用联系方式</text>
+    <switch
+      checked="{{contact.hasContact}}"
+      bindchange="onContactSwitch"
+    />
+  </view>
+
+  <view class="contact-form" wx:if="{{contact.hasContact}}">
+    <input
+      class="form-input"
+      type="number"
+      placeholder="电话（可选）"
+      value="{{contact.phone}}"
+      bindinput="onPhoneInput"
+    />
+
+    <view class="upload-btn" bindtap="onUploadQRCode">
+      <text class="icon">📷</text>
+      <text class="text">{{contact.wechatQR ? '更换微信二维码' : '上传微信二维码'}}</text>
+    </view>
+    <image
+      class="qr-preview"
+      src="{{contact.wechatQR}}"
+      mode="aspectFit"
+      wx:if="{{contact.wechatQR}}"
+    />
+  </view>
+
+  <view class="tip">仅用于用户自行联系，是否展示由你决定</view>
+</view>
+
+<!-- 步骤6：商家名称（可选） -->
+<view class="step-content" wx:if="{{step === 6}}">
+  <view class="step-title">想给自己起个名字吗？</view>
+  <view class="step-desc">可选，不填的话系统会自动生成一个名字</view>
+
+  <input
+    class="form-input"
+    placeholder="例如：老王烧烤、广场手工摊"
+    value="{{vendorName}}"
+    bindinput="onVendorNameInput"
+  />
+
+  <view class="note">
+    <view>• 不填的话系统会自动生成一个名字</view>
+    <view>• 填了就要唯一，不能和别人重复</view>
+    <view>• 系统生成规则：[商品类型]｜[区域]</view>
+    <view class="example">例如：「烧烤｜老街夜市」、「手工饰品｜广场附近」</view>
+  </view>
+</view>
+
+<!-- 操作按钮 -->
+<view class="action-buttons">
+  <view
+    class="btn btn-secondary"
+    bindtap="prevStep"
+    wx:if="{{step > 1}}"
+  >
+    上一步
+  </view>
+  <view
+    class="btn btn-primary"
+    bindtap="{{step < 6 ? 'nextStep' : 'onSubmit'}}"
+  >
+    {{step < 6 ? '下一步' : '提交申请'}}
+  </view>
+</view>

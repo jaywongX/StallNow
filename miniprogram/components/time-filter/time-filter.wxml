@@ -1,0 +1,18 @@
+<scroll-view scroll-x class="time-filter" enable-flex>
+  <view
+    class="time-item {{selectedType === '' ? 'active' : ''}}"
+    data-type=""
+    bindtap="onSelect"
+  >
+    全时段
+  </view>
+  <view
+    wx:for="{{timeTypes}}"
+    wx:key="type"
+    class="time-item {{selectedType === item.type ? 'active' : ''}}"
+    data-type="{{item.type}}"
+    bindtap="onSelect"
+  >
+    {{item.name}}
+  </view>
+</scroll-view>

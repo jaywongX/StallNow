@@ -1,0 +1,76 @@
+.stall-card {
+  background-color: #FFF;
+  border-radius: 12rpx;
+  overflow: hidden;
+  margin-bottom: 20rpx;
+  box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.08);
+}
+
+.stall-image {
+  width: 100%;
+  height: 300rpx;
+  display: block;
+}
+
+.stall-info {
+  padding: 24rpx;
+}
+
+.stall-name {
+  font-size: 32rpx;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 8rpx;
+}
+
+.vendor-name {
+  font-size: 26rpx;
+  color: #666;
+  margin-bottom: 16rpx;
+}
+
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  margin-bottom: 16rpx;
+}
+
+.tag {
+  display: inline-block;
+  padding: 6rpx 16rpx;
+  border-radius: 6rpx;
+  font-size: 22rpx;
+  margin-right: 12rpx;
+  margin-bottom: 8rpx;
+}
+
+.tag-primary {
+  background-color: #FFF3E0;
+  color: #FF6B35;
+}
+
+.tag-secondary {
+  background-color: #F5F5F5;
+  color: #666;
+}
+
+.location, .schedule {
+  display: flex;
+  align-items: center;
+  font-size: 26rpx;
+  color: #666;
+  margin-bottom: 12rpx;
+}
+
+.icon {
+  margin-right: 8rpx;
+}
+
+.text {
+  flex: 1;
+}
+
+.note {
+  color: #999;
+  margin-left: 12rpx;
+}

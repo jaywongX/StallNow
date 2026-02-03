@@ -1,0 +1,183 @@
+<!-- 加载中 -->
+<view class="loading" wx:if="{{loading}}">
+  <text>加载中...</text>
+</view>
+
+<!-- 详情内容 -->
+<view class="detail-container" wx:if="{{stall}}">
+  <!-- 图片轮播 -->
+  <swiper
+    class="image-swiper"
+    indicator-dots
+    autoplay
+    interval="3000"
+    duration="300"
+    wx:if="{{stall.images && stall.images.length > 0}}"
+  >
+    <swiper-item wx:for="{{stall.images}}" wx:key="*this">
+      <image
+        class="swiper-image"
+        src="{{item}}"
+        mode="aspectFill"
+        data-src="{{item}}"
+        bindtap="onPreviewImage"
+      />
+    </swiper-item>
+  </swiper>
+
+  <!-- 无图片占位 -->
+  <view class="no-image" wx:if="{{!stall.images || stall.images.length === 0}}">
+    <text>暂无图片</text>
+  </view>
+
+  <!-- 基本信息 -->
+  <view class="info-section">
+    <!-- 展示名 -->
+    <view class="display-name">{{stall.displayName}}</view>
+
+    <!-- 商家名称（可选） -->
+    <view class="vendor-name" wx:if="{{stall.vendorName}}">{{stall.vendorName}}</view>
+
+    <!-- 可信度标识 -->
+    <reliability-badge
+      reliability="{{stall.reliability}}"
+      expanded="{{false}}"
+    />
+
+    <!-- 位置信息 -->
+    <view class="info-row">
+      <text class="icon">📍</text>
+      <text class="text">{{stall.address}}</text>
+    </view>
+
+    <!-- 外观特征 -->
+    <view class="info-row" wx:if="{{stall.landmark}}">
+      <text class="icon">🏪</text>
+      <text class="text">{{stall.landmark}}</text>
+    </view>
+
+    <!-- 出摊时间 -->
+    <view class="info-row">
+      <text class="icon">🕐</text>
+      <text class="text">{{stall.schedule.timeRange || '时间待定'}}</text>
+      <text class="note" wx:if="{{stall.schedule.note}}">{{stall.schedule.note}}</text>
+    </view>
+
+    <!-- 导航按钮 -->
+    <view class="navigate-btn" bindtap="onNavigate">
+      🧭 一键导航
+    </view>
+  </view>
+
+  <!-- 联系方式区 -->
+  <view class="contact-section">
+    <view class="section-title">联系方式</view>
+
+    <!-- 默认状态 -->
+    <view class="contact-default" wx:if="{{!showContact}}">
+      <text class="icon">📍</text>
+      <text class="text">现场经营，建议到现场寻找</text>
+      <view class="show-contact-btn" bindtap="onShowContact">
+        联系摊主
+      </view>
+    </view>
+
+    <!-- 展示状态 -->
+    <view class="contact-info" wx:if="{{showContact}}">
+      <!-- 电话 -->
+      <view class="contact-item" wx:if="{{stall.contact && stall.contact.phone}}">
+        <text class="label">📞 电话</text>
+        <text class="value">{{stall.contact.phone}}</text>
+        <text
+          class="copy-btn"
+          data-text="{{stall.contact.phone}}"
+          bindtap="onCopyContact"
+        >复制</text>
+      </view>
+
+      <!-- 微信二维码 -->
+      <view class="contact-item" wx:if="{{stall.contact && stall.contact.wechatQR}}">
+        <text class="label">💬 微信</text>
+        <text class="desc">添加微信前请简单说明来意</text>
+        <image
+          class="qr-code"
+          src="{{stall.contact.wechatQR}}"
+          mode="aspectFit"
+          data-url="{{stall.contact.wechatQR}}"
+          bindtap="onPreviewQRCode"
+        />
+      </view>
+
+      <!-- 无联系方式 -->
+      <view class="no-contact" wx:if="{{!stall.contact || (!stall.contact.phone && !stall.contact.wechatQR)}}">
+        <text class="icon">ℹ️</text>
+        <text class="text">暂无线上联系方式，建议在常见时间到现场寻找</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 摊主操作区 -->
+  <view class="owner-section">
+    <view class="owner-btn" bindtap="onConfirmStall">
+      我是摊主 - 确认摊位
+    </view>
+    <view class="owner-btn danger" bindtap="onOfflineStall">
+      一键下线
+    </view>
+  </view>
+
+  <!-- 反馈区 -->
+  <view class="feedback-section">
+    <view class="feedback-header">
+      <text class="text">摊位为流动经营，信息可能变化，仅供参考</text>
+      <view class="feedback-btn" bindtap="onShowFeedback">
+        信息有变化？
+      </view>
+    </view>
+
+    <!-- 反馈选项 -->
+    <view class="feedback-options" wx:if="{{showFeedbackModal}}">
+      <view class="feedback-option" data-type="wrong_location" bindtap="onSubmitFeedback">
+        📍 位置不对
+      </view>
+      <view class="feedback-option" data-type="wrong_info" bindtap="onSubmitFeedback">
+        📦 商品变化
+      </view>
+      <view class="feedback-option" data-type="not_exist" bindtap="onSubmitFeedback">
+        ❌ 已不出摊
+      </view>
+      <view class="feedback-option cancel" bindtap="onCancelFeedback">
+        取消
+      </view>
+    </view>
+  </view>
+
+  <!-- 现场提示 -->
+  <view class="tips-section">
+    <text class="tips-icon">⚠️</text>
+    <text class="tips-text">以现场实际为准</text>
+  </view>
+
+  <!-- 合规声明 -->
+  <view class="disclaimer">
+    信息展示，不构成交易建议
+  </view>
+</view>
+
+<!-- 联系方式确认弹窗 -->
+<view class="modal-mask" wx:if="{{showContactModal}}" bindtap="onCancelContact">
+  <view class="modal-content contact-modal" catchtap>
+    <view class="modal-header">
+      <text class="title">联系提示</text>
+      <text class="close" bindtap="onCancelContact">✕</text>
+    </view>
+    <view class="modal-body">
+      <text class="text">联系方式由摊主自行提供，仅用于提前确认出摊情况。</text>
+      <text class="text">商品与实际情况以现场为准。</text>
+    </view>
+    <view class="modal-footer">
+      <view class="btn cancel" bindtap="onCancelContact">取消</view>
+      <view class="btn confirm" bindtap="onConfirmContact">继续查看</view>
+    </view>
+  </view>
+</view>

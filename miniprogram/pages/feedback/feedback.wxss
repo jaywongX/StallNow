@@ -1,0 +1,17 @@
+.feedback-container {
+  min-height: 100vh;
+  background-color: #F5F5F5;
+}
+
+.feedback-content {
+  padding: 40rpx 30rpx;
+}
+
+.content-text {
+  display: block;
+  font-size: 26rpx;
+  line-height: 1.8;
+  color: #333;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}

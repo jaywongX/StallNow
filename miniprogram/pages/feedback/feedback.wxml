@@ -1,0 +1,5 @@
+<view class="feedback-container">
+  <view class="feedback-content">
+    <text class="content-text">{{content}}</text>
+  </view>
+</view>

@@ -1,0 +1,5 @@
+<view class="contact-container">
+  <view class="contact-content">
+    <text class="content-text">{{content}}</text>
+  </view>
+</view>

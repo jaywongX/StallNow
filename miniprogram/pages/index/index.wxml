@@ -1,0 +1,97 @@
+<!-- 搜索栏 -->
+<view class="search-bar">
+  <view class="search-input">
+    <text class="icon">🔍</text>
+    <input
+      placeholder="搜索地摊或商品"
+      value="{{keyword}}"
+      bindinput="onSearch"
+      bindconfirm="onSearch"
+    />
+  </view>
+  <view class="locate-btn" bindtap="onLocate">📍</view>
+</view>
+
+<!-- 地图区域 -->
+<view class="map-container" wx:if="{{showMap}}">
+  <map
+    id="map"
+    latitude="{{latitude}}"
+    longitude="{{longitude}}"
+    markers="{{markers}}"
+    bindmarkertap="onMarkerTap"
+    show-location
+    scale="14"
+  ></map>
+
+  <!-- 地图覆盖按钮 -->
+  <view class="map-buttons">
+    <view class="btn" bindtap="onToggleView">
+      {{showList ? '🗺️ 地图' : '📋 列表'}}
+    </view>
+    <view class="btn" bindtap="onToggleFilter">
+      🔍 筛选
+    </view>
+  </view>
+</view>
+
+<!-- 列表区域 -->
+<scroll-view
+  class="list-container"
+  scroll-y
+  wx:if="{{showList}}"
+  bindscrolltolower="onReachBottom"
+  enable-back-to-top
+>
+  <stall-card
+    wx:for="{{stalls}}"
+    wx:key="_id"
+    stall="{{item}}"
+    show-reliability="{{false}}"
+    bindtap="onStallTap"
+  />
+
+  <!-- 加载状态 -->
+  <view class="loading-more" wx:if="{{loading}}">
+    加载中...
+  </view>
+
+  <!-- 没有更多 -->
+  <view class="no-more" wx:if="{{!hasMore && stalls.length > 0}}">
+    没有更多了
+  </view>
+
+  <!-- 空状态 -->
+  <view class="empty" wx:if="{{stalls.length === 0 && !loading}}">
+    <image src="/images/empty.png" mode="aspectFit" />
+    <text>暂无地摊信息</text>
+  </view>
+</scroll-view>
+
+<!-- 筛选面板 -->
+<view class="filter-panel" wx:if="{{showFilter}}">
+  <view class="filter-mask" bindtap="onToggleFilter"></view>
+  <view class="filter-content">
+    <view class="filter-header">
+      <text class="title">筛选</text>
+      <text class="close" bindtap="onToggleFilter">✕</text>
+    </view>
+
+    <view class="filter-section">
+      <text class="section-title">商品类型</text>
+      <category-filter
+        categories="{{categories}}"
+        selected-id="{{selectedCategory}}"
+        bindselect="onCategorySelect"
+      />
+    </view>
+
+    <view class="filter-section">
+      <text class="section-title">出摊时间</text>
+      <time-filter
+        selected-type="{{selectedTime}}"
+        bindselect="onTimeSelect"
+      />
+    </view>
+  </view>
+</view>
