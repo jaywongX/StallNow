@@ -1,0 +1,63 @@
+<view class="container">
+  <!-- 加载中 -->
+  <view wx:if="{{status === 'loading'}}" class="loading-state">
+    <view class="loading-icon"></view>
+    <text class="loading-text">加载中...</text>
+  </view>
+
+  <!-- 未入驻状态 -->
+  <view wx:if="{{status === 'not_vendor'}}" class="not-vendor-state">
+    <!-- 顶部宣传语 -->
+    <view class="hero-section">
+      <text class="hero-icon">🏮</text>
+      <text class="hero-title">让附近的人更容易找到你</text>
+      <text class="hero-subtitle">免费入驻，不收中介费</text>
+    </view>
+
+    <!-- 功能说明 -->
+    <view class="features-section">
+      <view class="feature-item">
+        <text class="feature-icon">📍</text>
+        <view class="feature-content">
+          <text class="feature-title">展示摆摊位置</text>
+          <text class="feature-desc">让附近的人知道你在这里</text>
+        </view>
+      </view>
+      <view class="feature-item">
+        <text class="feature-icon">⏰</text>
+        <view class="feature-content">
+          <text class="feature-title">告诉大家你什么时候来</text>
+          <text class="feature-desc">出摊时间一目了然</text>
+        </view>
+      </view>
+      <view class="feature-item">
+        <text class="feature-icon">📣</text>
+        <view class="feature-content">
+          <text class="feature-title">免费展示，不收中介费</text>
+          <text class="feature-desc">简单入驻，轻松管理</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 入驻按钮 -->
+    <view class="action-section">
+      <button class="apply-btn" bindtap="onApplyTap">
+        <text class="btn-icon">➕</text>
+        <text class="btn-text">开始入驻</text>
+      </button>
+      <text class="apply-tips">只需2分钟，填写简单信息即可</text>
+    </view>
+  </view>
+
+  <!-- 审核中状态 -->
+  <view wx:if="{{status === 'pending'}}" class="pending-state">
+    <view class="pending-icon">⏳</view>
+    <text class="pending-title">入驻申请审核中</text>
+    <text class="pending-desc">我们会在1-2个工作日内完成审核</text>
+    <text class="pending-time">申请时间：{{application.submitTime}}</text>
+    
+    <view class="pending-actions">
+      <button class="contact-btn" bindtap="onContactTap">联系客服</button>
+    </view>
+  </view>
+</view>

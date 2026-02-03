@@ -60,9 +60,30 @@ App({
         });
     },
 
+    // 获取用户信息（含角色）
+    async getUserInfo() {
+        try {
+            const { result } = await wx.cloud.callFunction({
+                name: 'getUserInfo'
+            });
+            this.globalData.userInfo = result.data;
+            this.globalData.role = result.data?.role || 'user';
+            this.globalData.isAdmin = result.data?.role === 'admin';
+            this.globalData.isVendor = result.data?.role === 'vendor';
+            return result.data;
+        } catch (err) {
+            console.error('获取用户信息失败', err);
+            return null;
+        }
+    },
+
     globalData: {
         location: null,
         currentCity: '汕尾市',
-        isCitySupported: true
+        isCitySupported: true,
+        userInfo: null,
+        role: 'user',
+        isAdmin: false,
+        isVendor: false
     }
 });

@@ -2,6 +2,10 @@
   "pages": [
     "pages/index/index",
     "pages/list/list",
+    "pages/vendor/vendor",
+    "pages/vendor-apply/vendor-apply",
+    "pages/vendor-manage/vendor-manage",
+    "pages/profile/profile",
     "pages/detail/detail",
     "pages/apply/apply",
     "pages/admin/admin",
@@ -21,18 +25,31 @@
     "color": "#666666",
     "selectedColor": "#FF6B35",
     "backgroundColor": "#FFFFFF",
+    "borderStyle": "black",
     "list": [
       {
         "pagePath": "pages/index/index",
-        "text": "地图",
+        "text": "附近",
         "iconPath": "images/map.png",
-        "selectedIconPath": "images/map-active.png"
+        "selectedIconPath": "images/map_active.png"
       },
       {
         "pagePath": "pages/list/list",
-        "text": "列表",
+        "text": "逛摊",
         "iconPath": "images/list.png",
-        "selectedIconPath": "images/list-active.png"
+        "selectedIconPath": "images/list_active.png"
+      },
+      {
+        "pagePath": "pages/vendor/vendor",
+        "text": "我是摊主",
+        "iconPath": "images/vendor.png",
+        "selectedIconPath": "images/vendor_active.png"
+      },
+      {
+        "pagePath": "pages/profile/profile",
+        "text": "我的",
+        "iconPath": "images/profile.png",
+        "selectedIconPath": "images/profile_active.png"
       }
     ]
   },

@@ -61,13 +61,42 @@
 
 ## 数据模型
 
+### 核心设计原则
+
+**人（User）和摊位（Stall）分离设计**：
+- 一个用户可以管理多个摊位
+- 身份通过 `role` 字段控制，不是通过摊位存在与否
+- 摊主申请入驻 ≠ 直接变摊主，需审核通过
+
+### users（用户表）⭐ 新增
+
+| 字段 | 类型 | 说明 |
+| --- | --- | --- |
+| _id | String | 唯一标识 |
+| openId | String | 微信 OpenID |
+| nickName | String | 微信昵称 |
+| avatarUrl | String | 头像 URL |
+| **role** | String | **身份角色：user(普通用户) / vendor(摊主) / admin(管理员)** |
+| vendorInfo | Object | 摊主额外信息 {realName, phone, applyTime, approvedTime} |
+| stallIds | Array | 绑定的摊位ID列表（一个用户可管理多个摊位） |
+| favorites | Array | 收藏的摊位ID列表 |
+| recentViews | Array | 最近浏览记录 [{stallId, viewTime}] |
+| createTime | Date | 注册时间 |
+| updateTime | Date | 更新时间 |
+
+**role 权限说明**：
+| 角色 | 权限 |
+|------|------|
+| `user` | 浏览、收藏、反馈 |
+| `vendor` | 以上 + 管理自己的摊位 |
+| `admin` | 以上 + 审核申请、管理所有摊位、进入后台 |
+
 ### stalls（地摊主表）
 
 | 字段 | 类型 | 说明 |
 | --- | --- | --- |
 | _id | String | 唯一标识 |
 | displayName | String | 展示名（系统生成：[商品类型]｜[区域]） |
-| vendorName | String | 商家名称（摊主自定义，唯一） |
 | categoryId | String | 分类ID（商品类型） |
 | landmark | String | 外观/地标特征（如"红色棚子"、"白色推车"） |
 | location | GeoPoint | 地理位置（大致范围） |
@@ -79,14 +108,12 @@
 | reliability | Number | 可信度状态：0近期确认(30天内) 1可能还在(31-90天) 2信息过期(>90天) |
 | lastConfirmedAt | Date | 最后确认时间 |
 | confirmMethod | String | 确认方式：owner_scan/visitor_view/admin_check |
-| consentStatus | Object | 采集同意状态 {hasConsent: Boolean, consentDate: Date, consentMethod: String} |
-| contact | Object | 联系方式 {hasContact: Boolean, phone: String, wechatQR: String} |
-| ownerOpenId | String | 绑定的摊主微信号（管理员录入后可授权绑定） |
-| bindStatus | Number | 绑定状态：0未绑定 1已绑定 2绑定待确认 |
+| consentStatus | Object | 采集同意状态 {hasConsent, consentDate, consentMethod} |
+| contact | Object | 联系方式 {hasContact, phone, wechatQR} |
+| **ownerUserId** | String | **绑定的摊主用户ID（关联 users._id）** |
 | createTime | Date | 创建时间 |
 | updateTime | Date | 更新时间 |
 | viewCount | Number | 访问计数（用于可信度计算） |
-
 
 ### categories（分类表）
 
@@ -97,17 +124,17 @@
 | icon | String | 图标 |
 | sort | Number | 排序 |
 
-
-### applications（入驻申请表）
+### applications（摊主申请表）⭐ 重命名
 
 | 字段 | 类型 | 说明 |
 | --- | --- | --- |
 | _id | String | 唯一标识 |
-| stallData | Object | 申请数据 |
-| status | Number | 0待审核 1通过 2拒绝 |
-| remark | String | 审核备注 |
-| submitTime | Date | 提交时间 |
-
+| **userId** | String | **申请人用户ID** |
+| stallData | Object | 申请时填写的摊位信息 |
+| status | Number | 0待审核 1已通过 2已拒绝 |
+| audit | Object | 审核信息 {adminId, result, remark, time} |
+| submitTime | Date | 申请时间 |
+| updateTime | Date | 更新时间 |
 
 ### feedbacks（反馈表）
 
@@ -126,41 +153,66 @@
 ```
 StallNow/
 ├── miniprogram/                    # 小程序前端代码
-│   ├── app.js                      # [NEW] 小程序入口
-│   ├── app.json                    # [NEW] 全局配置
-│   ├── app.wxss                    # [NEW] 全局样式
+│   ├── app.js                      # 小程序入口
+│   ├── app.json                    # 全局配置
+│   ├── app.wxss                    # 全局样式
 │   ├── pages/
-│   │   ├── index/                  # [NEW] 首页-地图发现
+│   │   ├── index/                  # 首页-地图发现 (📍 附近)
 │   │   │   ├── index.js
 │   │   │   ├── index.json
 │   │   │   ├── index.wxml
 │   │   │   └── index.wxss
-│   │   ├── list/                   # [NEW] 列表页
-│   │   ├── detail/                 # [NEW] 详情页
-│   │   ├── apply/                  # [NEW] 商贩入驻申请
-│   │   └── admin/                  # [NEW] 管理后台（简单版）
-│   ├── components/                 # [NEW] 公共组件
+│   │   ├── browse/                 # 逛摊页 (🧺 逛摊)
+│   │   │   ├── browse.js
+│   │   │   ├── browse.json
+│   │   │   ├── browse.wxml
+│   │   │   └── browse.wxss
+│   │   ├── vendor/                 # 摊主专区 (🏮 我是摊主)
+│   │   │   ├── vendor.js           # 摊主入口（3种状态）
+│   │   │   ├── vendor.json
+│   │   │   ├── vendor.wxml
+│   │   │   └── vendor.wxss
+│   │   ├── vendor-apply/           # 入驻申请表单
+│   │   │   ├── vendor-apply.js
+│   │   │   ├── vendor-apply.json
+│   │   │   ├── vendor-apply.wxml
+│   │   │   └── vendor-apply.wxss
+│   │   ├── vendor-manage/          # 摊位管理
+│   │   │   ├── vendor-manage.js
+│   │   │   ├── vendor-manage.json
+│   │   │   ├── vendor-manage.wxml
+│   │   │   └── vendor-manage.wxss
+│   │   ├── profile/                # 我的 (👤 我的)
+│   │   │   ├── profile.js
+│   │   │   ├── profile.json
+│   │   │   ├── profile.wxml
+│   │   │   └── profile.wxss
+│   │   ├── list/                   # 列表页
+│   │   ├── detail/                 # 详情页
+│   │   └── admin/                  # 管理后台（简单版）
+│   ├── components/                 # 公共组件
 │   │   ├── stall-marker/           # 地图标记组件
 │   │   ├── stall-card/             # 地摊卡片组件
 │   │   ├── category-filter/        # 分类筛选组件
 │   │   └── time-filter/            # 时间筛选组件
 │   ├── utils/
-│   │   └── api.js                  # [NEW] 云开发API封装
-│   └── images/                     # [NEW] 静态图片资源
+│   │   └── api.js                  # 云开发API封装
+│   └── images/                     # 静态图片资源
 ├── cloudfunctions/                 # 云函数
-│   ├── getStalls/                  # [NEW] 获取地摊列表（带可信度筛选+城市过滤）
-│   ├── getStallDetail/             # [NEW] 获取地摊详情（更新访问计数）
-│   ├── submitApplication/          # [NEW] 提交入驻申请
-│   ├── auditApplication/           # [NEW] 审核申请（管理员）
-│   ├── adminGetApplications/       # [NEW] 获取申请列表
-│   ├── confirmStall/               # [NEW] 摊主确认摊位（扫码确认）
-│   ├── submitFeedback/             # [NEW] 提交反馈
-│   ├── offlineStall/               # [NEW] 一键下线摊位
-│   ├── updateReliability/          # [NEW] 更新可信度状态（定时触发）
-│   ├── bindStallOwner/             # [NEW] 绑定摊主微信号
-│   ├── unbindStallOwner/           # [NEW] 解绑摊主微信号
-│   └── checkCitySupport/           # [NEW] 检查城市是否支持
-└── project.config.json             # [NEW] 项目配置
+│   ├── getStalls/                  # 获取地摊列表（带可信度筛选+城市过滤）
+│   ├── getStallDetail/             # 获取地摊详情（更新访问计数）
+│   ├── submitApplication/          # 提交入驻申请
+│   ├── auditApplication/           # 审核申请（管理员）
+│   ├── adminGetApplications/       # 获取申请列表
+│   ├── confirmStall/               # 摊主确认摊位（扫码确认）
+│   ├── submitFeedback/             # 提交反馈
+│   ├── offlineStall/               # 一键下线摊位
+│   ├── updateReliability/          # 更新可信度状态（定时触发）
+│   ├── bindStallOwner/             # 绑定摊主微信号
+│   ├── unbindStallOwner/           # 解绑摊主微信号
+│   ├── checkCitySupport/           # 检查城市是否支持
+│   └── checkVendorStatus/          # 检查摊主入驻状态
+└── project.config.json             # 项目配置
 ```
 
 ## 设计风格
@@ -169,15 +221,134 @@ StallNow/
 
 ## 页面规划
 
-### 首页（地图发现）
+### 底部 Tab 结构（4个主入口）
 
-- **顶部搜索栏**：支持按地摊名称、商品关键词搜索
-- **地图区域**：占据主要屏幕，展示地摊标记点（markers）
-- **底部筛选栏**：商品分类快捷筛选、出摊时段筛选
-- **定位按钮**：快速定位到用户当前位置
-- **地摊列表入口**：展开显示附近地摊列表
+```
+📍 附近   |   🧺 逛摊   |   🏮 我是摊主   |   👤 我的
+```
 
-### 列表页
+**设计原则**：
+- 前两个 Tab 给普通用户用
+- 后两个 Tab 给"愿意参与的人"用
+- 不打扰、不强推，但一直可见
+- 摊主入口永远免费、永远可见
+
+---
+
+### ① 📍 附近（地图发现）
+
+**核心目标**：我附近现在有什么摊
+
+**内容结构**（从上到下）：
+1. **搜索框**：支持按地摊名称、商品关键词搜索
+2. **场景提示文案**：📍 你附近正在摆摊的
+3. **时间快捷筛选**：今天 / 晚上 / 周末
+4. **摊位列表 / 空状态**：附近地摊卡片列表
+
+**设计要点**：
+- 纯用户区，不加任何商贩相关入口
+- 地图区域占据主要屏幕，展示地摊标记点
+- 底部筛选栏：商品分类快捷筛选、出摊时段筛选
+- 定位按钮：快速定位到用户当前位置
+
+---
+
+### ② 🧺 逛摊（分类浏览）
+
+**核心目标**：随便看看，有没有想吃/想逛的
+
+**内容结构**：
+1. **分类导航**：吃的 / 手作 / 本地
+2. **推荐摊位**：随机 / 最近活跃
+3. **轻提示**：「最近有人来过」之类的温馨文案
+
+**设计要点**：
+- 不依赖定位的兜底页
+- 适合空数据时期撑场面
+- 横向分类标签 + 瀑布流卡片列表
+
+---
+
+### ③ 🏮 我是摊主（摊主专区）
+
+> **设计原则**：不让摊主觉得麻烦
+
+这是关键增长点，会产生潜意识效果："这个小程序是欢迎摊主的"
+
+#### 状态一：未入驻摊主（首次进入）
+
+**页面结构**（非常克制）：
+
+**顶部：一句话打动人**
+> 🏮 让附近的人更容易找到你
+
+**中间：3个点说明**
+- 📍 展示摆摊位置
+- ⏰ 告诉大家你什么时候来
+- 📣 免费展示，不收中介费
+
+**底部：一个主按钮**
+> ➕ 开始入驻
+
+📌 不要表单、不要协议堆叠，先点进去再说
+
+#### 状态二：填写摊位信息（极简版）
+
+**必填字段（⭐）**：
+- 摊位类型（吃的 / 手作 / 其他）
+- 常见商品（多选 / 标签）
+- 常出没区域（文字即可）
+- 摆摊时间（晚上 / 周末）
+
+**选填字段**：
+- 摊位称呼（没有就自动生成）
+- 联系方式（微信 / 电话）
+
+📌 **不要强制照片**、**不要价格**、**不要营业执照**
+
+#### 状态三：已入驻摊主（管理页）
+
+**页面标题**：🏮 我的摊位
+
+**内容结构**：
+- **摊位状态卡片**
+  - 🟢 今日可能在
+  - ⚪ 最近没摆
+- **快捷操作**
+  - 【编辑摊位信息】
+  - 【修改摆摊时间】
+  - 【暂时不摆了】（重要！给摊主下线的安全感）
+
+**设计要点**：
+- 让"不摆了"比"摆了"更好操作
+- 比强制活跃友好得多
+
+---
+
+### ④ 👤 我的（用户中心）
+
+**所有合规 / 杂项功能的收纳盒**
+
+#### 用户区
+- 微信头像 + 昵称
+- 所在城市（可切换）
+
+#### 用户功能
+- ⭐ 收藏的摊位
+- 🕘 最近看过
+
+#### 辅助 & 合规
+- 关于我们
+- 使用说明
+- 隐私政策
+- 免责声明
+- 意见反馈
+
+📌 **不要在这里放商业化内容**，审核非常友好
+
+---
+
+### 列表页（逛摊的子页面）
 
 - **筛选栏置顶**：分类标签横向滚动、时段筛选下拉
 - **地摊卡片列表**：展示缩略图、名称、分类标签、大致位置、出摊状态
@@ -243,9 +414,11 @@ StallNow/
 - **确认成功**：延长30天可信度有效期
 - **无需登录**：简单快捷，降低使用门槛
 
-### 入驻申请页（5分钟完成版）
+### 入驻申请页（摊主 Tab 内嵌）
 
 **设计理念**：不吓人、不像注册商家、不要求正规化
+
+**页面入口**：从「🏮 我是摊主」Tab 进入
 
 #### Step 1｜你卖什么？（必填）
 
@@ -294,19 +467,18 @@ StallNow/
 
 **最小字段清单**：商品类型、外观特征、大致位置、常见时间、商家名称（可选/自动生成）、联系方式（可选）、最近确认时间（系统）
 
+**当前阶段三条铁律**：
+1. 摊主入口永远免费、永远可见
+2. 管理功能够用即可，不要专业
+3. 让"不摆了"比"摆了"更好操作
+
 ### 管理后台（简易版）
 
-- **申请列表**：待审核、已通过、已拒绝状态切换
-- **审核操作**：通过/拒绝 + 备注
-- **地摊管理**：上架/下架/一键下线、编辑信息
-- **摊主绑定管理**：
-  - 管理员录入摊位后，生成绑定二维码/链接
-  - 摊主扫码确认后完成绑定
-  - 支持解绑和重新绑定
-  - 绑定后摊主可自行修改信息
+- **申请审核**：审核摊主入驻申请（通过/拒绝 + 备注）
+- **用户管理**：查看用户列表，手动设置管理员角色
+- **地摊管理**：上架/下架/一键下线、编辑违规内容、标记异常摊位
 - **反馈处理**：查看用户反馈，标记待确认/已处理
 - **可信度管理**：查看摊位可信度状态，手动确认延长有效期
-- **采集记录**：记录采集时间、同意状态（线下口头同意/拍照前告知）
 
 ## 地区限制策略
 
@@ -321,23 +493,30 @@ StallNow/
   ```
 - **手动选择**：支持用户手动选择汕尾市查看摊位（方便游客提前规划）
 
-### 摊主绑定/解绑流程
+### 用户角色流转流程
 
-**管理员录入阶段**：
-1. 管理员线下收集摊主信息
-2. 后台手动录入摊位信息
-3. 系统生成专属绑定二维码
+**普通用户 → 摊主**：
+```
+用户点击「🏮 我是摊主」→ 填写申请 → 提交到 applications
+                                          ↓
+管理员审核通过 → 用户 role 变为 "vendor" → 创建 stalls 记录
+                                          ↓
+                                    摊位 ownerUserId = user._id
+```
 
-**摊主绑定阶段**：
-1. 摊主扫码进入绑定页面
-2. 显示摊位信息确认
-3. 点击"确认绑定"完成授权
-4. 绑定后可自行修改摊位信息
+**权限检查（云函数）**：
+```javascript
+// 检查是否为管理员
+const isAdmin = user.role === 'admin';
 
-**解绑流程**：
-- 摊主可在管理页主动解绑
-- 管理员可在后台强制解绑
-- 解绑后摊位信息保留，但摊主失去编辑权限
+// 检查是否为自己的摊位
+const isOwner = stall.ownerUserId === user._id;
+
+// 管理权限
+if (isAdmin || isOwner) {
+  // 允许编辑/下线
+}
+```
 
 ## 风险控制机制
 

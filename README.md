@@ -99,9 +99,10 @@ StallNow/
 ### 3. 数据库初始化
 
 1. 在云开发控制台创建以下集合：
+   - `users`（用户表）
    - `stalls`（地摊主表）
    - `categories`（分类表）
-   - `applications`（入驻申请表）
+   - `applications`（摊主申请表）
    - `feedbacks`（反馈表）
 
 2. 创建云函数 `initDatabase`，将 `database-init.js` 的内容复制进去
@@ -155,13 +156,34 @@ StallNow/
 
 ## 数据模型
 
+### 核心设计原则
+
+**人（User）和摊位（Stall）分离**：
+- 一个用户可以管理多个摊位
+- 身份通过 `role` 字段控制：`user`(普通用户) / `vendor`(摊主) / `admin`(管理员)
+- 摊主申请入驻需审核通过后才获得 `vendor` 角色
+
+### users（用户表）⭐ 新增
+
+| 字段 | 类型 | 说明 |
+| --- | --- | --- |
+| _id | String | 唯一标识 |
+| openId | String | 微信 OpenID |
+| nickName | String | 微信昵称 |
+| avatarUrl | String | 头像 URL |
+| **role** | String | **身份角色：user / vendor / admin** |
+| vendorInfo | Object | 摊主信息 {realName, phone, applyTime, approvedTime} |
+| stallIds | Array | 绑定的摊位ID列表 |
+| favorites | Array | 收藏的摊位ID列表 |
+| createTime | Date | 注册时间 |
+| updateTime | Date | 更新时间 |
+
 ### stalls（地摊主表）
 
 | 字段 | 类型 | 说明 |
 | --- | --- | --- |
 | _id | String | 唯一标识 |
 | displayName | String | 展示名（系统生成） |
-| vendorName | String | 商家名称（摊主自定义，唯一） |
 | categoryId | String | 分类ID |
 | landmark | String | 外观/地标特征 |
 | location | GeoPoint | 地理位置 |
@@ -173,8 +195,7 @@ StallNow/
 | reliability | Number | 可信度状态：0近期确认 1可能还在 2信息过期 |
 | lastConfirmedAt | Date | 最后确认时间 |
 | contact | Object | 联系方式 |
-| ownerOpenId | String | 绑定的摊主微信号 |
-| bindStatus | Number | 绑定状态：0未绑定 1已绑定 2绑定待确认 |
+| **ownerUserId** | String | **绑定的摊主用户ID（关联 users._id）** |
 
 ### categories（分类表）
 
@@ -185,15 +206,17 @@ StallNow/
 | icon | String | 图标 |
 | sort | Number | 排序 |
 
-### applications（入驻申请表）
+### applications（摊主申请表）⭐ 重命名
 
 | 字段 | 类型 | 说明 |
 | --- | --- | --- |
 | _id | String | 唯一标识 |
+| **userId** | String | **申请人用户ID** |
 | stallData | Object | 申请数据 |
-| status | Number | 0待审核 1通过 2拒绝 |
-| remark | String | 审核备注 |
-| submitTime | Date | 提交时间 |
+| status | Number | 0待审核 1已通过 2已拒绝 |
+| audit | Object | 审核信息 {adminId, result, remark, time} |
+| submitTime | Date | 申请时间 |
+| updateTime | Date | 更新时间 |
 
 ### feedbacks（反馈表）
 

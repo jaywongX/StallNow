@@ -1,0 +1,197 @@
+/* 摊主专区入口页面样式 */
+
+.container {
+  min-height: 100vh;
+  background: linear-gradient(180deg, #FFF8F5 0%, #F5F5F5 100%);
+  padding: 40rpx 30rpx;
+  box-sizing: border-box;
+}
+
+/* 加载状态 */
+.loading-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding-top: 300rpx;
+}
+
+.loading-icon {
+  width: 60rpx;
+  height: 60rpx;
+  border: 4rpx solid #f3f3f3;
+  border-top: 4rpx solid #FF6B35;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.loading-text {
+  margin-top: 20rpx;
+  font-size: 28rpx;
+  color: #999;
+}
+
+/* 未入驻状态 */
+.not-vendor-state {
+  display: flex;
+  flex-direction: column;
+}
+
+/* 顶部宣传 */
+.hero-section {
+  text-align: center;
+  padding: 60rpx 0;
+}
+
+.hero-icon {
+  font-size: 80rpx;
+  display: block;
+  margin-bottom: 20rpx;
+}
+
+.hero-title {
+  display: block;
+  font-size: 40rpx;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 16rpx;
+}
+
+.hero-subtitle {
+  display: block;
+  font-size: 28rpx;
+  color: #FF6B35;
+}
+
+/* 功能说明 */
+.features-section {
+  background: #fff;
+  border-radius: 20rpx;
+  padding: 40rpx 30rpx;
+  margin-bottom: 40rpx;
+  box-shadow: 0 4rpx 20rpx rgba(0,0,0,0.05);
+}
+
+.feature-item {
+  display: flex;
+  align-items: flex-start;
+  padding: 24rpx 0;
+  border-bottom: 1rpx solid #f0f0f0;
+}
+
+.feature-item:last-child {
+  border-bottom: none;
+}
+
+.feature-icon {
+  font-size: 48rpx;
+  margin-right: 24rpx;
+}
+
+.feature-content {
+  flex: 1;
+}
+
+.feature-title {
+  display: block;
+  font-size: 32rpx;
+  font-weight: 500;
+  color: #333;
+  margin-bottom: 8rpx;
+}
+
+.feature-desc {
+  display: block;
+  font-size: 26rpx;
+  color: #999;
+}
+
+/* 入驻按钮 */
+.action-section {
+  margin-top: 60rpx;
+}
+
+.apply-btn {
+  background: linear-gradient(135deg, #FF6B35 0%, #FF8F50 100%);
+  color: #fff;
+  border-radius: 50rpx;
+  height: 100rpx;
+  line-height: 100rpx;
+  font-size: 34rpx;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+}
+
+.apply-btn::after {
+  border: none;
+}
+
+.btn-icon {
+  margin-right: 12rpx;
+  font-size: 36rpx;
+}
+
+.apply-tips {
+  display: block;
+  text-align: center;
+  font-size: 24rpx;
+  color: #999;
+  margin-top: 20rpx;
+}
+
+/* 审核中状态 */
+.pending-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: 200rpx;
+}
+
+.pending-icon {
+  font-size: 120rpx;
+  margin-bottom: 30rpx;
+}
+
+.pending-title {
+  font-size: 36rpx;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 16rpx;
+}
+
+.pending-desc {
+  font-size: 28rpx;
+  color: #666;
+  margin-bottom: 20rpx;
+}
+
+.pending-time {
+  font-size: 24rpx;
+  color: #999;
+  margin-bottom: 60rpx;
+}
+
+.pending-actions {
+  margin-top: 40rpx;
+}
+
+.contact-btn {
+  background: #fff;
+  color: #FF6B35;
+  border: 2rpx solid #FF6B35;
+  border-radius: 50rpx;
+  padding: 20rpx 60rpx;
+  font-size: 30rpx;
+}
+
+.contact-btn::after {
+  border: none;
+}

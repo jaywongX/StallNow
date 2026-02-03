@@ -1,0 +1,134 @@
+<view class="container">
+  <!-- 页面标题 -->
+  <view class="page-header">
+    <text class="header-title">填写摊位信息</text>
+    <text class="header-subtitle">信息越详细，越容易被人找到</text>
+  </view>
+
+  <!-- 表单 -->
+  <view class="form-section">
+    <!-- Step 1: 摊位类型 -->
+    <view class="form-group">
+      <view class="group-header">
+        <text class="group-title">你卖什么？</text>
+        <text class="required">*</text>
+      </view>
+      <view class="category-grid">
+        <view 
+          wx:for="{{categories}}" 
+          wx:key="id"
+          class="category-item {{form.categoryId === item.id ? 'active' : ''}}"
+          data-id="{{item.id}}"
+          data-name="{{item.name}}"
+          bindtap="onCategorySelect"
+        >
+          <text class="category-icon">{{item.icon}}</text>
+          <text class="category-name">{{item.name}}</text>
+        </view>
+      </view>
+      <text wx:if="{{errors.category}}" class="error-text">{{errors.category}}</text>
+    </view>
+
+    <!-- Step 2: 常见商品 -->
+    <view class="form-group" wx:if="{{form.categoryId}}">
+      <view class="group-header">
+        <text class="group-title">常见商品（多选）</text>
+        <text class="required">*</text>
+      </view>
+      <view class="tags-container">
+        <view 
+          wx:for="{{currentGoodsOptions}}" 
+          wx:key="*this"
+          class="tag-item {{form.goodsTags.includes(item) ? 'active' : ''}}"
+          data-tag="{{item}}"
+          bindtap="onGoodsTagSelect"
+        >
+          {{item}}
+        </view>
+      </view>
+      <text class="tags-hint">已选择 {{form.goodsTags.length}}/5 个</text>
+      <text wx:if="{{errors.goods}}" class="error-text">{{errors.goods}}</text>
+    </view>
+
+    <!-- Step 3: 常出没区域 -->
+    <view class="form-group">
+      <view class="group-header">
+        <text class="group-title">常出没区域</text>
+        <text class="required">*</text>
+      </view>
+      <input 
+        class="form-input"
+        placeholder="例如：老街夜市、万达广场附近"
+        value="{{form.address}}"
+        bindinput="onAddressInput"
+      />
+      <text class="input-hint">填写大致位置即可，不需要精确地址</text>
+      <text wx:if="{{errors.address}}" class="error-text">{{errors.address}}</text>
+    </view>
+
+    <!-- Step 4: 出摊时间 -->
+    <view class="form-group">
+      <view class="group-header">
+        <text class="group-title">一般什么时候出摊？</text>
+        <text class="required">*</text>
+      </view>
+      <view class="schedule-grid">
+        <view 
+          wx:for="{{scheduleOptions}}" 
+          wx:key="id"
+          class="schedule-item {{form.scheduleTypes.includes(item.id) ? 'active' : ''}}"
+          data-id="{{item.id}}"
+          bindtap="onScheduleSelect"
+        >
+          <text class="schedule-icon">{{item.icon}}</text>
+          <text class="schedule-name">{{item.name}}</text>
+        </view>
+      </view>
+      <text wx:if="{{errors.schedule}}" class="error-text">{{errors.schedule}}</text>
+    </view>
+
+    <!-- Step 5: 摊位称呼（选填） -->
+    <view class="form-group">
+      <view class="group-header">
+        <text class="group-title">摊位称呼</text>
+        <text class="optional">（选填）</text>
+      </view>
+      <input 
+        class="form-input"
+        placeholder="例如：老王烧烤、广场手工摊"
+        value="{{form.displayName}}"
+        bindinput="onNameInput"
+      />
+      <text class="input-hint">不填将由系统自动生成</text>
+    </view>
+
+    <!-- Step 6: 联系方式（选填） -->
+    <view class="form-group">
+      <view class="group-header">
+        <text class="group-title">联系方式</text>
+        <text class="optional">（选填，仅用于用户联系你）</text>
+      </view>
+      <view class="contact-inputs">
+        <input 
+          class="form-input"
+          type="number"
+          placeholder="手机号码"
+          value="{{form.phone}}"
+          bindinput="onPhoneInput"
+        />
+        <input 
+          class="form-input"
+          placeholder="微信号"
+          value="{{form.wechatId}}"
+          bindinput="onWechatInput"
+        />
+      </view>
+    </view>
+  </view>
+
+  <!-- 提交按钮 -->
+  <view class="submit-section">
+    <button class="submit-btn" bindtap="onSubmit">提交申请</button>
+    <text class="submit-tips">提交后需等待审核，审核通过后即可管理摊位</text>
+  </view>
+</view>

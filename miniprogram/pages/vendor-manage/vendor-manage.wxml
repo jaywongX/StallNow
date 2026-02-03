@@ -1,0 +1,85 @@
+<view class="container">
+  <!-- 加载中 -->
+  <view wx:if="{{loading}}" class="loading-state">
+    <view class="loading-icon"></view>
+    <text class="loading-text">加载中...</text>
+  </view>
+
+  <!-- 摊位卡片 -->
+  <view wx:if="{{!loading && stall}}" class="stall-card">
+    <view class="card-header">
+      <view class="stall-title">
+        <text class="stall-name">{{stall.displayName}}</text>
+        <text class="stall-status {{statusClass}}">{{statusText}}</text>
+      </view>
+      <text class="view-btn" bindtap="onViewDetail">查看详情 ></text>
+    </view>
+    
+    <view class="card-body">
+      <view class="info-row">
+        <text class="info-label">分类</text>
+        <text class="info-value">{{stall.categoryName || '暂无'}}</text>
+      </view>
+      <view class="info-row">
+        <text class="info-label">位置</text>
+        <text class="info-value">{{stall.address || '暂无'}}</text>
+      </view>
+      <view class="info-row">
+        <text class="info-label">出摊时间</text>
+        <text class="info-value">{{stall.schedule ? stall.schedule.type : '暂无'}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 管理功能 -->
+  <view wx:if="{{!loading && stall}}" class="manage-section">
+    <view class="section-title">摊位管理</view>
+    
+    <view class="menu-list">
+      <view class="menu-item" bindtap="onEditTap">
+        <view class="menu-left">
+          <text class="menu-icon">✏️</text>
+          <text class="menu-name">编辑摊位信息</text>
+        </view>
+        <text class="menu-arrow">></text>
+      </view>
+      
+      <view class="menu-item" bindtap="onScheduleTap">
+        <view class="menu-left">
+          <text class="menu-icon">⏰</text>
+          <text class="menu-name">修改出摊时间</text>
+        </view>
+        <text class="menu-arrow">></text>
+      </view>
+      
+      <view class="menu-item" bindtap="onShareTap">
+        <view class="menu-left">
+          <text class="menu-icon">📤</text>
+          <text class="menu-name">分享我的摊位</text>
+        </view>
+        <text class="menu-arrow">></text>
+      </view>
+      
+      <view class="menu-item offline-item" bindtap="onOfflineTap">
+        <view class="menu-left">
+          <text class="menu-icon">{{stall.status === 2 ? '▶️' : '⏸'}}</text>
+          <text class="menu-name {{stall.status === 2 ? 'online-text' : 'offline-text'}}">
+            {{stall.status === 2 ? '恢复摆摊' : '暂时不摆了'}}
+          </text>
+        </view>
+        <text class="menu-arrow">></text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 提示信息 -->
+  <view wx:if="{{!loading && stall}}" class="tips-section">
+    <text class="tips-title">💡 温馨提示</text>
+    <text class="tips-text" wx:if="{{stall.status !== 2}}">
+      如果你暂时不出摊，建议点击"暂时不摆了"，这样用户就不会白跑一趟。
+    </text>
+    <text class="tips-text" wx:if="{{stall.status === 2}}">
+      你的摊位已下线，用户暂时看不到。恢复摆摊后即可重新展示。
+    </text>
+  </view>
+</view>

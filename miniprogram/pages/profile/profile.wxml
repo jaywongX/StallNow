@@ -1,0 +1,108 @@
+<view class="container">
+  <!-- 用户信息区 -->
+  <view class="user-section">
+    <view class="user-info" bindtap="getWxUserProfile">
+      <image 
+        class="user-avatar" 
+        src="{{userInfo.avatarUrl || '/images/default-avatar.png'}}"
+        mode="aspectFill"
+      />
+      <view class="user-meta">
+        <text class="user-name">{{userInfo.nickName || '点击登录'}}</text>
+        <view class="user-badge" wx:if="{{role !== 'user'}}">
+          <text class="badge-text">{{role === 'admin' ? '管理员' : '摊主'}}</text>
+        </view>
+      </view>
+      <text class="arrow">></text>
+    </view>
+    
+    <!-- 城市选择 -->
+    <view class="city-bar" bindtap="onCityTap">
+      <text class="city-label">📍 所在城市</text>
+      <text class="city-value">{{currentCity}}</text>
+      <text class="arrow">></text>
+    </view>
+  </view>
+
+  <!-- 用户功能 -->
+  <view class="menu-section">
+    <view class="section-title">我的功能</view>
+    <view class="menu-list">
+      <view class="menu-item" bindtap="onFavoritesTap">
+        <view class="menu-left">
+          <text class="menu-icon">⭐</text>
+          <text class="menu-name">收藏的摊位</text>
+        </view>
+        <text class="menu-arrow">></text>
+      </view>
+      <view class="menu-item" bindtap="onHistoryTap">
+        <view class="menu-left">
+          <text class="menu-icon">🕘</text>
+          <text class="menu-name">最近看过</text>
+        </view>
+        <text class="menu-arrow">></text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 辅助与合规 -->
+  <view class="menu-section">
+    <view class="section-title">辅助与合规</view>
+    <view class="menu-list">
+      <view class="menu-item" bindtap="onHelpTap">
+        <view class="menu-left">
+          <text class="menu-icon">📖</text>
+          <text class="menu-name">使用说明</text>
+        </view>
+        <text class="menu-arrow">></text>
+      </view>
+      <view class="menu-item" bindtap="onAboutTap">
+        <view class="menu-left">
+          <text class="menu-icon">ℹ️</text>
+          <text class="menu-name">关于我们</text>
+        </view>
+        <text class="menu-arrow">></text>
+      </view>
+      <view class="menu-item" bindtap="onPrivacyTap">
+        <view class="menu-left">
+          <text class="menu-icon">🔒</text>
+          <text class="menu-name">隐私政策</text>
+        </view>
+        <text class="menu-arrow">></text>
+      </view>
+      <view class="menu-item" bindtap="onDisclaimerTap">
+        <view class="menu-left">
+          <text class="menu-icon">⚠️</text>
+          <text class="menu-name">免责声明</text>
+        </view>
+        <text class="menu-arrow">></text>
+      </view>
+      <view class="menu-item" bindtap="onFeedbackTap">
+        <view class="menu-left">
+          <text class="menu-icon">💬</text>
+          <text class="menu-name">意见反馈</text>
+        </view>
+        <text class="menu-arrow">></text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 管理后台（仅管理员可见） -->
+  <view class="menu-section" wx:if="{{isAdmin}}">
+    <view class="section-title">管理员</view>
+    <view class="menu-list">
+      <view class="menu-item admin-item" bindtap="onAdminTap">
+        <view class="menu-left">
+          <text class="menu-icon">⚙️</text>
+          <text class="menu-name">管理后台</text>
+        </view>
+        <text class="menu-arrow">></text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 版本信息 -->
+  <view class="version-info">
+    <text>摆地摊了么 v1.0.0</text>
+  </view>
+</view>
