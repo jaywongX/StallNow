@@ -234,7 +234,7 @@ Page({
             
             wx.hideLoading();
             
-            if (result.code === 0) {
+            if (result && result.code === 0) {
                 wx.showModal({
                     title: '提交成功',
                     content: '我们会在1-2个工作日内完成审核，请耐心等待',
@@ -245,7 +245,7 @@ Page({
                     }
                 });
             } else {
-                throw new Error(result.message);
+                throw new Error(result && result.message ? result.message : '提交失败，请稍后重试');
             }
         } catch (err) {
             wx.hideLoading();

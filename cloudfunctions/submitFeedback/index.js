@@ -17,9 +17,9 @@ exports.main = async (event, context) => {
   const { stallId, type, content, contact } = event;
 
   try {
-    // 获取用户信息
+    // 获取用户信息（使用 _openid 字段）
     const userRes = await db.collection('users').where({
-      openId: openId
+      _openid: openId
     }).get();
     
     const userId = userRes.data.length > 0 ? userRes.data[0]._id : null;

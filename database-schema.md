@@ -49,7 +49,7 @@
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
 | `_id` | String | 是 | 唯一标识，系统自动生成 |
-| `openId` | String | 是 | 微信 OpenID |
+| `_openid` | String | 是 | 微信 OpenID（云开发数据库自动注入字段）|
 | `nickName` | String | 否 | 微信昵称 |
 | `avatarUrl` | String | 否 | 头像 URL |
 | `role` | String | 是 | 身份角色：`user`(普通用户) / `vendor`(摊主) / `admin`(管理员) |
@@ -63,6 +63,8 @@
 | ~~`recentViews`~~ | ~~Array~~ | ~~否~~ | ~~最近浏览记录~~（暂不实现） |
 | `createTime` | Date | 是 | 注册时间 |
 | `updateTime` | Date | 是 | 更新时间 |
+
+> **注意**：云开发数据库会自动为每个记录注入 `_openid` 字段（当前用户的 OpenID），这是云开发的安全特性。我们显式存储 `_openid` 是为了便于查询和管理。
 
 **role 权限说明**：
 
@@ -226,8 +228,8 @@
 ### users 集合
 
 ```javascript
-// 按 openId 查询用户
-{ openId: 1 }
+// 按 _openid 查询用户（云开发自动注入字段）
+{ _openid: 1 }
 
 // 按角色查询
 { role: 1 }

@@ -22,7 +22,7 @@ App({
     // 导出城市配置供其他页面使用
     CITY_CONFIG,
 
-    onLaunch() {
+    async onLaunch() {
         // 初始化云开发环境
         if (!wx.cloud) {
             console.error('请使用 2.2.3 或以上的基础库以使用云能力');
@@ -52,6 +52,11 @@ App({
         
         // 获取用户位置
         this.getUserLocation();
+        
+        // 自动获取用户信息（静默注册）
+        // 这是关键：用户首次使用时会自动创建 users 记录
+        await this.getUserInfo();
+        console.log('用户信息初始化完成:', this.globalData.userInfo);
     },
 
     onShow() {

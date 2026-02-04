@@ -13,19 +13,15 @@ exports.main = async (event, context) => {
   const openId = wxContext.OPENID;
 
   try {
-    // 1. 获取用户信息
+    // 1. 获取用户信息（使用 _openid 字段）
     const userRes = await db.collection('users').where({
-      openId: openId
+      _openid: openId
     }).get();
 
     if (userRes.data.length === 0) {
       return {
-        code: 0,
-        data: {
-          role: 'user',
-          application: null
-        },
-        message: '用户未注册'
+        code: -1,
+        message: '用户未注册，请先访问首页完成自动注册'
       };
     }
 

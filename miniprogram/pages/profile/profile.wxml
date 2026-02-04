@@ -107,4 +107,74 @@
   <view class="version-info">
     <text>摆地摊了么 v1.0.0</text>
   </view>
+
+  <!-- 使用说明弹窗 -->
+  <view class="modal-mask" wx:if="{{showHelpModal}}" bindtap="onCloseHelpModal">
+    <view class="modal-content" catchtap>
+      <view class="modal-header">
+        <text class="modal-title">使用说明</text>
+        <text class="modal-close" bindtap="onCloseHelpModal">✕</text>
+      </view>
+      <view class="modal-body">
+        <view class="help-item">
+          <text class="help-num">1</text>
+          <view class="help-text">
+            <text class="help-title">附近</text>
+            <text class="help-desc">查看周围的地摊，在地图上浏览摊位分布</text>
+          </view>
+        </view>
+        <view class="help-item">
+          <text class="help-num">2</text>
+          <view class="help-text">
+            <text class="help-title">逛摊</text>
+            <text class="help-desc">浏览分类推荐，发现感兴趣的地摊</text>
+          </view>
+        </view>
+        <view class="help-item">
+          <text class="help-num">3</text>
+          <view class="help-text">
+            <text class="help-title">我是摊主</text>
+            <text class="help-desc">摊主可在此入驻，管理自己的摊位信息</text>
+          </view>
+        </view>
+        <view class="help-item">
+          <text class="help-num">4</text>
+          <view class="help-text">
+            <text class="help-title">意见反馈</text>
+            <text class="help-desc">有问题请在意见反馈中提交，我们会及时处理</text>
+          </view>
+        </view>
+      </view>
+      <view class="modal-footer">
+        <button class="modal-btn" bindtap="onCloseHelpModal">知道了</button>
+      </view>
+    </view>
+  </view>
+
+  <!-- 免责声明弹窗 -->
+  <view class="modal-mask" wx:if="{{showDisclaimerModal}}" bindtap="onCloseDisclaimerModal">
+    <view class="modal-content disclaimer-modal" catchtap>
+      <view class="modal-header">
+        <text class="modal-title">免责声明</text>
+        <text class="modal-close" bindtap="onCloseDisclaimerModal">✕</text>
+      </view>
+      <view class="modal-body">
+        <view class="disclaimer-section">
+          <text class="disclaimer-title">信息展示服务</text>
+          <text class="disclaimer-text">本小程序仅提供地摊信息展示服务，不对地摊商品质量、交易行为等承担任何责任。</text>
+        </view>
+        <view class="disclaimer-section">
+          <text class="disclaimer-title">风险提示</text>
+          <text class="disclaimer-text">• 摊位信息由摊主或志愿收集提供，信息可能随时变化\n• 平台不参与任何交易，交易纠纷平台不承担责任\n• 请用户自行辨别信息真伪，谨慎交易\n• 以现场实际情况为准</text>
+        </view>
+        <view class="disclaimer-section">
+          <text class="disclaimer-title">联系方式</text>
+          <text class="disclaimer-text">联系方式由摊主自行提供，平台不保证联系方式的有效性，请谨慎使用。</text>
+        </view>
+      </view>
+      <view class="modal-footer">
+        <button class="modal-btn" bindtap="onCloseDisclaimerModal">我知道了</button>
+      </view>
+    </view>
+  </view>
 </view>

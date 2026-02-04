@@ -154,3 +154,140 @@
   font-size: 24rpx;
   color: #ccc;
 }
+
+/* 使用说明弹窗 */
+.modal-mask {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background: #fff;
+  border-radius: 24rpx;
+  width: 80%;
+  max-width: 600rpx;
+  max-height: 70vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 30rpx;
+  border-bottom: 1rpx solid #f0f0f0;
+}
+
+.modal-title {
+  font-size: 36rpx;
+  font-weight: bold;
+  color: #333;
+}
+
+.modal-close {
+  font-size: 36rpx;
+  color: #999;
+  padding: 10rpx;
+}
+
+.modal-body {
+  padding: 30rpx;
+  overflow-y: auto;
+  max-height: 50vh;
+}
+
+.help-item {
+  display: flex;
+  align-items: flex-start;
+  margin-bottom: 30rpx;
+}
+
+.help-item:last-child {
+  margin-bottom: 0;
+}
+
+.help-num {
+  width: 48rpx;
+  height: 48rpx;
+  background: #FF6B35;
+  color: #fff;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28rpx;
+  font-weight: bold;
+  margin-right: 20rpx;
+  flex-shrink: 0;
+}
+
+.help-text {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.help-title {
+  font-size: 30rpx;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 8rpx;
+}
+
+.help-desc {
+  font-size: 26rpx;
+  color: #666;
+  line-height: 1.5;
+}
+
+.modal-footer {
+  padding: 20rpx 30rpx 30rpx;
+}
+
+.modal-btn {
+  background: #FF6B35;
+  color: #fff;
+  border-radius: 40rpx;
+  font-size: 30rpx;
+  height: 80rpx;
+  line-height: 80rpx;
+  border: none;
+}
+
+/* 免责声明弹窗 */
+.disclaimer-modal .modal-body {
+  padding: 20rpx 30rpx;
+}
+
+.disclaimer-section {
+  margin-bottom: 24rpx;
+}
+
+.disclaimer-section:last-child {
+  margin-bottom: 0;
+}
+
+.disclaimer-title {
+  display: block;
+  font-size: 30rpx;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 12rpx;
+}
+
+.disclaimer-text {
+  display: block;
+  font-size: 28rpx;
+  color: #666;
+  line-height: 1.6;
+  white-space: pre-wrap;
+}

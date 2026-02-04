@@ -6,24 +6,30 @@ const db = cloud.database();
 
 /**
  * 获取用户信息（含角色）
- * 如果用户不存在，自动创建用户记录
+ * 如果用户不存在，自动创建用户记录（静默注册）
+ * 
+ * 用户注册流程：
+ * 1. 用户首次使用小程序时，自动调用此云函数
+ * 2. 系统检测到用户不存在，自动创建 users 记录
+ * 3. 用户无需感知注册过程，直接以普通用户身份使用
+ * 4. 后续申请成为摊主时，使用已注册的用户ID关联
  */
 exports.main = async (event, context) => {
   const wxContext = cloud.getWXContext();
   const openId = wxContext.OPENID;
 
   try {
-    // 查询用户是否存在
+    // 查询用户是否存在（使用 _openid 字段，云开发数据库自动注入）
     let userRes = await db.collection('users').where({
-      openId: openId
+      _openid: openId
     }).get();
 
     let userInfo;
 
     if (userRes.data.length === 0) {
-      // 用户不存在，创建新用户
+      // 用户不存在，自动创建新用户（静默注册）
       const newUser = {
-        openId: openId,
+        _openid: openId,
         nickName: '',
         avatarUrl: '',
         role: 'user', // user:普通用户, vendor:摊主, admin:管理员
@@ -43,6 +49,8 @@ exports.main = async (event, context) => {
         _id: addRes._id,
         ...newUser
       };
+      
+      console.log('新用户自动注册成功:', openId);
     } else {
       userInfo = userRes.data[0];
     }

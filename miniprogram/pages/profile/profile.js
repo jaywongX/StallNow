@@ -6,7 +6,9 @@ Page({
         userInfo: {},
         role: 'user',
         isAdmin: false,
-        currentCity: '汕尾市'
+        currentCity: '汕尾市',
+        showHelpModal: false,
+        showDisclaimerModal: false
     },
 
     onLoad() {
@@ -125,19 +127,29 @@ Page({
 
     // 免责声明
     onDisclaimerTap() {
-        wx.showModal({
-            title: '免责声明',
-            content: '本小程序仅提供地摊信息展示服务，不对地摊商品质量、交易行为等承担任何责任。请用户自行辨别信息真伪，谨慎交易。',
-            showCancel: false
+        this.setData({
+            showDisclaimerModal: true
+        });
+    },
+
+    // 关闭免责声明弹窗
+    onCloseDisclaimerModal() {
+        this.setData({
+            showDisclaimerModal: false
         });
     },
 
     // 使用说明
     onHelpTap() {
-        wx.showModal({
-            title: '使用说明',
-            content: '1. 在「附近」查看周围的地摊\n2. 在「逛摊」浏览分类推荐\n3. 摊主可在「我是摊主」入驻\n4. 有问题请在「意见反馈」中提交',
-            showCancel: false
+        this.setData({
+            showHelpModal: true
+        });
+    },
+
+    // 关闭使用说明弹窗
+    onCloseHelpModal() {
+        this.setData({
+            showHelpModal: false
         });
     },
 

@@ -53,9 +53,12 @@ exports.main = async (event, context) => {
         categoryName: stallData.categoryName,
         goodsTags: stallData.goodsTags || [],
         landmark: '', // 地标特征，后续可补充
-        address: stallData.address,
+        address: stallData.address || (stallData.location ? stallData.location.address : ''),
         city: '汕尾市', // 默认城市
-        location: null, // 地理位置，后续可补充
+        location: stallData.location ? {
+          latitude: stallData.location.latitude,
+          longitude: stallData.location.longitude
+        } : null, // 使用申请时的定位位置
         schedule: {
           type: stallData.scheduleTypes ? stallData.scheduleTypes.join('/') : '不固定',
           timeRange: '',

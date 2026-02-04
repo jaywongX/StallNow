@@ -1,5 +1,33 @@
 <view class="privacy-container">
-  <view class="privacy-content">
-    <text class="content-text">{{content}}</text>
+  <!-- 页面标题 -->
+  <view class="header">
+    <text class="header-title">隐私政策</text>
+    <text class="header-date">生效日期：2026年1月1日</text>
+  </view>
+
+  <!-- 内容区域 -->
+  <view class="content">
+    <view class="section" wx:for="{{sections}}" wx:key="index">
+      <!-- 一级标题 -->
+      <view class="section-title">{{item.title}}</view>
+      
+      <!-- 普通内容 -->
+      <view wx:if="{{item.content}}" class="section-content">
+        <text class="content-text">{{item.content}}</text>
+      </view>
+      
+      <!-- 子项目 -->
+      <view wx:if="{{item.items}}" class="subsection" wx:for="{{item.items}}" wx:for-item="sub" wx:key="index">
+        <view class="subsection-title">{{sub.subtitle}}</view>
+        <view class="subsection-content">
+          <text class="content-text">{{sub.content}}</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 底部说明 -->
+    <view class="footer">
+      <text class="footer-text">最后更新时间：2026年1月1日</text>
+    </view>
   </view>
 </view>
