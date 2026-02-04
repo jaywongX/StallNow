@@ -53,7 +53,24 @@ Page({
       const result = await api.adminGetApplications({
         status: this.data.statusFilter
       });
-      this.setData({ applications: result.data || [] });
+      
+      // 为每个申请添加地图标记数据
+      const applications = (result.data || []).map(item => {
+        if (item.stallData && item.stallData.location) {
+          item.mapMarkers = [{
+            id: 1,
+            latitude: item.stallData.location.latitude,
+            longitude: item.stallData.location.longitude,
+            title: item.stallData.displayName || '摊位位置',
+            iconPath: '/images/location.png',
+            width: 30,
+            height: 30
+          }];
+        }
+        return item;
+      });
+      
+      this.setData({ applications });
     } catch (err) {
       console.error('加载申请失败', err);
     }
@@ -234,18 +251,28 @@ Page({
     }
   },
 
+  // 预览图片
+  onPreviewImage(e) {
+    const url = e.currentTarget.dataset.url;
+    wx.previewImage({
+      urls: [url]
+    });
+  },
+
+  // 预览摊位图片
+  onPreviewStallImage(e) {
+    const images = e.currentTarget.dataset.images;
+    const current = e.currentTarget.dataset.current;
+    wx.previewImage({
+      current,
+      urls: images
+    });
+  },
+
   // 下拉刷新
   onPullDownRefresh() {
     this.loadData().then(() => {
       wx.stopPullDownRefresh();
-    });
-  },
-
-  // 导航到合规页面
-  onNavigate(e) {
-    const url = e.currentTarget.dataset.url;
-    wx.navigateTo({
-      url: url
     });
   }
 });

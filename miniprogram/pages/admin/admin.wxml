@@ -21,13 +21,6 @@
   >
     反馈管理
   </view>
-  <view
-    class="tab-item {{activeTab === 'compliance' ? 'active' : ''}}"
-    data-tab="compliance"
-    bindtap="onTabChange"
-  >
-    合规
-  </view>
 </view>
 
 <!-- 状态筛选 -->
@@ -58,25 +51,111 @@
 
 <!-- 入驻申请列表 -->
 <view class="content-container" wx:if="{{activeTab === 'applications'}}">
-  <view class="card" wx:for="{{applications}}" wx:key="_id">
-    <view class="card-header">
-      <text class="title">{{item.stallData.vendorName || '未命名'}}</text>
+  <view class="application-card" wx:for="{{applications}}" wx:key="_id">
+    <!-- 申请人信息 -->
+    <view class="applicant-info">
+      <image class="avatar" src="{{item.userInfo.avatarUrl || '/images/default-avatar.png'}}" mode="aspectFill" />
+      <view class="info">
+        <text class="nickname">{{item.userInfo.nickName || '未知用户'}}</text>
+        <text class="submit-time">{{item.submitTime}}</text>
+      </view>
       <text class="status status-pending">待审核</text>
     </view>
-    <view class="card-body">
-      <view class="row">
-        <text class="label">商品类型：</text>
-        <text class="value">{{item.stallData.categoryName || '-'}}</text>
+
+    <!-- 申请详情 -->
+    <view class="application-detail">
+      <!-- 基本信息 -->
+      <view class="detail-section">
+        <view class="section-title">基本信息</view>
+        <view class="detail-row">
+          <text class="detail-label">展示名称</text>
+          <text class="detail-value">{{item.stallData.displayName || '未命名'}}</text>
+        </view>
+        <view class="detail-row">
+          <text class="detail-label">商品类型</text>
+          <text class="detail-value">{{item.stallData.categoryName || '-'}}</text>
+        </view>
+        <view class="detail-row">
+          <text class="detail-label">外观特征</text>
+          <text class="detail-value">{{item.stallData.landmark || '-'}}</text>
+        </view>
+        <view class="detail-row" wx:if="{{item.stallData.vendorName}}">
+          <text class="detail-label">商家名称</text>
+          <text class="detail-value">{{item.stallData.vendorName}}</text>
+        </view>
       </view>
-      <view class="row">
-        <text class="label">出摊位置：</text>
-        <text class="value">{{item.stallData.address || '-'}}</text>
+
+      <!-- 位置信息 -->
+      <view class="detail-section">
+        <view class="section-title">位置信息</view>
+        <view class="detail-row">
+          <text class="detail-label">出摊位置</text>
+          <text class="detail-value">{{item.stallData.address || '-'}}</text>
+        </view>
+        <!-- 地图展示 -->
+        <view class="map-container" wx:if="{{item.stallData.location}}">
+          <map
+            class="location-map"
+            latitude="{{item.stallData.location.latitude}}"
+            longitude="{{item.stallData.location.longitude}}"
+            markers="{{item.mapMarkers}}"
+            show-location="{{false}}"
+            enable-zoom="{{true}}"
+            enable-scroll="{{true}}"
+          />
+        </view>
+        <view class="detail-row" wx:if="{{item.stallData.location}}">
+          <text class="detail-label">坐标</text>
+          <text class="detail-value coords">{{item.stallData.location.latitude.toFixed(6)}}, {{item.stallData.location.longitude.toFixed(6)}}</text>
+        </view>
       </view>
-      <view class="row">
-        <text class="label">提交时间：</text>
-        <text class="value">{{item.submitTime}}</text>
+
+      <!-- 出摊时间 -->
+      <view class="detail-section">
+        <view class="section-title">出摊时间</view>
+        <view class="detail-row">
+          <text class="detail-label">时间类型</text>
+          <text class="detail-value">{{item.stallData.schedule.display || '-'}}</text>
+        </view>
+        <view class="detail-row" wx:if="{{item.stallData.schedule.customTime}}">
+          <text class="detail-label">自定义时段</text>
+          <text class="detail-value">{{item.stallData.schedule.customTime}}</text>
+        </view>
+      </view>
+
+      <!-- 联系方式 -->
+      <view class="detail-section" wx:if="{{item.stallData.contact.hasContact}}">
+        <view class="section-title">联系方式</view>
+        <view class="detail-row" wx:if="{{item.stallData.contact.phone}}">
+          <text class="detail-label">电话</text>
+          <text class="detail-value">{{item.stallData.contact.phone}}</text>
+        </view>
+        <view class="detail-row" wx:if="{{item.stallData.contact.wechatQR}}">
+          <text class="detail-label">微信二维码</text>
+          <text class="detail-value link" bindtap="onPreviewImage" data-url="{{item.stallData.contact.wechatQR}}">点击查看</text>
+        </view>
+      </view>
+
+      <!-- 图片 -->
+      <view class="detail-section" wx:if="{{item.stallData.images && item.stallData.images.length > 0}}">
+        <view class="section-title">摊位照片 ({{item.stallData.images.length}}张)</view>
+        <view class="image-list">
+          <image
+            wx:for="{{item.stallData.images}}"
+            wx:for-item="img"
+            wx:key="index"
+            class="stall-image"
+            src="{{img}}"
+            mode="aspectFill"
+            bindtap="onPreviewStallImage"
+            data-images="{{item.stallData.images}}"
+            data-current="{{img}}"
+          />
+        </view>
       </view>
     </view>
+
+    <!-- 操作按钮 -->
     <view class="card-footer">
       <view
         class="btn btn-danger"
@@ -191,47 +270,6 @@
   <view class="empty" wx:if="{{feedbacks.length === 0 && !loading}}">
     <image src="/images/empty.png" mode="aspectFit" />
     <text>暂无反馈信息</text>
-  </view>
-</view>
-
-<!-- 合规页面入口 -->
-<view class="content-container" wx:if="{{activeTab === 'compliance'}}">
-  <view class="compliance-menu">
-    <view class="menu-item" bindtap="onNavigate" data-url="/pages/about/about">
-      <view class="menu-icon">📖</view>
-      <view class="menu-content">
-        <text class="menu-title">关于我们</text>
-        <text class="menu-desc">产品介绍和免责声明</text>
-      </view>
-      <text class="menu-arrow">›</text>
-    </view>
-
-    <view class="menu-item" bindtap="onNavigate" data-url="/pages/privacy/privacy">
-      <view class="menu-icon">🔒</view>
-      <view class="menu-content">
-        <text class="menu-title">隐私政策</text>
-        <text class="menu-desc">数据收集和使用说明</text>
-      </view>
-      <text class="menu-arrow">›</text>
-    </view>
-
-    <view class="menu-item" bindtap="onNavigate" data-url="/pages/feedback/feedback">
-      <view class="menu-icon">💬</view>
-      <view class="menu-content">
-        <text class="menu-title">用户反馈说明</text>
-        <text class="menu-desc">反馈处理机制说明</text>
-      </view>
-      <text class="menu-arrow">›</text>
-    </view>
-
-    <view class="menu-item" bindtap="onNavigate" data-url="/pages/contact/contact">
-      <view class="menu-icon">📞</view>
-      <view class="menu-content">
-        <text class="menu-title">联系方式说明</text>
-        <text class="menu-desc">联系方式展示规则说明</text>
-      </view>
-      <text class="menu-arrow">›</text>
-    </view>
   </view>
 </view>
 

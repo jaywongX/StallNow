@@ -21,21 +21,27 @@
 - **反馈机制**：用户可反馈信息不准确
 
 ### 摊主端
-- **入驻申请**：6步完成申请，5分钟搞定
+- **入驻申请**：7步完成申请，5分钟搞定
+  - 支持上传 1-3 张摊位照片（自动压缩，节省存储空间）
+  - **出摊时间灵活选择**：选择"不固定"时可自定义具体时段（如 18:00-22:00）
 - **摊位确认**：扫码确认摊位，延长可信度有效期
 - **一键下线**：随时下线自己的摊位
 - **联系方式**：可选展示电话和微信二维码
 
 ### 管理端
 - **审核管理**：审核入驻申请
+  - 显示完整申请信息：申请人头像昵称、商品类型、外观特征、摊位照片、位置、出摊时间、联系方式等
+  - **地图可视化**：直观展示申请摊位的地图位置，支持缩放查看
+  - 支持预览摊位照片
 - **地摊管理**：上架、下架、确认摊位
 - **反馈处理**：处理用户反馈
 
-### 合规页面
+### 合规页面（在"我的"标签页中）
 - **隐私政策**：明确数据收集和使用说明
 - **关于我们**：产品介绍和免责声明
-- **意见反馈**：用户可直接提交反馈（功能建议、Bug、内容纠错）
+- **用户反馈说明**：反馈处理机制说明
 - **联系方式说明**：联系方式展示规则说明
+- **意见反馈**：用户可提交功能建议和内容纠错
 
 ## 技术栈
 
@@ -174,7 +180,7 @@ StallNow/
 | **role** | String | **身份角色：user / vendor / admin** |
 | vendorInfo | Object | 摊主信息 {realName, phone, applyTime, approvedTime} |
 | stallIds | Array | 绑定的摊位ID列表 |
-| ~~favorites~~ | ~~Array~~ | ~~收藏的摊位ID列表~~（暂不实现） |
+| favorites | Array | 收藏的摊位ID列表 |
 | createTime | Date | 注册时间 |
 | updateTime | Date | 更新时间 |
 
@@ -185,11 +191,11 @@ StallNow/
 | _id | String | 唯一标识 |
 | displayName | String | 展示名（系统生成） |
 | categoryId | String | 分类ID |
-| goodsTags | Array | 商品标签列表 |
-| location | Object | 地理位置（用户手动选择） |
-| address | String | 常出没区域描述 |
+| landmark | String | 外观/地标特征 |
+| location | GeoPoint | 地理位置 |
+| address | String | 大致位置描述 |
 | city | String | 城市 |
-| schedule | Object | 出摊时间 |
+| schedule | Object | 出摊时间 {types, display, customTime, customTimeStart, customTimeEnd} |
 | images | Array | 图片URL数组 |
 | status | Number | 状态：0待审核 1已上架 2已下架 3已下线 |
 | reliability | Number | 可信度状态：0近期确认 1可能还在 2信息过期 |
@@ -206,7 +212,7 @@ StallNow/
 | icon | String | 图标 |
 | sort | Number | 排序 |
 
-### applications（摊主申请表）
+### applications（摊主申请表）⭐ 重命名
 
 | 字段 | 类型 | 说明 |
 | --- | --- | --- |
@@ -254,12 +260,6 @@ StallNow/
 - 海丰县
 - 陆河县
 - 陆丰市
-
-### 定位处理策略
-
-- 如果用户定位不在汕尾市，**自动切换到汕尾市城区二马路**
-- 显示提示："已为您切换到汕尾市，目前仅支持该地区"
-- 多城市支持开关位于 `app.js` 的 `CITY_CONFIG.multiCityEnabled`，设为 `true` 即可开放多城市支持
 
 ## 注意事项
 

@@ -105,21 +105,72 @@
         <text class="required">*</text>
       </view>
       <view class="schedule-grid">
-<view 
-        wx:for="{{scheduleOptions}}" 
-        wx:key="id"
-        class="schedule-item {{helper.isScheduleSelected(form.scheduleTypes, item.id) ? 'active' : ''}}"
-        data-id="{{item.id}}"
-        bindtap="onScheduleSelect"
-      >
-        <text class="schedule-icon">{{item.icon}}</text>
-        <text class="schedule-name">{{item.name}}</text>
+        <view 
+          wx:for="{{scheduleOptions}}" 
+          wx:key="id"
+          class="schedule-item {{helper.isScheduleSelected(form.scheduleTypes, item.id) ? 'active' : ''}}"
+          data-id="{{item.id}}"
+          bindtap="onScheduleSelect"
+        >
+          <text class="schedule-icon">{{item.icon}}</text>
+          <text class="schedule-name">{{item.name}}</text>
+        </view>
       </view>
+      
+      <!-- 自定义时间段选择（选择"不固定"时显示） -->
+      <view class="custom-time-section" wx:if="{{helper.isScheduleSelected(form.scheduleTypes, 'unfixed')}}">
+        <text class="custom-time-label">选择出摊时间段：</text>
+        <view class="time-picker-row">
+          <picker mode="selector" range="{{timePickerRange}}" bindchange="onCustomTimeStartChange">
+            <view class="time-picker-btn">
+              <text class="time-text">{{form.customTimeStart || '开始时间'}}</text>
+              <text class="time-icon">▼</text>
+            </view>
+          </picker>
+          <text class="time-separator">至</text>
+          <picker mode="selector" range="{{timePickerRange}}" bindchange="onCustomTimeEndChange">
+            <view class="time-picker-btn">
+              <text class="time-text">{{form.customTimeEnd || '结束时间'}}</text>
+              <text class="time-icon">▼</text>
+            </view>
+          </picker>
+        </view>
       </view>
+      
       <text wx:if="{{errors.schedule}}" class="error-text">{{errors.schedule}}</text>
     </view>
 
-    <!-- Step 5: 摊位称呼（选填） -->
+    <!-- Step 5: 摊位照片（选填） -->
+    <view class="form-group">
+      <view class="group-header">
+        <text class="group-title">摊位照片</text>
+        <text class="optional">（选填，最多3张）</text>
+      </view>
+      <view class="image-upload-container">
+        <view 
+          class="image-item" 
+          wx:for="{{form.images}}" 
+          wx:key="index"
+          data-index="{{index}}"
+          bindtap="onPreviewImage"
+        >
+          <image src="{{item}}" mode="aspectFill" />
+          <view class="delete-btn" data-index="{{index}}" catchtap="onDeleteImage">×</view>
+        </view>
+        <view 
+          class="upload-btn-large"
+          bindtap="onChooseImages"
+          wx:if="{{form.images.length < 3}}"
+        >
+          <text class="icon">📷</text>
+          <text class="text">上传照片</text>
+          <text class="sub-text">{{form.images.length}}/3</text>
+        </view>
+      </view>
+      <text class="input-hint">上传摊位实拍照片，帮助大家认出你</text>
+    </view>
+
+    <!-- Step 6: 摊位称呼（选填） -->
     <view class="form-group">
       <view class="group-header">
         <text class="group-title">摊位称呼</text>
@@ -164,3 +215,6 @@
     <text class="submit-tips">提交后需等待审核，审核通过后即可管理摊位</text>
   </view>
 </view>
+
+<!-- 隐藏的 canvas 用于图片压缩 -->
+<canvas canvas-id="compressCanvas" class="compress-canvas"></canvas>

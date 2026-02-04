@@ -62,7 +62,27 @@ exports.main = async (event, context) => {
       displayName = `${categoryName}｜${addressShort}`;
     }
 
-    // 5. 创建申请记录
+    // 5. 处理出摊时间数据
+    let scheduleInfo = stallData.schedule || {};
+    
+    // 构建出摊时间显示文本
+    let scheduleDisplay = '';
+    if (stallData.scheduleTypes && stallData.scheduleTypes.length > 0) {
+      const typeNames = {
+        'afternoon': '下午',
+        'evening': '晚上',
+        'weekend': '周末',
+        'unfixed': '不固定'
+      };
+      
+      if (stallData.scheduleTypes.includes('unfixed') && scheduleInfo.customTime) {
+        scheduleDisplay = `不固定 (${scheduleInfo.customTime})`;
+      } else {
+        scheduleDisplay = stallData.scheduleTypes.map(t => typeNames[t] || t).join('、');
+      }
+    }
+    
+    // 6. 创建申请记录
     const application = {
       userId: userInfo._id, // 关联用户ID
       openId: openId,
@@ -71,10 +91,18 @@ exports.main = async (event, context) => {
         categoryId: stallData.categoryId,
         categoryName: stallData.categoryName,
         goodsTags: stallData.goodsTags || [],
+        landmark: stallData.landmark || '', // 外观特征
+        images: stallData.images || [], // 摊位图片
         location: stallData.location,  // 定位位置（必选）
         address: stallData.address,    // 常出没区域（可选）
-        scheduleTypes: stallData.scheduleTypes || [],
-        contact: stallData.contact || {}
+        city: stallData.city || '汕尾市',
+        scheduleTypes: stallData.scheduleTypes || [], // 出摊时间类型
+        schedule: {
+          ...scheduleInfo,
+          display: scheduleDisplay // 出摊时间显示文本
+        },
+        contact: stallData.contact || {},
+        vendorName: stallData.vendorName || '' // 商家名称
       },
       status: 0, // 0待审核 1已通过 2已拒绝
       audit: null, // 审核信息

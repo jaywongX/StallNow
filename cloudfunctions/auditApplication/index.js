@@ -51,25 +51,31 @@ exports.main = async (event, context) => {
         displayName: stallData.displayName,
         categoryId: stallData.categoryId,
         categoryName: stallData.categoryName,
-        goodsTags: stallData.goodsTags || [],
-        landmark: '', // 地标特征，后续可补充
+        landmark: stallData.landmark || '', // 外观特征
         address: stallData.address || (stallData.location ? stallData.location.address : ''),
-        city: '汕尾市', // 默认城市
+        city: stallData.city || '汕尾市',
         location: stallData.location ? {
           latitude: stallData.location.latitude,
           longitude: stallData.location.longitude
-        } : null, // 使用申请时的定位位置
+        } : null,
         schedule: {
-          type: stallData.scheduleTypes ? stallData.scheduleTypes.join('/') : '不固定',
-          timeRange: '',
-          note: ''
+          // 优先使用新的 schedule 数据结构
+          types: stallData.scheduleTypes || (stallData.schedule ? [stallData.schedule.type] : ['unfixed']),
+          display: stallData.schedule?.display || '不固定',
+          customTime: stallData.schedule?.customTime || '',
+          customTimeStart: stallData.schedule?.customTimeStart || '',
+          customTimeEnd: stallData.schedule?.customTimeEnd || '',
+          // 兼容旧数据结构
+          type: stallData.schedule?.type || '不固定',
+          timeRange: stallData.schedule?.timeRange || '',
+          note: stallData.schedule?.note || ''
         },
         contact: {
-          hasContact: !!(stallData.contact && (stallData.contact.phone || stallData.contact.wechatId)),
+          hasContact: !!(stallData.contact && (stallData.contact.phone || stallData.contact.wechatQR)),
           phone: stallData.contact?.phone || '',
-          wechatQR: ''
+          wechatQR: stallData.contact?.wechatQR || ''
         },
-        images: [],
+        images: stallData.images || [], // 摊位图片
         status: 1, // 1已上架
         reliability: 0, // 0近期确认
         lastConfirmedAt: now,

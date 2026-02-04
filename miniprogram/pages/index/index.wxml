@@ -26,11 +26,8 @@
 
   <!-- 地图覆盖按钮 -->
   <view class="map-buttons">
-    <view class="btn" bindtap="onToggleView">
-      {{showList ? '🗺️ 地图' : '📋 列表'}}
-    </view>
-    <view class="btn" bindtap="onToggleFilter">
-      🔍 筛选
+    <view class="btn btn-filter" bindtap="onToggleFilter">
+      🔍
     </view>
   </view>
 </view>
