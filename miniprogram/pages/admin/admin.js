@@ -53,7 +53,7 @@ Page({
       const result = await api.adminGetApplications({
         status: this.data.statusFilter
       });
-      
+
       // 为每个申请添加地图标记数据
       const applications = (result.data || []).map(item => {
         if (item.stallData && item.stallData.location) {
@@ -62,14 +62,14 @@ Page({
             latitude: item.stallData.location.latitude,
             longitude: item.stallData.location.longitude,
             title: item.stallData.displayName || '摊位位置',
-            iconPath: '/images/location.png',
+            iconPath: '/images/marker.png',
             width: 30,
             height: 30
           }];
         }
         return item;
       });
-      
+
       this.setData({ applications });
     } catch (err) {
       console.error('加载申请失败', err);

@@ -6,7 +6,7 @@ const db = cloud.database();
 
 /**
  * 获取申请列表（管理员）
- * 关联用户信息显示
+ * 关联用户信息显示，转换图片URL
  */
 exports.main = async (event, context) => {
   const { status } = event;
@@ -47,15 +47,76 @@ exports.main = async (event, context) => {
       }
     }
 
-    // 合并数据
-    const applications = result.data.map(app => ({
-      ...app,
-      userInfo: userMap[app.userId] ? {
-        nickName: userMap[app.userId].nickName,
-        avatarUrl: userMap[app.userId].avatarUrl,
-        role: userMap[app.userId].role
-      } : null
-    }));
+    // 收集所有需要转换URL的图片文件ID
+    const fileIdList = [];
+    result.data.forEach(app => {
+      if (app.stallData) {
+        // 收集摊位照片
+        if (app.stallData.images && app.stallData.images.length > 0) {
+          fileIdList.push(...app.stallData.images);
+        }
+        // 收集微信二维码
+        if (app.stallData.contact && app.stallData.contact.wechatQR) {
+          fileIdList.push(app.stallData.contact.wechatQR);
+        }
+      }
+    });
+
+    // 批量获取临时URL（去重）
+    const uniqueFileIds = [...new Set(fileIdList)];
+    const urlMap = {};
+    
+    if (uniqueFileIds.length > 0) {
+      try {
+        const tempRes = await cloud.getTempFileURL({
+          fileList: uniqueFileIds
+        });
+        
+        if (tempRes.fileList) {
+          tempRes.fileList.forEach(item => {
+            if (item.status === 0 && item.tempFileURL) {
+              urlMap[item.fileID] = item.tempFileURL;
+            }
+          });
+        }
+      } catch (err) {
+        console.error('获取临时URL失败', err);
+      }
+    }
+
+    // 合并数据，并转换图片URL
+    const applications = result.data.map(app => {
+      const stallData = app.stallData || {};
+      
+      // 转换摊位照片URL
+      let imageUrls = [];
+      if (stallData.images && stallData.images.length > 0) {
+        imageUrls = stallData.images.map(fileId => urlMap[fileId] || fileId);
+      }
+      
+      // 转换微信二维码URL
+      let wechatQRUrl = null;
+      if (stallData.contact && stallData.contact.wechatQR) {
+        wechatQRUrl = urlMap[stallData.contact.wechatQR] || stallData.contact.wechatQR;
+      }
+
+      return {
+        ...app,
+        stallData: {
+          ...stallData,
+          images: imageUrls,
+          contact: {
+            ...stallData.contact,
+            wechatQR: wechatQRUrl
+          }
+        },
+        userInfo: userMap[app.userId] ? {
+          nickName: userMap[app.userId].nickName,
+          avatarUrl: userMap[app.userId].avatarUrl,
+          role: userMap[app.userId].role
+        } : null
+      };
+    });
 
     return {
       code: 0,

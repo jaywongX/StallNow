@@ -29,7 +29,7 @@
       {
         "pagePath": "pages/index/index",
         "text": "附近",
-        "iconPath": "images/empty.png",
+        "iconPath": "images/map.png",
         "selectedIconPath": "images/map_active.png"
       },
       {
