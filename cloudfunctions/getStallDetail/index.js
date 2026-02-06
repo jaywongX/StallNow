@@ -3,6 +3,7 @@ cloud.init({
   env: cloud.DYNAMIC_CURRENT_ENV
 });
 const db = cloud.database();
+const _ = db.command;
 
 /**
  * 获取地摊详情
