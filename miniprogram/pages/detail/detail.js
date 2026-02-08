@@ -170,18 +170,20 @@ Page({
   async doConfirmStall(qrCode) {
     try {
       const result = await api.confirmStall(this.data.stallId);
-      if (result.success) {
+      if (result.code === 0) {
         wx.showToast({
           title: '确认成功',
           icon: 'success'
         });
         // 刷新详情
         this.loadStallDetail();
+      } else {
+        throw new Error(result.message || '确认失败');
       }
     } catch (err) {
       console.error('确认失败', err);
       wx.showToast({
-        title: '确认失败',
+        title: err.message || '确认失败',
         icon: 'none'
       });
     }

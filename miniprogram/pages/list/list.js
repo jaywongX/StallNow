@@ -60,6 +60,11 @@ Page({
 
       const result = await api.getStalls(options);
       const newStalls = result.data || [];
+      console.log('[DEBUG list] 加载到的摊位数量:', newStalls.length);
+      if (newStalls.length > 0) {
+        console.log('[DEBUG list] 第一条摊位数据:', newStalls[0]);
+        console.log('[DEBUG list] 第一条摊位的_id:', newStalls[0]._id);
+      }
 
       this.setData({
         stalls: this.data.page === 1 ? newStalls : [...this.data.stalls, ...newStalls],
@@ -109,7 +114,15 @@ Page({
 
   // 点击地摊卡片
   onStallTap(e) {
-    const stallId = e.detail.stall._id;
+    const stallId = e.currentTarget.dataset.id;
+    console.log('[DEBUG list] 点击卡片，stallId:', stallId);
+    
+    if (!stallId) {
+      console.error('[DEBUG list] 无效的摊位ID');
+      wx.showToast({ title: '数据错误', icon: 'none' });
+      return;
+    }
+    
     wx.navigateTo({
       url: `/pages/detail/detail?id=${stallId}`
     });

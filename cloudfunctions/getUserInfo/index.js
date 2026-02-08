@@ -33,7 +33,7 @@ exports.main = async (event, context) => {
         nickName: '',
         avatarUrl: '',
         role: 'user', // user:普通用户, vendor:摊主, admin:管理员
-        vendorInfo: null,
+        // vendorInfo 在成为摊主时动态添加
         stallIds: [],
         favorites: [],
         recentViews: [],

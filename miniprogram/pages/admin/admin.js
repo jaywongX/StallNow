@@ -17,15 +17,19 @@ Page({
   // 切换标签
   onTabChange(e) {
     const tab = e.currentTarget.dataset.tab;
+    console.log('[DEBUG admin] 切换标签:', tab);
     this.setData({
       activeTab: tab,
       statusFilter: 0
+    }, () => {
+      console.log('[DEBUG admin] 标签切换完成, activeTab:', this.data.activeTab);
+      this.loadData();
     });
-    this.loadData();
   },
 
   // 加载数据
   async loadData() {
+    console.log('[DEBUG admin] loadData, activeTab:', this.data.activeTab, 'statusFilter:', this.data.statusFilter);
     this.setData({ loading: true });
 
     try {
@@ -39,6 +43,8 @@ Page({
         case 'feedbacks':
           await this.loadFeedbacks();
           break;
+        default:
+          console.error('[DEBUG admin] 未知的activeTab:', this.data.activeTab);
       }
     } catch (err) {
       console.error('加载数据失败', err);
@@ -79,15 +85,18 @@ Page({
   // 加载地摊列表
   async loadStalls() {
     try {
+      console.log('[DEBUG admin] loadStalls, statusFilter:', this.data.statusFilter);
       const db = wx.cloud.database();
-      const query = this.data.statusFilter === 0 ? { status: 1 }
-        : this.data.statusFilter === 1 ? { status: 2 }
+      const query = this.data.statusFilter == 0 ? { status: 1 }
+        : this.data.statusFilter == 1 ? { status: 2 }
         : { status: 3 };
+      console.log('[DEBUG admin] loadStalls 查询条件:', query);
 
       const res = await db.collection('stalls')
         .where(query)
         .orderBy('updateTime', 'desc')
         .get();
+      console.log('[DEBUG admin] loadStalls 查询结果:', res.data.length, '条');
       this.setData({ stalls: res.data || [] });
     } catch (err) {
       console.error('加载地摊失败', err);
@@ -115,10 +124,13 @@ Page({
   // 切换状态筛选
   onStatusFilter(e) {
     const status = e.currentTarget.dataset.status;
+    console.log('[DEBUG admin] 切换状态筛选，status:', status, '当前activeTab:', this.data.activeTab);
     this.setData({
-      statusFilter: status
+      statusFilter: parseInt(status)
+    }, () => {
+      console.log('[DEBUG admin] setData后，activeTab:', this.data.activeTab);
+      this.loadData();
     });
-    this.loadData();
   },
 
   // 审核申请
@@ -140,10 +152,16 @@ Page({
   // 执行审核
   async doAuditApplication(id, action) {
     try {
-      await api.auditApplication({
+      const result = await api.auditApplication({
         applicationId: id,
         status: action === 'approve' ? 1 : 2
       });
+
+      // 检查云函数返回的业务状态码
+      if (result.code !== 0) {
+        throw new Error(result.message || '审核失败');
+      }
+
       wx.showToast({
         title: '操作成功',
         icon: 'success'
@@ -152,7 +170,7 @@ Page({
     } catch (err) {
       console.error('审核失败', err);
       wx.showToast({
-        title: '操作失败',
+        title: err.message || '操作失败',
         icon: 'none'
       });
     }
@@ -179,11 +197,17 @@ Page({
   // 下线地摊
   async offlineStall(id) {
     try {
-      await api.offlineStall(id);
+      const result = await api.offlineStall(id);
+
+      // 检查云函数返回的业务状态码
+      if (result.code !== 0) {
+        throw new Error(result.message || '下线失败');
+      }
+
       wx.showToast({ title: '已下线', icon: 'success' });
       this.loadData();
     } catch (err) {
-      wx.showToast({ title: '操作失败', icon: 'none' });
+      wx.showToast({ title: err.message || '操作失败', icon: 'none' });
     }
   },
 
@@ -204,11 +228,17 @@ Page({
   // 确认地摊
   async confirmStall(id) {
     try {
-      await api.confirmStall(id);
+      const result = await api.confirmStall(id);
+
+      // 检查云函数返回的业务状态码
+      if (result.code !== 0) {
+        throw new Error(result.message || '确认失败');
+      }
+
       wx.showToast({ title: '已确认', icon: 'success' });
       this.loadData();
     } catch (err) {
-      wx.showToast({ title: '操作失败', icon: 'none' });
+      wx.showToast({ title: err.message || '操作失败', icon: 'none' });
     }
   },
 

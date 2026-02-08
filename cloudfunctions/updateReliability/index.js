@@ -48,13 +48,13 @@ exports.main = async (event, context) => {
     }
 
     return {
-      success: true,
+      code: 0,
       message: '可信度状态更新完成'
     };
   } catch (err) {
     console.error('更新可信度状态失败', err);
     return {
-      success: false,
+      code: -1,
       message: '更新可信度状态失败'
     };
   }

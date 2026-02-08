@@ -26,21 +26,21 @@
 <!-- 状态筛选 -->
 <view class="status-filter" wx:if="{{activeTab !== 'applications'}}">
   <view
-    class="filter-item {{statusFilter === 0 ? 'active' : ''}}"
+    class="filter-item {{statusFilter == 0 ? 'active' : ''}}"
     data-status="0"
     bindtap="onStatusFilter"
   >
     {{activeTab === 'stalls' ? '已上架' : '待处理'}}
   </view>
   <view
-    class="filter-item {{statusFilter === 1 ? 'active' : ''}}"
+    class="filter-item {{statusFilter == 1 ? 'active' : ''}}"
     data-status="1"
     bindtap="onStatusFilter"
   >
     {{activeTab === 'stalls' ? '已下架' : '已标记'}}
   </view>
   <view
-    class="filter-item {{statusFilter === 2 ? 'active' : ''}}"
+    class="filter-item {{statusFilter == 2 ? 'active' : ''}}"
     data-status="2"
     bindtap="onStatusFilter"
     wx:if="{{activeTab === 'stalls' || activeTab === 'feedbacks'}}"

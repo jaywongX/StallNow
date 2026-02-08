@@ -345,6 +345,49 @@ StallNow/
 └── project.config.json             # 项目配置
 ```
 
+## 开发规范
+
+### 云函数返回格式规范
+
+**统一使用 `code` 字段表示业务状态**：
+
+```javascript
+// 成功返回
+return {
+  code: 0,
+  data: { ... },      // 可选，返回的数据
+  message: '操作成功'  // 可选，成功提示
+};
+
+// 失败返回
+return {
+  code: -1,
+  message: '错误描述'  // 必填，错误信息
+};
+```
+
+**前端调用示例**：
+
+```javascript
+const result = await wx.cloud.callFunction({
+  name: 'cloudFunctionName',
+  data: { ... }
+});
+
+if (result.result.code === 0) {
+  // 处理成功逻辑
+  const data = result.result.data;
+} else {
+  // 处理失败逻辑
+  throw new Error(result.result.message);
+}
+```
+
+**注意事项**：
+- 不要使用 `success: true/false` 格式（已统一迁移到 `code` 格式）
+- 数据库字段初始值不要设为 `null`（会导致后续更新失败），应直接不设置该字段
+- 需要动态添加嵌套字段时，使用 `db.command.set()` 替换整个对象
+
 ## 设计风格
 
 采用温暖、亲民的设计风格，契合"家乡美食"和"地摊文化"的主题。使用暖色调营造烟火气息，界面简洁明了，降低用户使用门槛。

@@ -74,6 +74,8 @@ StallNow/
 │   ├── bindStallOwner/  # 绑定摊主
 │   ├── unbindStallOwner/# 解绑摊主
 │   └── checkCitySupport/# 检查城市支持
+│
+**注意**：所有云函数统一返回格式为 `{ code: 0, data: ..., message: ... }`，`code: 0` 表示成功，`code: -1` 表示失败
 ├── plan.md              # 产品规划文档
 ├── README.md           # 项目说明文档
 └── database-init.md    # 数据库初始化指南

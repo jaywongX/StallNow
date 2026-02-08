@@ -21,12 +21,13 @@ exports.main = async (event, context) => {
     });
 
     return {
-      success: true
+      code: 0,
+      message: '解绑成功'
     };
   } catch (err) {
     console.error('解绑摊主失败', err);
     return {
-      success: false,
+      code: -1,
       message: '解绑摊主失败'
     };
   }

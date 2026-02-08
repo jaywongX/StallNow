@@ -24,27 +24,40 @@ Page({
     async loadStallData() {
         try {
             this.setData({ loading: true });
+            console.log('[DEBUG] 开始加载摊位数据...');
             
             const { result } = await wx.cloud.callFunction({
                 name: 'getUserInfo'
             });
+            console.log('[DEBUG] getUserInfo 返回:', result);
 
             if (result.code === 0 && result.data) {
                 const userInfo = result.data;
+                console.log('[DEBUG] 用户信息:', userInfo);
+                console.log('[DEBUG] stallIds:', userInfo.stallIds);
                 
                 // 获取第一个摊位详情
                 if (userInfo.stallIds && userInfo.stallIds.length > 0) {
+                    const stallId = userInfo.stallIds[0];
+                    console.log('[DEBUG] 查询摊位ID:', stallId);
+                    
                     const stallRes = await wx.cloud.callFunction({
                         name: 'getStallDetail',
-                        data: { stallId: userInfo.stallIds[0] }
+                        data: { stallId: stallId }
                     });
+                    console.log('[DEBUG] getStallDetail 返回:', stallRes);
                     
                     if (stallRes.result.code === 0) {
                         const stall = stallRes.result.data;
+                        console.log('[DEBUG] 摊位数据:', stall);
                         this.updateStallStatus(stall);
+                    } else {
+                        console.error('[DEBUG] 获取摊位详情失败:', stallRes.result.message);
+                        throw new Error(stallRes.result.message || '获取摊位详情失败');
                     }
                 } else {
                     // 没有摊位数据
+                    console.log('[DEBUG] 用户没有绑定摊位');
                     this.setData({ loading: false });
                     wx.showModal({
                         title: '提示',
@@ -59,10 +72,11 @@ Page({
                 throw new Error(result.message);
             }
         } catch (err) {
-            console.error('加载失败', err);
-            wx.showToast({
+            console.error('[DEBUG] 加载失败:', err);
+            wx.showModal({
                 title: '加载失败',
-                icon: 'error'
+                content: err.message || '未知错误',
+                showCancel: false
             });
             this.setData({ loading: false });
         }

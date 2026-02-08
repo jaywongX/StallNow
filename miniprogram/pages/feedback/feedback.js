@@ -94,7 +94,7 @@ Page({
                 }
             });
             
-            if (result.success) {
+            if (result.code === 0) {
                 wx.showModal({
                     title: '提交成功',
                     content: '感谢您的反馈，我们会尽快处理！',

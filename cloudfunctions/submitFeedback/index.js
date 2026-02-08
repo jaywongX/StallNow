@@ -71,13 +71,13 @@ exports.main = async (event, context) => {
     }
 
     return {
-      success: true,
+      code: 0,
       message: '反馈提交成功'
     };
   } catch (err) {
     console.error('提交反馈失败', err);
     return {
-      success: false,
+      code: -1,
       message: '提交反馈失败: ' + err.message
     };
   }

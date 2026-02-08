@@ -17,7 +17,7 @@ exports.main = async (event, context) => {
 
     if (!stall.data) {
       return {
-        success: false,
+        code: -1,
         message: '地摊不存在'
       };
     }
@@ -32,12 +32,13 @@ exports.main = async (event, context) => {
     });
 
     return {
-      success: true
+      code: 0,
+      message: '绑定成功'
     };
   } catch (err) {
     console.error('绑定摊主失败', err);
     return {
-      success: false,
+      code: -1,
       message: '绑定摊主失败'
     };
   }

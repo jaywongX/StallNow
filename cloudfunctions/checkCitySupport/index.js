@@ -42,7 +42,7 @@ exports.main = async (event, context) => {
     }
 
     return {
-      success: true,
+      code: 0,
       supported: isSupported,
       city: detectedCity,
       defaultCity: {
@@ -58,7 +58,7 @@ exports.main = async (event, context) => {
   } catch (err) {
     console.error('检查城市支持失败', err);
     return {
-      success: false,
+      code: -1,
       supported: false,
       city: '',
       message: err.message

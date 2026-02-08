@@ -105,7 +105,7 @@ exports.main = async (event, context) => {
         vendorName: stallData.vendorName || '' // 商家名称
       },
       status: 0, // 0待审核 1已通过 2已拒绝
-      audit: null, // 审核信息
+      // audit 字段在审核时动态添加，初始不设置
       submitTime: new Date().toISOString(),
       updateTime: new Date().toISOString()
     };

@@ -170,6 +170,7 @@ Page({
     if (this.data.loading || !this.data.hasMore) return;
 
     this.setData({ loading: true });
+    console.log('[DEBUG] 开始加载摊位列表...');
 
     try {
       const app = getApp();
@@ -181,13 +182,17 @@ Page({
         page: this.data.page,
         pageSize: this.data.pageSize
       };
+      console.log('[DEBUG] getStalls 请求参数:', options);
 
       const result = await api.getStalls(options);
+      console.log('[DEBUG] getStalls 返回结果:', result);
       const newStalls = result.data || [];
 
-      // 构建地图标记
+      // 构建地图标记（id 必须是数字）
+      let markerId = 1;
       const newMarkers = newStalls.map(stall => ({
-        id: stall._id,
+        id: markerId++,  // 使用数字ID
+        _stallId: stall._id,  // 保存原始ID用于跳转
         latitude: stall.location.latitude,
         longitude: stall.location.longitude,
         iconPath: '/images/marker.png',
@@ -250,10 +255,14 @@ Page({
 
   // 地图标记点击
   onMarkerTap(e) {
-    const stallId = e.detail.markerId;
-    wx.navigateTo({
-      url: `/pages/detail/detail?id=${stallId}`
-    });
+    const markerId = e.detail.markerId;
+    // 通过 markerId 查找对应的摊位ID
+    const marker = this.data.markers.find(m => m.id === markerId);
+    if (marker && marker._stallId) {
+      wx.navigateTo({
+        url: `/pages/detail/detail?id=${marker._stallId}`
+      });
+    }
   },
 
   // 点击地摊卡片
