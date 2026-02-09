@@ -122,6 +122,18 @@
   color: #333;
 }
 
+/* 反馈内容样式 */
+.feedback-content {
+  background-color: #f8f8f8;
+  padding: 20rpx;
+  border-radius: 8rpx;
+  margin: 16rpx 0;
+  color: #333;
+  font-size: 28rpx;
+  line-height: 1.6;
+  word-break: break-all;
+}
+
 .card-footer {
   display: flex;
   gap: 16rpx;

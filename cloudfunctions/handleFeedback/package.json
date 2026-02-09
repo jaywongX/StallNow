@@ -1,0 +1,9 @@
+{
+  "name": "handleFeedback",
+  "version": "1.0.0",
+  "description": "处理反馈状态更新",
+  "main": "index.js",
+  "dependencies": {
+    "wx-server-sdk": "latest"
+  }
+}

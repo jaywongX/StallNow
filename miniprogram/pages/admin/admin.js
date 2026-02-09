@@ -105,19 +105,25 @@ Page({
 
   // 加载反馈列表
   async loadFeedbacks() {
+    console.log('[DEBUG admin] loadFeedbacks, statusFilter:', this.data.statusFilter);
     try {
-      const db = wx.cloud.database();
-      const query = this.data.statusFilter === 0 ? { status: 0 }
-        : this.data.statusFilter === 1 ? { status: 1 }
-        : { status: 2 };
+      const result = await api.getFeedbacks({
+        status: this.data.statusFilter
+      });
+      console.log('[DEBUG admin] getFeedbacks result:', result);
 
-      const res = await db.collection('feedbacks')
-        .where(query)
-        .orderBy('createTime', 'desc')
-        .get();
-      this.setData({ feedbacks: res.data || [] });
+      if (result.code === 0) {
+        console.log('[DEBUG admin] 反馈列表数据:', result.data.length, '条');
+        this.setData({ feedbacks: result.data || [] });
+      } else {
+        throw new Error(result.message || '加载失败');
+      }
     } catch (err) {
       console.error('加载反馈失败', err);
+      wx.showToast({
+        title: err.message || '加载反馈失败',
+        icon: 'none'
+      });
     }
   },
 
@@ -260,22 +266,31 @@ Page({
 
   // 执行反馈处理
   async doHandleFeedback(id, action) {
+    console.log('[DEBUG admin] 处理反馈, id:', id, 'action:', action);
     try {
-      const db = wx.cloud.database();
-      await db.collection('feedbacks').doc(id).update({
-        data: {
-          status: action === 'mark' ? 1 : 2,
-          processedAt: new Date()
-        }
+      const result = await api.handleFeedback({
+        feedbackId: id,
+        action: action
       });
+      console.log('[DEBUG admin] handleFeedback result:', result);
+
+      if (result.code !== 0) {
+        throw new Error(result.message || '操作失败');
+      }
+
       wx.showToast({
         title: '操作成功',
         icon: 'success'
       });
-      this.loadData();
+
+      // 延迟刷新，等待数据库更新完成
+      setTimeout(() => {
+        this.loadData();
+      }, 300);
     } catch (err) {
+      console.error('处理反馈失败', err);
       wx.showToast({
-        title: '操作失败',
+        title: err.message || '操作失败',
         icon: 'none'
       });
     }

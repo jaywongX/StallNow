@@ -229,12 +229,43 @@
 
 <!-- 反馈管理列表 -->
 <view class="content-container" wx:if="{{activeTab === 'feedbacks'}}">
-  <view class="card" wx:for="{{feedbacks}}" wx:key="_id">
+  <view class="card" wx:for="{{feedbacks}}" wx:key="_id" wx:for-item="item" wx:for-index="idx">
     <view class="card-header">
-      <text class="title">{{item.type === 'wrong_location' ? '位置不对' : item.type === 'wrong_info' ? '商品变化' : '已不存在'}}</text>
-      <text class="status">{{item.status === 0 ? '待处理' : item.status === 1 ? '已标记' : '已处理'}}</text>
+      <text class="title" wx:if="{{item.source === 'user'}}">
+        <text wx:if="{{item.type === 'feature'}}">功能建议</text>
+        <text wx:elif="{{item.type === 'bug'}}">Bug反馈</text>
+        <text wx:elif="{{item.type === 'content'}}">内容纠错</text>
+        <text wx:else>其他反馈</text>
+      </text>
+      <text class="title" wx:else>
+        <text wx:if="{{item.type === 'wrong_location'}}">位置不对</text>
+        <text wx:elif="{{item.type === 'wrong_info'}}">商品变化</text>
+        <text wx:elif="{{item.type === 'not_exist'}}">已不存在</text>
+        <text wx:else>其他</text>
+      </text>
+      <text class="status" wx:if="{{item.status === 0}}">待处理</text>
+      <text class="status" wx:elif="{{item.status === 1}}">已标记</text>
+      <text class="status" wx:else>已处理</text>
     </view>
     <view class="card-body">
+      <!-- 意见反馈显示内容 -->
+      <view wx:if="{{item.source === 'user'}}">
+        <view class="row">
+          <text class="label">反馈内容：</text>
+        </view>
+        <view class="feedback-content">{{item.content || '无内容'}}</view>
+        <view class="row" wx:if="{{item.contact}}">
+          <text class="label">联系方式：</text>
+          <text class="value">{{item.contact}}</text>
+        </view>
+      </view>
+      <!-- 摊位反馈显示摊位ID -->
+      <view wx:if="{{item.source === 'stall' && item.stallId}}">
+        <view class="row">
+          <text class="label">关联摊位：</text>
+          <text class="value">{{item.stallId}}</text>
+        </view>
+      </view>
       <view class="row">
         <text class="label">反馈时间：</text>
         <text class="value">{{item.createTime}}</text>

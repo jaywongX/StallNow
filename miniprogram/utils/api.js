@@ -127,6 +127,40 @@ async function submitFeedback(data) {
 }
 
 /**
+ * 获取反馈列表（管理员）
+ * @param {Object} options - 查询选项
+ */
+async function getFeedbacks(options = {}) {
+  try {
+    const res = await cloud.callFunction({
+      name: 'getFeedbacks',
+      data: options
+    });
+    return res.result;
+  } catch (err) {
+    console.error('获取反馈列表失败', err);
+    throw err;
+  }
+}
+
+/**
+ * 处理反馈（管理员）
+ * @param {Object} data - 处理数据
+ */
+async function handleFeedback(data) {
+  try {
+    const res = await cloud.callFunction({
+      name: 'handleFeedback',
+      data
+    });
+    return res.result;
+  } catch (err) {
+    console.error('处理反馈失败', err);
+    throw err;
+  }
+}
+
+/**
  * 一键下线摊位
  * @param {String} stallId - 地摊ID
  */
@@ -203,6 +237,8 @@ module.exports = {
   adminGetApplications,
   confirmStall,
   submitFeedback,
+  getFeedbacks,
+  handleFeedback,
   offlineStall,
   bindStallOwner,
   unbindStallOwner,
