@@ -239,18 +239,26 @@ Page({
   onCategorySelect(e) {
     this.setData({
       selectedCategory: e.detail.id,
-      page: 1
+      page: 1,
+      stalls: [],
+      markers: [],
+      hasMore: true
+    }, () => {
+      this.loadStalls();
     });
-    this.loadStalls();
   },
 
   // 选择时间
   onTimeSelect(e) {
     this.setData({
       selectedTime: e.detail.type,
-      page: 1
+      page: 1,
+      stalls: [],
+      markers: [],
+      hasMore: true
+    }, () => {
+      this.loadStalls();
     });
-    this.loadStalls();
   },
 
   // 地图标记点击

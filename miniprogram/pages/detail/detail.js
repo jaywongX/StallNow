@@ -7,10 +7,17 @@ Page({
     loading: true,
     showContact: false,
     showContactModal: false,
-    showFeedbackModal: false
+    showFeedbackModal: false,
+    isAdmin: false
   },
 
   onLoad(options) {
+    // 获取管理员状态
+    const app = getApp();
+    this.setData({
+      isAdmin: app.globalData.isAdmin || false
+    });
+
     if (options.id) {
       this.setData({ stallId: options.id });
       this.loadStallDetail();

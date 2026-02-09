@@ -7,38 +7,38 @@ const db = cloud.database();
 
 exports.main = async (event, context) => {
   try {
-    // 初始化分类数据
+    // 初始化分类数据（ID格式需与 vendor-apply.js 保持一致）
     const categories = [
       {
-        _id: 'cat_001',
+        _id: 'food_snack',
         name: '小吃/烧烤',
         icon: '🍢',
         sort: 1,
         createTime: new Date()
       },
       {
-        _id: 'cat_002',
+        _id: 'handicraft',
         name: '手工/饰品',
         icon: '🎨',
         sort: 2,
         createTime: new Date()
       },
       {
-        _id: 'cat_003',
+        _id: 'toy_culture',
         name: '玩具/文创',
         icon: '🧸',
         sort: 3,
         createTime: new Date()
       },
       {
-        _id: 'cat_004',
+        _id: 'food_fruit',
         name: '水果/零食',
         icon: '🍎',
         sort: 4,
         createTime: new Date()
       },
       {
-        _id: 'cat_005',
+        _id: 'other',
         name: '其他',
         icon: '📦',
         sort: 5,

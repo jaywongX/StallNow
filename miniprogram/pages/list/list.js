@@ -97,9 +97,11 @@ Page({
     this.setData({
       selectedCategory: e.detail.id,
       page: 1,
-      stalls: []
+      stalls: [],
+      hasMore: true
+    }, () => {
+      this.loadStalls();
     });
-    this.loadStalls();
   },
 
   // 选择时间
@@ -107,9 +109,11 @@ Page({
     this.setData({
       selectedTime: e.detail.type,
       page: 1,
-      stalls: []
+      stalls: [],
+      hasMore: true
+    }, () => {
+      this.loadStalls();
     });
-    this.loadStalls();
   },
 
   // 点击地摊卡片

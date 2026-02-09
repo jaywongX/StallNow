@@ -13,7 +13,7 @@
     data-id="{{item._id}}"
     bindtap="onSelect"
   >
-    <text wx:if="{{item.icon}}">{{item.icon}}</text>
+    <text class="icon" wx:if="{{item.icon}}">{{item.icon}}</text>
     {{item.name}}
   </view>
 </scroll-view>

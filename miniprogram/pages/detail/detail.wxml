@@ -116,8 +116,8 @@
     </view>
   </view>
 
-  <!-- 摊主操作区 -->
-  <view class="owner-section">
+  <!-- 管理员操作区 -->
+  <view class="owner-section" wx:if="{{isAdmin}}">
     <view class="owner-btn" bindtap="onConfirmStall">
       我是摊主 - 确认摊位
     </view>

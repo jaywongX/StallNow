@@ -21,6 +21,6 @@
   color: #FFF;
 }
 
-.category-item text {
+.category-item .icon {
   margin-right: 6rpx;
 }
