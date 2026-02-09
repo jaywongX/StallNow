@@ -92,3 +92,50 @@
     </view>
   </view>
 </view>
+
+<!-- 标记卡片预览 -->
+<view wx:if="{{showMarkerCard && selectedStall}}" class="marker-card-overlay" bindtap="onCloseMarkerCard">
+  <view class="marker-card" catchtap="preventBubble">
+    <!-- 卡片头部 -->
+    <view class="card-header">
+      <view class="stall-info">
+        <text class="category-tag" style="background: {{categoryColors[selectedStall.categoryId] || '#999'}}">
+          {{selectedStall.categoryName || '其他'}}
+        </text>
+        <text class="stall-name">{{selectedStall.displayName}}</text>
+      </view>
+      <text class="close-btn" bindtap="onCloseMarkerCard">✕</text>
+    </view>
+    
+    <!-- 卡片内容 -->
+    <view class="card-body">
+      <!-- 图片 -->
+      <view wx:if="{{selectedStall.images && selectedStall.images.length > 0}}" class="card-image">
+        <image src="{{selectedStall.images[0]}}" mode="aspectFill" />
+      </view>
+      
+      <!-- 信息 -->
+      <view class="card-info">
+        <view class="info-row">
+          <text class="icon">📍</text>
+          <text class="text">{{selectedStall.address || '位置不详'}}</text>
+        </view>
+        <view class="info-row">
+          <text class="icon">🕐</text>
+          <text class="text">{{selectedStall.scheduleType || '时间不详'}}</text>
+        </view>
+        <!-- 可信度 -->
+        <view class="reliability-row">
+          <text wx:if="{{selectedStall.reliability === 2}}" class="reliability high">🟢 今日可能在</text>
+          <text wx:elif="{{selectedStall.reliability === 1}}" class="reliability medium">🟡 最近没摆</text>
+          <text wx:else class="reliability low">⚪ 信息过期</text>
+        </view>
+      </view>
+    </view>
+    
+    <!-- 卡片底部 -->
+    <view class="card-footer">
+      <button class="btn-detail" bindtap="onGoToDetail">查看详情</button>
+    </view>
+  </view>
+</view>

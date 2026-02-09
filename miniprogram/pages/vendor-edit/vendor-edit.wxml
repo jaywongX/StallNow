@@ -1,0 +1,174 @@
+<wxs src="./vendor-edit.wxs" module="arrayUtils" />
+
+<view class="container">
+  <!-- 加载中 -->
+  <view wx:if="{{loading}}" class="loading-state">
+    <view class="loading-icon"></view>
+    <text class="loading-text">加载中...</text>
+  </view>
+  
+  <!-- 编辑表单 -->
+  <view wx:else class="form-container">
+    <!-- 分类信息（只读） -->
+    <view class="form-section">
+      <view class="section-title">摊位分类</view>
+      <view class="section-desc">分类信息不可修改，如需修改请重新申请入驻</view>
+      <view class="category-display">
+        <text class="category-icon">{{categoryIcon || '📦'}}</text>
+        <text class="category-name">{{form.categoryName || '未分类'}}</text>
+      </view>
+    </view>
+    
+    <!-- 商品标签 -->
+    <view class="form-section">
+      <view class="section-title">商品标签 <text class="required">*</text></view>
+      <view class="tags-container">
+        <view 
+          wx:for="{{currentGoodsOptions}}" 
+          wx:key="*this"
+          class="tag {{arrayUtils.includes(form.goodsTags, item) ? 'active' : ''}}"
+          bindtap="onGoodsTagSelect"
+          data-tag="{{item}}"
+        >
+          {{item}}
+        </view>
+      </view>
+      <view wx:if="{{errors.goods}}" class="error-text">{{errors.goods}}</view>
+    </view>
+    
+    <!-- 摊位名称 -->
+    <view class="form-section">
+      <view class="section-title">摊位名称 <text class="required">*</text></view>
+      <input 
+        class="input" 
+        placeholder="给摊位起个好听的名字"
+        value="{{form.displayName}}"
+        bindinput="onNameInput"
+        maxlength="20"
+      />
+      <view wx:if="{{errors.displayName}}" class="error-text">{{errors.displayName}}</view>
+    </view>
+    
+    <!-- 常出没区域 -->
+    <view class="form-section">
+      <view class="section-title">常出没区域</view>
+      <input 
+        class="input" 
+        placeholder="例如：xx小区门口、xx地铁站A口"
+        value="{{form.address}}"
+        bindinput="onAddressInput"
+        maxlength="50"
+      />
+    </view>
+    
+    <!-- 出摊时间 -->
+    <view class="form-section">
+      <view class="section-title">出摊时间 <text class="required">*</text></view>
+      <view class="schedule-options">
+        <view 
+          wx:for="{{scheduleOptions}}" 
+          wx:key="id"
+          class="schedule-item {{arrayUtils.includes(form.scheduleTypes, item.id) ? 'active' : ''}}"
+          bindtap="onScheduleSelect"
+          data-id="{{item.id}}"
+        >
+          <text class="schedule-icon">{{item.icon}}</text>
+          <text class="schedule-name">{{item.name}}</text>
+        </view>
+      </view>
+      
+      <!-- 自定义时间选择 -->
+      <view wx:if="{{form.scheduleTypes.includes('unfixed')}}" class="custom-time-section">
+        <view class="time-picker-row">
+          <picker mode="selector" range="{{timePickerRange}}" bindchange="onCustomTimeStartChange">
+            <view class="time-picker">
+              <text class="time-label">开始时间</text>
+              <text class="time-value">{{form.customTimeStart || '请选择'}}</text>
+            </view>
+          </picker>
+          <text class="time-separator">至</text>
+          <picker mode="selector" range="{{timePickerRange}}" bindchange="onCustomTimeEndChange">
+            <view class="time-picker">
+              <text class="time-label">结束时间</text>
+              <text class="time-value">{{form.customTimeEnd || '请选择'}}</text>
+            </view>
+          </picker>
+        </view>
+      </view>
+      
+      <view wx:if="{{errors.schedule}}" class="error-text">{{errors.schedule}}</view>
+    </view>
+    
+    <!-- 摊位照片 -->
+    <view class="form-section">
+      <view class="section-title">摊位照片</view>
+      <view class="section-desc">最多上传3张照片，建议上传摊位实拍图帮助用户找到你</view>
+      <view class="images-container">
+        <view 
+          wx:for="{{form.images}}" 
+          wx:key="*this"
+          class="image-item"
+        >
+          <image 
+            src="{{item}}" 
+            mode="aspectFill" 
+            bindtap="onPreviewImage"
+            data-index="{{index}}"
+          />
+          <view class="delete-btn" bindtap="onDeleteImage" data-index="{{index}}">×</view>
+        </view>
+        <view 
+          wx:if="{{form.images.length < 3}}"
+          class="upload-btn"
+          bindtap="onChooseImages"
+        >
+          <text class="upload-icon">+</text>
+          <text class="upload-text">上传照片</text>
+        </view>
+      </view>
+    </view>
+    
+    <!-- 联系方式 -->
+    <view class="form-section">
+      <view class="section-title">联系方式（选填）</view>
+      <view class="contact-section">
+        <view class="contact-item">
+          <text class="contact-label">电话</text>
+          <input 
+            class="contact-input" 
+            placeholder="联系电话"
+            value="{{form.phone}}"
+            bindinput="onPhoneInput"
+            type="number"
+            maxlength="11"
+          />
+        </view>
+        <view class="contact-item">
+          <text class="contact-label">微信</text>
+          <input 
+            class="contact-input" 
+            placeholder="微信号"
+            value="{{form.wechatId}}"
+            bindinput="onWechatInput"
+            maxlength="20"
+          />
+        </view>
+      </view>
+    </view>
+  </view>
+  
+  <!-- 底部按钮 -->
+  <view wx:if="{{!loading}}" class="footer">
+    <button class="btn-cancel" bindtap="onCancel">取消</button>
+    <button 
+      class="btn-save {{hasChanged ? 'active' : ''}}" 
+      bindtap="onSave"
+      disabled="{{!hasChanged || saving}}"
+    >
+      {{saving ? '保存中...' : '保存修改'}}
+    </button>
+  </view>
+  
+  <!-- 压缩图片用的canvas -->
+  <canvas canvas-id="compressCanvas" style="width: 800px; height: 800px; position: fixed; left: -9999px;"></canvas>
+</view>

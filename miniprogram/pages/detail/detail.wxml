@@ -5,6 +5,13 @@
 
 <!-- 详情内容 -->
 <view class="detail-container" wx:if="{{stall}}">
+  <!-- 摊位状态提示 -->
+  <view class="stall-status-banner" wx:if="{{!isStallActive}}">
+    <text class="status-icon">⚠️</text>
+    <text class="status-text">{{stallStatusText}}</text>
+    <text class="status-desc">该摊主可能暂时休息或已停止经营</text>
+  </view>
+  
   <!-- 图片轮播 -->
   <swiper
     class="image-swiper"
@@ -164,7 +171,7 @@
   </view>
 </view>
 
-<!-- 联系方式确认弹窗 -->
+  <!-- 联系方式确认弹窗 -->
 <view class="modal-mask" wx:if="{{showContactModal}}" bindtap="onCancelContact">
   <view class="modal-content contact-modal" catchtap>
     <view class="modal-header">
@@ -180,4 +187,20 @@
       <view class="btn confirm" bindtap="onConfirmContact">继续查看</view>
     </view>
   </view>
+</view>
+
+<!-- 收藏引导轻提示 -->
+<view wx:if="{{showFavoriteGuide}}" class="favorite-guide" animation="{{favoriteGuideAnimation}}">
+  <view class="guide-content">
+    <view class="guide-star">⭐</view>
+    <view class="guide-text">
+      <text class="guide-title">收藏这个摊位</text>
+      <text class="guide-desc">下次更容易找到</text>
+    </view>
+    <view class="guide-actions">
+      <button class="btn-favorite" bindtap="onFavoriteStall">收藏</button>
+      <button class="btn-later" bindtap="onCloseFavoriteGuide">先看看</button>
+    </view>
+  </view>
+  <view class="guide-close" bindtap="onCloseFavoriteGuide">✕</view>
 </view>

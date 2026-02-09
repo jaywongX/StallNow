@@ -5,6 +5,7 @@
     "pages/vendor/vendor",
     "pages/vendor-apply/vendor-apply",
     "pages/vendor-manage/vendor-manage",
+    "pages/vendor-edit/vendor-edit",
     "pages/profile/profile",
     "pages/detail/detail",
     "pages/admin/admin",

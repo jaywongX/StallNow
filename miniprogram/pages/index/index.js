@@ -26,7 +26,20 @@ Page({
     // UI状态
     showList: false,
     showFilter: false,
-    cityNoticeShown: false
+    cityNoticeShown: false,
+    
+    // 标记卡片预览
+    showMarkerCard: false,
+    selectedStall: null
+  },
+  
+  // 分类对应的颜色
+  categoryColors: {
+    'food_snack': '#FF6B35',   // 小吃/烧烤 - 暖橙色
+    'food_fruit': '#52C41A',   // 水果/零食 - 绿色
+    'handicraft': '#722ED1',   // 手工/饰品 - 紫色
+    'toy_culture': '#1890FF',  // 玩具/文创 - 蓝色
+    'other': '#999999'         // 其他 - 灰色
   },
 
   async onLoad() {
@@ -188,26 +201,51 @@ Page({
       console.log('[DEBUG] getStalls 返回结果:', result);
       const newStalls = result.data || [];
 
+      // 处理摊位数据，添加显示的字段
+      newStalls.forEach(stall => {
+        // 处理出摊时间显示
+        if (stall.schedule) {
+          stall.scheduleType = stall.schedule.type || 
+            (stall.schedule.customTime ? stall.schedule.customTime : '时间不详');
+        } else if (stall.scheduleTypes && stall.scheduleTypes.length > 0) {
+          const typeMap = {
+            'afternoon': '下午',
+            'evening': '晚上',
+            'weekend': '周末',
+            'unfixed': '不固定'
+          };
+          stall.scheduleType = stall.scheduleTypes.map(t => typeMap[t] || t).join('、');
+        } else {
+          stall.scheduleType = '时间不详';
+        }
+      });
+
       // 构建地图标记（id 必须是数字）
       let markerId = 1;
-      const newMarkers = newStalls.map(stall => ({
-        id: markerId++,  // 使用数字ID
-        _stallId: stall._id,  // 保存原始ID用于跳转
-        latitude: stall.location.latitude,
-        longitude: stall.location.longitude,
-        iconPath: '/images/marker.png',
-        width: 30,
-        height: 30,
-        callout: {
-          content: stall.displayName,
-          color: '#333',
-          fontSize: 12,
-          borderRadius: 5,
-          bgColor: '#fff',
-          padding: 5,
-          display: 'BYCLICK'
-        }
-      }));
+      const newMarkers = newStalls.map(stall => {
+        const categoryColor = this.categoryColors[stall.categoryId] || '#FF6B35';
+        return {
+          id: markerId++,  // 使用数字ID
+          _stallId: stall._id,  // 保存原始ID用于跳转
+          latitude: stall.location.latitude,
+          longitude: stall.location.longitude,
+          iconPath: '/images/marker.png',
+          width: 36,
+          height: 36,
+          // 使用自定义气泡显示更多信息
+          callout: {
+            content: `${stall.displayName}\n${stall.categoryName || '其他'}`,
+            color: '#333',
+            fontSize: 13,
+            borderRadius: 8,
+            bgColor: '#fff',
+            padding: 10,
+            display: 'BYCLICK',
+            borderWidth: 2,
+            borderColor: categoryColor
+          }
+        };
+      });
 
       this.setData({
         stalls: this.data.page === 1 ? newStalls : [...this.data.stalls, ...newStalls],
@@ -261,14 +299,36 @@ Page({
     });
   },
 
-  // 地图标记点击
+  // 地图标记点击 - 显示卡片预览
   onMarkerTap(e) {
     const markerId = e.detail.markerId;
-    // 通过 markerId 查找对应的摊位ID
+    // 通过 markerId 查找对应的摊位
     const marker = this.data.markers.find(m => m.id === markerId);
-    if (marker && marker._stallId) {
+    const stall = this.data.stalls.find(s => s._id === marker._stallId);
+    
+    if (stall) {
+      this.setData({
+        showMarkerCard: true,
+        selectedStall: stall
+      });
+    }
+  },
+  
+  // 关闭标记卡片
+  onCloseMarkerCard() {
+    this.setData({
+      showMarkerCard: false,
+      selectedStall: null
+    });
+  },
+  
+  // 从卡片跳转到详情
+  onGoToDetail() {
+    const { selectedStall } = this.data;
+    if (selectedStall) {
+      this.setData({ showMarkerCard: false });
       wx.navigateTo({
-        url: `/pages/detail/detail?id=${marker._stallId}`
+        url: `/pages/detail/detail?id=${selectedStall._id}`
       });
     }
   },

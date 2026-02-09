@@ -1,21 +1,27 @@
-// 摊主入驻申请表单
+// 编辑摊位信息页面
+const app = getApp();
+
 Page({
     data: {
+        stallId: '',
+        
         // 表单数据
         form: {
             categoryId: '',
             categoryName: '',
             goodsTags: [],
-            location: null,  // 定位位置 {latitude, longitude, name, address}
-            address: '',     // 常出没区域（可选）
+            address: '',     // 常出没区域
             scheduleTypes: [],
-            customTimeStart: '',  // 自定义开始时间
-            customTimeEnd: '',    // 自定义结束时间
+            customTimeStart: '',
+            customTimeEnd: '',
             displayName: '',
             phone: '',
             wechatId: '',
-            images: []       // 摊位照片
+            images: []
         },
+        
+        // 原始数据（用于比较变化）
+        originalForm: {},
         
         // 时间选项
         scheduleOptions: [
@@ -30,11 +36,7 @@ Page({
                          '12:00', '13:00', '14:00', '15:00', '16:00', '17:00',
                          '18:00', '19:00', '20:00', '21:00', '22:00', '23:00', '24:00'],
         
-        // 定位状态
-        locationName: '',
-        isLocating: false,
-        
-        // 分类选项
+        // 分类选项（只读，不能修改）
         categories: [
             { id: 'food_snack', name: '小吃/烧烤', icon: '🍢' },
             { id: 'food_fruit', name: '水果/零食', icon: '🍉' },
@@ -55,80 +57,99 @@ Page({
         // 当前显示的商品标签
         currentGoodsOptions: [],
         
+        // 页面状态
+        loading: true,
+        saving: false,
+        hasChanged: false,
+        
         // 表单验证
         errors: {}
+    },
+    
+    onLoad(options) {
+        if (!options.id) {
+            wx.showToast({ title: '参数错误', icon: 'error' });
+            wx.navigateBack();
+            return;
+        }
+        this.setData({ stallId: options.id });
+        this.loadStallData();
+    },
+    
+    // 加载摊位数据
+    async loadStallData() {
+        try {
+            this.setData({ loading: true });
+            
+            const { result } = await wx.cloud.callFunction({
+                name: 'getStallDetail',
+                data: { stallId: this.data.stallId }
+            });
+            
+            if (result.code === 0 && result.data) {
+                const stall = result.data;
+                
+                // 构建表单数据
+                const form = {
+                    categoryId: stall.categoryId || '',
+                    categoryName: stall.categoryName || '',
+                    goodsTags: stall.goodsTags || [],
+                    address: stall.address || '',
+                    scheduleTypes: stall.scheduleTypes || [],
+                    customTimeStart: stall.schedule?.customTimeStart || '',
+                    customTimeEnd: stall.schedule?.customTimeEnd || '',
+                    displayName: stall.displayName || '',
+                    phone: stall.contact?.phone || '',
+                    wechatId: stall.contact?.wechatId || '',
+                    images: stall.images || []
+                };
+                
+                // 获取当前分类的商品选项
+                const currentGoodsOptions = this.data.goodsOptions[form.categoryId] || [];
+                
+                // 获取分类图标
+                const category = this.data.categories.find(c => c.id === form.categoryId);
+                const categoryIcon = category ? category.icon : '📦';
+                
+                this.setData({
+                    form,
+                    originalForm: JSON.parse(JSON.stringify(form)),
+                    currentGoodsOptions,
+                    categoryIcon,
+                    loading: false
+                });
+            } else {
+                throw new Error(result.message || '加载失败');
+            }
+        } catch (err) {
+            console.error('加载摊位数据失败', err);
+            wx.showToast({ title: err.message || '加载失败', icon: 'error' });
+            this.setData({ loading: false });
+        }
     },
     
     // 判断是否选择了"不固定"
     hasUnfixedSelected() {
         return this.data.form.scheduleTypes.includes('unfixed');
     },
-
-    // 显示合规确认弹窗
-    showComplianceConfirm() {
-        return new Promise((resolve) => {
-            wx.showModal({
-                title: '确认信息合规',
-                content: '请确认您提交的信息符合规范：\n\n• 照片无价格、收款码等交易信息\n• 名称无促销、价格等内容',
-                confirmText: '确认提交',
-                cancelText: '再检查下',
-                success: (res) => {
-                    resolve(res.confirm);
-                }
-            });
-        });
+    
+    // 判断商品标签是否选中（供WXML使用）
+    isGoodsTagSelected(tag) {
+        return this.data.form.goodsTags.includes(tag);
     },
-
-    onLoad() {
-        // 页面加载，不自动获取定位，等待用户手动选择
+    
+    // 判断出摊时间是否选中（供WXML使用）
+    isScheduleSelected(id) {
+        return this.data.form.scheduleTypes.includes(id);
     },
-
-    // 选择摊位位置（用户点击后弹出地图）
-    async onSelectLocation() {
-        try {
-            const chooseRes = await wx.chooseLocation();
-            
-            this.setData({
-                'form.location': {
-                    latitude: chooseRes.latitude,
-                    longitude: chooseRes.longitude,
-                    name: chooseRes.name,
-                    address: chooseRes.address
-                },
-                locationName: chooseRes.name || chooseRes.address || '已选择位置',
-                errors: {}  // 清除错误提示
-            });
-        } catch (err) {
-            console.error('选择位置失败', err);
-            // 用户取消选择时不显示错误
-            if (err.errMsg && err.errMsg.indexOf('cancel') === -1) {
-                wx.showToast({
-                    title: '选择位置失败',
-                    icon: 'none'
-                });
-            }
-        }
+    
+    // 检查是否有修改
+    checkChanges() {
+        const formStr = JSON.stringify(this.data.form);
+        const originalStr = JSON.stringify(this.data.originalForm);
+        this.setData({ hasChanged: formStr !== originalStr });
     },
-
-    // 重新选择位置
-    onReselectLocation() {
-        this.onSelectLocation();
-    },
-
-    // 选择分类
-    onCategorySelect(e) {
-        const { id, name } = e.currentTarget.dataset;
-        const goodsOptions = this.data.goodsOptions[id] || [];
-        
-        this.setData({
-            'form.categoryId': id,
-            'form.categoryName': name,
-            'form.goodsTags': [],
-            currentGoodsOptions: goodsOptions,
-            errors: {}
-        });
-    },
-
+    
     // 选择商品标签
     onGoodsTagSelect(e) {
         const { tag } = e.currentTarget.dataset;
@@ -139,10 +160,7 @@ Page({
             newTags = goodsTags.filter(t => t !== tag);
         } else {
             if (goodsTags.length >= 5) {
-                wx.showToast({
-                    title: '最多选5个',
-                    icon: 'none'
-                });
+                wx.showToast({ title: '最多选5个', icon: 'none' });
                 return;
             }
             newTags = [...goodsTags, tag];
@@ -150,16 +168,16 @@ Page({
         
         this.setData({
             'form.goodsTags': newTags
-        });
+        }, () => this.checkChanges());
     },
-
+    
     // 输入常出没区域
     onAddressInput(e) {
         this.setData({
             'form.address': e.detail.value
-        });
+        }, () => this.checkChanges());
     },
-
+    
     // 选择时间
     onScheduleSelect(e) {
         const { id } = e.currentTarget.dataset;
@@ -167,14 +185,11 @@ Page({
         
         let newTypes;
         if (scheduleTypes.includes(id)) {
-            // 取消选择
             newTypes = scheduleTypes.filter(t => t !== id);
         } else {
-            // 选择"不固定"时，清空其他选择
             if (id === 'unfixed') {
                 newTypes = ['unfixed'];
             } else {
-                // 选择其他时，如果已选"不固定"则移除
                 newTypes = scheduleTypes.filter(t => t !== 'unfixed');
                 newTypes.push(id);
             }
@@ -182,10 +197,9 @@ Page({
         
         this.setData({
             'form.scheduleTypes': newTypes,
-            // 如果不是不固定，清空自定义时间
             'form.customTimeStart': newTypes.includes('unfixed') ? this.data.form.customTimeStart : '',
             'form.customTimeEnd': newTypes.includes('unfixed') ? this.data.form.customTimeEnd : ''
-        });
+        }, () => this.checkChanges());
     },
     
     // 选择自定义开始时间
@@ -194,7 +208,7 @@ Page({
         const time = this.data.timePickerRange[index];
         this.setData({
             'form.customTimeStart': time
-        });
+        }, () => this.checkChanges());
     },
     
     // 选择自定义结束时间
@@ -203,30 +217,30 @@ Page({
         const time = this.data.timePickerRange[index];
         this.setData({
             'form.customTimeEnd': time
-        });
+        }, () => this.checkChanges());
     },
-
+    
     // 输入摊位名称
     onNameInput(e) {
         this.setData({
             'form.displayName': e.detail.value
-        });
+        }, () => this.checkChanges());
     },
-
+    
     // 输入电话
     onPhoneInput(e) {
         this.setData({
             'form.phone': e.detail.value
-        });
+        }, () => this.checkChanges());
     },
-
+    
     // 输入微信号
     onWechatInput(e) {
         this.setData({
             'form.wechatId': e.detail.value
-        });
+        }, () => this.checkChanges());
     },
-
+    
     // 选择图片
     onChooseImages() {
         const remainCount = 3 - this.data.form.images.length;
@@ -234,57 +248,55 @@ Page({
             wx.showToast({ title: '最多上传3张图片', icon: 'none' });
             return;
         }
-
+        
         wx.chooseImage({
             count: remainCount,
-            sizeType: ['compressed'], // 使用压缩版本
+            sizeType: ['compressed'],
             sourceType: ['album', 'camera'],
             success: (res) => {
                 this.compressAndUploadImages(res.tempFilePaths);
             }
         });
     },
-
+    
     // 压缩并上传图片
     async compressAndUploadImages(filePaths) {
         wx.showLoading({ title: '处理中...' });
-
+        
         try {
             const uploadedImages = [...this.data.form.images];
-
+            
             for (const filePath of filePaths) {
-                // 压缩图片
                 const compressedPath = await this.compressImage(filePath);
-                // 上传到云存储
                 const fileID = await this.uploadImage(compressedPath);
                 uploadedImages.push(fileID);
             }
-
+            
             this.setData({
                 'form.images': uploadedImages
+            }, () => {
+                this.checkChanges();
+                wx.hideLoading();
+                wx.showToast({ title: '上传成功', icon: 'success' });
             });
-            wx.hideLoading();
-            wx.showToast({ title: '上传成功', icon: 'success' });
         } catch (err) {
             console.error('上传图片失败', err);
             wx.hideLoading();
             wx.showToast({ title: '上传失败', icon: 'none' });
         }
     },
-
+    
     // 压缩图片
     compressImage(filePath) {
         return new Promise((resolve, reject) => {
             wx.getImageInfo({
                 src: filePath,
                 success: (info) => {
-                    // 如果图片宽度大于 800px，进行压缩
                     if (info.width > 800) {
                         const canvasCtx = wx.createCanvasContext('compressCanvas');
                         const ratio = 800 / info.width;
                         const newHeight = info.height * ratio;
-
-                        // 绘制压缩后的图片
+                        
                         canvasCtx.drawImage(filePath, 0, 0, 800, newHeight);
                         canvasCtx.draw(false, () => {
                             wx.canvasToTempFilePath({
@@ -295,14 +307,11 @@ Page({
                                 destHeight: newHeight,
                                 fileType: 'jpg',
                                 quality: 0.8,
-                                success: (res) => {
-                                    resolve(res.tempFilePath);
-                                },
+                                success: (res) => resolve(res.tempFilePath),
                                 fail: reject
                             });
                         });
                     } else {
-                        // 图片尺寸合适，直接返回
                         resolve(filePath);
                     }
                 },
@@ -310,7 +319,7 @@ Page({
             });
         });
     },
-
+    
     // 上传图片到云存储
     async uploadImage(filePath) {
         const cloudPath = `stalls/${Date.now()}_${Math.random().toString(36).substr(2, 9)}.jpg`;
@@ -320,7 +329,7 @@ Page({
         });
         return res.fileID;
     },
-
+    
     // 预览图片
     onPreviewImage(e) {
         const index = e.currentTarget.dataset.index;
@@ -329,40 +338,33 @@ Page({
             urls: this.data.form.images
         });
     },
-
+    
     // 删除图片
     onDeleteImage(e) {
         const index = e.currentTarget.dataset.index;
         const images = this.data.form.images.filter((_, i) => i !== index);
         this.setData({
             'form.images': images
-        });
+        }, () => this.checkChanges());
     },
-
+    
     // 验证表单
     validateForm() {
         const { form } = this.data;
         const errors = {};
         
-        if (!form.categoryId) {
-            errors.category = '请选择摊位类型';
+        if (!form.displayName.trim()) {
+            errors.displayName = '请输入摊位名称';
         }
         
         if (form.goodsTags.length === 0) {
             errors.goods = '请至少选择一个商品标签';
         }
         
-        // 定位位置为必填
-        if (!form.location) {
-            errors.location = '请选择摊位定位位置';
-        }
-        
-        // 常出没区域改为可选
         if (form.scheduleTypes.length === 0) {
             errors.schedule = '请至少选择一个出摊时间';
         }
         
-        // 如果选择了"不固定"，需要填写自定义时间
         if (form.scheduleTypes.includes('unfixed')) {
             if (!form.customTimeStart || !form.customTimeEnd) {
                 errors.schedule = '请选择自定义时间段';
@@ -372,52 +374,47 @@ Page({
         this.setData({ errors });
         return Object.keys(errors).length === 0;
     },
-
-    // 提交申请
-    async onSubmit() {
+    
+    // 保存修改
+    async onSave() {
         if (!this.validateForm()) {
-            wx.showToast({
-                title: '请完善必填信息',
-                icon: 'none'
-            });
+            wx.showToast({ title: '请完善必填信息', icon: 'none' });
             return;
         }
         
-        // 合规确认弹窗
-        const confirmRes = await this.showComplianceConfirm();
-        if (!confirmRes) return;
+        if (!this.data.hasChanged) {
+            wx.showToast({ title: '没有需要保存的修改', icon: 'none' });
+            return;
+        }
         
         try {
-            wx.showLoading({ title: '提交中...', mask: true });
+            this.setData({ saving: true });
+            wx.showLoading({ title: '保存中...', mask: true });
             
-            const { form } = this.data;
+            const { form, stallId } = this.data;
             
             // 构建出摊时间数据
             let scheduleData = {
                 types: form.scheduleTypes
             };
             
-            // 如果有自定义时间，添加到数据中
             if (form.scheduleTypes.includes('unfixed') && form.customTimeStart && form.customTimeEnd) {
                 scheduleData.customTime = `${form.customTimeStart} - ${form.customTimeEnd}`;
                 scheduleData.customTimeStart = form.customTimeStart;
                 scheduleData.customTimeEnd = form.customTimeEnd;
             }
             
-            // 调用云函数提交申请
             const { result } = await wx.cloud.callFunction({
-                name: 'submitApplication',
+                name: 'updateStall',
                 data: {
-                    stallData: {
-                        categoryId: form.categoryId,
-                        categoryName: form.categoryName,
-                        goodsTags: form.goodsTags,
-                        location: form.location,       // 定位位置（必选）
-                        address: form.address,         // 常出没区域（可选）
-                        scheduleTypes: form.scheduleTypes,
-                        schedule: scheduleData,        // 详细出摊时间信息
+                    stallId,
+                    updateData: {
                         displayName: form.displayName,
-                        images: form.images,           // 摊位照片
+                        goodsTags: form.goodsTags,
+                        address: form.address,
+                        scheduleTypes: form.scheduleTypes,
+                        schedule: scheduleData,
+                        images: form.images,
                         contact: {
                             phone: form.phone,
                             wechatId: form.wechatId
@@ -427,27 +424,45 @@ Page({
             });
             
             wx.hideLoading();
+            this.setData({ saving: false });
             
-            if (result && result.code === 0) {
+            if (result.code === 0) {
                 wx.showModal({
-                    title: '提交成功',
-                    content: '我们会在1-2个工作日内完成审核，请耐心等待',
+                    title: '保存成功',
+                    content: '摊位信息已更新',
                     showCancel: false,
                     success: () => {
-                        // 返回摊主专区
                         wx.navigateBack();
                     }
                 });
             } else {
-                throw new Error(result && result.message ? result.message : '提交失败，请稍后重试');
+                throw new Error(result.message || '保存失败');
             }
         } catch (err) {
             wx.hideLoading();
-            console.error('提交失败', err);
+            this.setData({ saving: false });
+            console.error('保存失败', err);
             wx.showToast({
-                title: err.message || '提交失败',
+                title: err.message || '保存失败',
                 icon: 'error'
             });
+        }
+    },
+    
+    // 取消编辑
+    onCancel() {
+        if (this.data.hasChanged) {
+            wx.showModal({
+                title: '确认放弃',
+                content: '您有未保存的修改，确定要放弃吗？',
+                success: (res) => {
+                    if (res.confirm) {
+                        wx.navigateBack();
+                    }
+                }
+            });
+        } else {
+            wx.navigateBack();
         }
     }
 });

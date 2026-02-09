@@ -44,14 +44,6 @@
         <text class="menu-arrow">></text>
       </view>
       
-      <view class="menu-item" bindtap="onScheduleTap">
-        <view class="menu-left">
-          <text class="menu-icon">⏰</text>
-          <text class="menu-name">修改出摊时间</text>
-        </view>
-        <text class="menu-arrow">></text>
-      </view>
-      
       <view class="menu-item" bindtap="onShareTap">
         <view class="menu-left">
           <text class="menu-icon">📤</text>
@@ -60,12 +52,10 @@
         <text class="menu-arrow">></text>
       </view>
       
-      <view class="menu-item offline-item" bindtap="onOfflineTap">
+      <view class="menu-item" bindtap="onOfflineTap">
         <view class="menu-left">
           <text class="menu-icon">{{stall.status === 2 ? '▶️' : '⏸'}}</text>
-          <text class="menu-name {{stall.status === 2 ? 'online-text' : 'offline-text'}}">
-            {{stall.status === 2 ? '恢复摆摊' : '暂时不摆了'}}
-          </text>
+          <text class="menu-name">{{stall.status === 2 ? '恢复摆摊' : '暂时不摆了'}}</text>
         </view>
         <text class="menu-arrow">></text>
       </view>
@@ -81,5 +71,54 @@
     <text class="tips-text" wx:if="{{stall.status === 2}}">
       你的摊位已下线，用户暂时看不到。恢复摆摊后即可重新展示。
     </text>
+  </view>
+  
+  <!-- 小程序码弹窗 -->
+  <view wx:if="{{showQRModal}}" class="modal-mask" bindtap="onCloseQRModal">
+    <view class="modal-content qr-modal" catchtap="onModalContentTap">
+      <view class="modal-header">
+        <text class="modal-title">我的摊位码</text>
+        <text class="modal-close" bindtap="onCloseQRModal">×</text>
+      </view>
+      
+      <view class="modal-body qr-body">
+        <view class="qr-section">
+          <text class="qr-stall-name">{{stall.displayName}}</text>
+          <text class="qr-hint">扫码查看摊位详情</text>
+          
+          <view class="qr-code-wrapper">
+            <image 
+              wx:if="{{qrCodeUrl}}"
+              src="{{qrCodeUrl}}" 
+              mode="aspectFit" 
+              class="qr-code-image"
+              show-menu-by-longpress
+              binderror="onQRCodeError"
+            />
+            <view wx:elif="{{generatingQR}}" class="qr-loading">
+              <view class="loading-icon"></view>
+              <text>生成中...</text>
+            </view>
+            <view wx:else class="qr-placeholder" bindtap="generateQRCode">
+              <text class="qr-retry-icon">🔄</text>
+              <text>点击重新生成</text>
+            </view>
+          </view>
+          
+          <text class="qr-tips">💡 提示：可截图或保存后打印张贴在摊位上</text>
+        </view>
+      </view>
+      
+      <view class="modal-footer qr-footer">
+        <button class="btn-cancel-modal" bindtap="onCloseQRModal">关闭</button>
+        <button 
+          wx:if="{{qrCodeUrl}}"
+          class="btn-save-modal active" 
+          bindtap="onSaveQRCode"
+        >
+          保存到相册
+        </button>
+      </view>
+    </view>
   </view>
 </view>

@@ -22,6 +22,13 @@
     selected-type="{{selectedTime}}"
     bindselect="onTimeSelect"
   />
+  <!-- 排序/筛选按钮 -->
+  <view class="sort-filter-btns">
+    <view class="filter-btn {{sortBy !== 'default' || filterConfirmed ? 'active' : ''}}" bindtap="onOpenFilter">
+      <text class="btn-text">{{sortBy === 'default' && !filterConfirmed ? '排序/筛选' : '已筛选'}}</text>
+      <text class="btn-icon">▼</text>
+    </view>
+  </view>
 </view>
 
 <!-- 地摊列表 -->
@@ -59,3 +66,52 @@
     <text>暂无地摊信息</text>
   </view>
 </scroll-view>
+
+<!-- 筛选/排序弹窗 -->
+<view wx:if="{{showFilterModal}}" class="filter-modal" bindtap="onCloseFilter">
+  <view class="filter-modal-content" catchtap>
+    <view class="filter-modal-header">
+      <text class="modal-title">排序与筛选</text>
+      <text class="modal-close" bindtap="onCloseFilter">✕</text>
+    </view>
+    
+    <!-- 排序选项 -->
+    <view class="filter-section">
+      <text class="section-title">排序方式</text>
+      <view class="sort-options">
+        <view 
+          wx:for="{{sortOptions}}" 
+          wx:key="id"
+          class="sort-item {{sortBy === item.id ? 'active' : ''}}"
+          data-id="{{item.id}}"
+          bindtap="onSortSelect"
+        >
+          <text class="sort-name">{{item.name}}</text>
+          <text wx:if="{{sortBy === item.id}}" class="sort-check">✓</text>
+        </view>
+      </view>
+    </view>
+    
+    <!-- 筛选选项 -->
+    <view class="filter-section">
+      <text class="section-title">筛选条件</text>
+      <view class="filter-options">
+        <view 
+          class="filter-option-item {{filterConfirmed ? 'active' : ''}}"
+          data-id="confirmed"
+          bindtap="onFilterToggle"
+        >
+          <text class="option-name">只看近期确认的摊位</text>
+          <view class="option-checkbox {{filterConfirmed ? 'checked' : ''}}">
+            <text wx:if="{{filterConfirmed}}">✓</text>
+          </view>
+        </view>
+      </view>
+    </view>
+    
+    <!-- 底部按钮 -->
+    <view class="filter-modal-footer">
+      <button class="btn-apply" bindtap="onFilterApply">应用</button>
+    </view>
+  </view>
+</view>

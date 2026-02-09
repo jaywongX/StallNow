@@ -8,7 +8,16 @@ Page({
     showContact: false,
     showContactModal: false,
     showFeedbackModal: false,
-    isAdmin: false
+    isAdmin: false,
+    
+    // 收藏引导
+    showFavoriteGuide: false,
+    isFavorite: false,
+    fromScan: false,
+    
+    // 摊位状态
+    isStallActive: true,
+    stallStatusText: ''
   },
 
   onLoad(options) {
@@ -18,9 +27,25 @@ Page({
       isAdmin: app.globalData.isAdmin || false
     });
 
+    // 处理扫码进入场景
+    // scene 是二维码参数，直接为 stallId
+    if (options.scene) {
+      const stallId = decodeURIComponent(options.scene);
+      if (stallId) {
+        this.setData({ 
+          stallId: stallId,
+          fromScan: true
+        });
+        this.loadStallDetail();
+        this.checkFavoriteStatus();
+        return;
+      }
+    }
+
     if (options.id) {
       this.setData({ stallId: options.id });
       this.loadStallDetail();
+      this.checkFavoriteStatus();
     } else {
       wx.showToast({
         title: '参数错误',
@@ -38,8 +63,15 @@ Page({
 
     try {
       const result = await api.getStallDetail(this.data.stallId);
+      const stall = result.data;
+      
+      // 判断摊位状态
+      const stallStatus = this.checkStallStatus(stall);
+      
       this.setData({
-        stall: result.data,
+        stall: stall,
+        isStallActive: stallStatus.isActive,
+        stallStatusText: stallStatus.statusText,
         loading: false
       });
     } catch (err) {
@@ -50,6 +82,27 @@ Page({
         icon: 'none'
       });
     }
+  },
+  
+  // 检查摊位状态
+  checkStallStatus(stall) {
+    // status: 1=正常, 2=下线
+    // activeStatus: 'active'=正常, 'inactive'=停用(违规/弃用)
+    const status = stall.status;
+    const activeStatus = stall.activeStatus;
+    
+    // 已下线或已停用
+    if (status === 2 || activeStatus === 'inactive') {
+      return {
+        isActive: false,
+        statusText: status === 2 ? '该摊位当前未在摆摊' : '该摊位已停用'
+      };
+    }
+    
+    return {
+      isActive: true,
+      statusText: ''
+    };
   },
 
   // 显示联系方式
@@ -238,5 +291,94 @@ Page({
       current: url,
       urls: [url]
     });
+  },
+
+  // 检查收藏状态
+  async checkFavoriteStatus() {
+    try {
+      const { result } = await wx.cloud.callFunction({
+        name: 'checkFavorite',
+        data: { stallId: this.data.stallId }
+      });
+      
+      if (result.code === 0) {
+        const isFavorite = result.data.isFavorite;
+        this.setData({ isFavorite });
+        
+        // 如果是扫码进入且未收藏，显示收藏引导
+        if (this.data.fromScan && !isFavorite) {
+          // 延迟显示，让用户先看内容
+          setTimeout(() => {
+            this.setData({ showFavoriteGuide: true });
+          }, 1500);
+        }
+      }
+    } catch (err) {
+      console.error('检查收藏状态失败', err);
+    }
+  },
+
+  // 关闭收藏引导
+  onCloseFavoriteGuide() {
+    this.setData({ showFavoriteGuide: false });
+    // 记录已关闭，不再显示
+    wx.setStorageSync(`favorite_guide_closed_${this.data.stallId}`, true);
+  },
+
+  // 收藏摊位
+  async onFavoriteStall() {
+    try {
+      wx.showLoading({ title: '处理中...' });
+      
+      const { result } = await wx.cloud.callFunction({
+        name: 'toggleFavorite',
+        data: { 
+          stallId: this.data.stallId,
+          action: 'add'
+        }
+      });
+      
+      wx.hideLoading();
+      
+      if (result.code === 0) {
+        this.setData({ 
+          isFavorite: true,
+          showFavoriteGuide: false
+        });
+        wx.showToast({ title: '收藏成功', icon: 'success' });
+      } else {
+        throw new Error(result.message);
+      }
+    } catch (err) {
+      wx.hideLoading();
+      wx.showToast({ title: err.message || '收藏失败', icon: 'none' });
+    }
+  },
+
+  // 取消收藏
+  async onUnfavoriteStall() {
+    try {
+      wx.showLoading({ title: '处理中...' });
+      
+      const { result } = await wx.cloud.callFunction({
+        name: 'toggleFavorite',
+        data: { 
+          stallId: this.data.stallId,
+          action: 'remove'
+        }
+      });
+      
+      wx.hideLoading();
+      
+      if (result.code === 0) {
+        this.setData({ isFavorite: false });
+        wx.showToast({ title: '已取消收藏', icon: 'success' });
+      } else {
+        throw new Error(result.message);
+      }
+    } catch (err) {
+      wx.hideLoading();
+      wx.showToast({ title: err.message || '操作失败', icon: 'none' });
+    }
   }
 });

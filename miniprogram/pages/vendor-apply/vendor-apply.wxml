@@ -146,6 +146,14 @@
         <text class="group-title">摊位照片</text>
         <text class="optional">（选填，最多3张）</text>
       </view>
+      <!-- 合规提示 -->
+      <view class="compliance-notice">
+        <text class="notice-icon">💡</text>
+        <view class="notice-content">
+          <text class="notice-title">请上传摊位实拍照片</text>
+          <text class="notice-text">照片请不要包含：价格标签、收款码、促销广告</text>
+        </view>
+      </view>
       <view class="image-upload-container">
         <view 
           class="image-item" 
@@ -182,6 +190,11 @@
         value="{{form.displayName}}"
         bindinput="onNameInput"
       />
+      <!-- 合规提示 -->
+      <view class="compliance-notice-small">
+        <text class="notice-icon-small">💡</text>
+        <text class="notice-text-small">请不要包含价格信息、促销用语、联系方式</text>
+      </view>
       <text class="input-hint">不填将由系统自动生成</text>
     </view>
 

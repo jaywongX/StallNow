@@ -1,0 +1,13 @@
+// WXS 脚本 - 辅助函数
+var arrayUtils = {
+  // 检查数组是否包含某个值
+  includes: function(array, value) {
+    if (!array || !array.length) return false;
+    for (var i = 0; i < array.length; i++) {
+      if (array[i] === value) return true;
+    }
+    return false;
+  }
+};
+
+module.exports = arrayUtils;

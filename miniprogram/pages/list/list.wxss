@@ -52,3 +52,180 @@
   height: 240rpx;
   margin-bottom: 30rpx;
 }
+
+/* 排序/筛选按钮 */
+.sort-filter-btns {
+  display: flex;
+  justify-content: flex-end;
+  padding: 0 20rpx 20rpx;
+}
+
+.filter-btn {
+  display: flex;
+  align-items: center;
+  padding: 12rpx 24rpx;
+  background: #F5F5F5;
+  border-radius: 32rpx;
+  border: 2rpx solid transparent;
+}
+
+.filter-btn.active {
+  background: #FFF5F2;
+  border-color: #FF6B35;
+}
+
+.btn-text {
+  font-size: 26rpx;
+  color: #666;
+  margin-right: 8rpx;
+}
+
+.filter-btn.active .btn-text {
+  color: #FF6B35;
+}
+
+.btn-icon {
+  font-size: 20rpx;
+  color: #999;
+}
+
+/* 筛选弹窗 */
+.filter-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+  display: flex;
+  align-items: flex-end;
+}
+
+.filter-modal-content {
+  width: 100%;
+  background: #fff;
+  border-radius: 24rpx 24rpx 0 0;
+  animation: slideUp 0.3s ease;
+}
+
+@keyframes slideUp {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+
+.filter-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 30rpx;
+  border-bottom: 1rpx solid #F0F0F0;
+}
+
+.modal-title {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #333;
+}
+
+.modal-close {
+  font-size: 36rpx;
+  color: #999;
+  padding: 10rpx;
+}
+
+/* 弹窗内容区 */
+.filter-modal .filter-section {
+  padding: 30rpx;
+  border-bottom: 1rpx solid #F5F5F5;
+}
+
+.filter-modal .section-title {
+  display: block;
+  font-size: 28rpx;
+  font-weight: 500;
+  color: #333;
+  margin-bottom: 20rpx;
+}
+
+/* 排序选项 */
+.sort-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16rpx;
+}
+
+.sort-item {
+  display: flex;
+  align-items: center;
+  padding: 16rpx 28rpx;
+  background: #F5F5F5;
+  border-radius: 32rpx;
+  border: 2rpx solid transparent;
+}
+
+.sort-item.active {
+  background: #FFF5F2;
+  border-color: #FF6B35;
+}
+
+.sort-name {
+  font-size: 28rpx;
+  color: #666;
+  margin-right: 10rpx;
+}
+
+.sort-item.active .sort-name {
+  color: #FF6B35;
+}
+
+.sort-check {
+  font-size: 24rpx;
+  color: #FF6B35;
+}
+
+/* 筛选选项 */
+.filter-option-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20rpx 0;
+}
+
+.option-name {
+  font-size: 28rpx;
+  color: #333;
+}
+
+.option-checkbox {
+  width: 40rpx;
+  height: 40rpx;
+  border: 2rpx solid #DDD;
+  border-radius: 8rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 24rpx;
+}
+
+.option-checkbox.checked {
+  background: #FF6B35;
+  border-color: #FF6B35;
+}
+
+/* 底部按钮 */
+.filter-modal-footer {
+  padding: 20rpx 30rpx 40rpx;
+}
+
+.btn-apply {
+  width: 100%;
+  height: 88rpx;
+  line-height: 88rpx;
+  background: #FF6B35;
+  color: #fff;
+  font-size: 30rpx;
+  border-radius: 44rpx;
+  border: none;
+}

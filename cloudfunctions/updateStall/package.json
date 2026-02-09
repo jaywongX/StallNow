@@ -1,0 +1,14 @@
+{
+  "name": "updateStall",
+  "version": "1.0.0",
+  "description": "更新摊位信息（摊主编辑）",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "wx-server-sdk": "latest"
+  }
+}
