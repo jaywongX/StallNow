@@ -87,11 +87,11 @@ exports.main = async (event, context) => {
     
     // 注意：page 必须是已发布的页面，否则会报错 41030
     // 发布后可启用下面这行，使用详情页作为落地页
-    // const page = 'pages/detail/detail';
+    const page = 'pages/detail/detail';
     
     const requestParams = {
       scene: scene,
-      // page: page, // 暂不指定，默认跳首页
+      page: page, // 暂不指定，默认跳首页
       width: 280,
       autoColor: false,
       lineColor: {
