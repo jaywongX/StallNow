@@ -13,20 +13,28 @@
 
 <!-- 筛选栏 -->
 <view class="filter-bar">
-  <category-filter
-    categories="{{categories}}"
-    selected-id="{{selectedCategory}}"
-    bindselect="onCategorySelect"
-  />
-  <time-filter
-    selected-type="{{selectedTime}}"
-    bindselect="onTimeSelect"
-  />
-  <!-- 排序/筛选按钮 -->
-  <view class="sort-filter-btns">
-    <view class="filter-btn {{sortBy !== 'default' || filterConfirmed ? 'active' : ''}}" bindtap="onOpenFilter">
-      <text class="btn-text">{{sortBy === 'default' && !filterConfirmed ? '排序/筛选' : '已筛选'}}</text>
-      <text class="btn-icon">▼</text>
+  <!-- 第一行：分类筛选 -->
+  <view class="filter-row category-row">
+    <category-filter
+      categories="{{categories}}"
+      selected-id="{{selectedCategory}}"
+      bindselect="onCategorySelect"
+    />
+  </view>
+  
+  <!-- 第二行：附近（距离）和筛选按钮 -->
+  <view class="filter-row sub-filter-row">
+    <view class="distance-filter" bindtap="onOpenDistanceFilter">
+      <text class="distance-text {{selectedDistance !== '' ? 'active' : ''}}">{{selectedDistanceName}}</text>
+      <text class="distance-icon">▼</text>
+    </view>
+    
+    <!-- 排序/筛选按钮 -->
+    <view class="sort-filter-btns">
+      <view class="filter-btn {{sortBy !== 'default' || filterConfirmed || selectedTime ? 'active' : ''}}" bindtap="onOpenFilter">
+        <text class="btn-text">{{sortBy === 'default' && !filterConfirmed && !selectedTime ? '排序/筛选' : '已筛选'}}</text>
+        <text class="btn-icon">▼</text>
+      </view>
     </view>
   </view>
 </view>
@@ -67,12 +75,90 @@
   </view>
 </scroll-view>
 
+<!-- 分类选择弹窗 -->
+<view wx:if="{{showCategoryModal}}" class="filter-modal" bindtap="onCloseCategoryFilter">
+  <view class="filter-modal-content" catchtap>
+    <view class="filter-modal-header">
+      <text class="modal-title">选择分类</text>
+      <text class="modal-close" bindtap="onCloseCategoryFilter">✕</text>
+    </view>
+    
+    <view class="filter-section">
+      <view class="sort-options">
+        <view 
+          class="sort-item {{selectedCategory === '' ? 'active' : ''}}"
+          data-id=""
+          data-name="分类"
+          bindtap="onCategorySelectFromModal"
+        >
+          <text class="sort-name">全部分类</text>
+          <text wx:if="{{selectedCategory === ''}}" class="sort-check">✓</text>
+        </view>
+        <view 
+          wx:for="{{categories}}" 
+          wx:key="_id"
+          class="sort-item {{selectedCategory === item._id ? 'active' : ''}}"
+          data-id="{{item._id}}"
+          data-name="{{item.name}}"
+          bindtap="onCategorySelectFromModal"
+        >
+          <text class="sort-name">{{item.icon}} {{item.name}}</text>
+          <text wx:if="{{selectedCategory === item._id}}" class="sort-check">✓</text>
+        </view>
+      </view>
+    </view>
+  </view>
+</view>
+
+<!-- 距离选择弹窗 -->
+<view wx:if="{{showDistanceModal}}" class="filter-modal" bindtap="onCloseDistanceFilter">
+  <view class="filter-modal-content" catchtap>
+    <view class="filter-modal-header">
+      <text class="modal-title">选择距离</text>
+      <text class="modal-close" bindtap="onCloseDistanceFilter">✕</text>
+    </view>
+    
+    <view class="filter-section">
+      <view class="sort-options">
+        <view 
+          wx:for="{{distanceOptions}}" 
+          wx:key="value"
+          class="sort-item {{selectedDistance === item.value ? 'active' : ''}}"
+          data-value="{{item.value}}"
+          data-name="{{item.name}}"
+          bindtap="onDistanceSelect"
+        >
+          <text class="sort-name">{{item.name}}</text>
+          <text wx:if="{{selectedDistance === item.value}}" class="sort-check">✓</text>
+        </view>
+      </view>
+    </view>
+  </view>
+</view>
+
 <!-- 筛选/排序弹窗 -->
 <view wx:if="{{showFilterModal}}" class="filter-modal" bindtap="onCloseFilter">
   <view class="filter-modal-content" catchtap>
     <view class="filter-modal-header">
-      <text class="modal-title">排序与筛选</text>
+      <text class="modal-title">筛选</text>
       <text class="modal-close" bindtap="onCloseFilter">✕</text>
+    </view>
+    
+    <!-- 出摊时间 -->
+    <view class="filter-section">
+      <text class="section-title">出摊时间</text>
+      <view class="sort-options">
+        <view 
+          wx:for="{{timeOptions}}" 
+          wx:key="value"
+          class="sort-item {{selectedTime === item.value ? 'active' : ''}}"
+          data-value="{{item.value}}"
+          bindtap="onTimeSelectFromModal"
+        >
+          <text class="sort-name">{{item.name}}</text>
+          <text wx:if="{{selectedTime === item.value}}" class="sort-check">✓</text>
+        </view>
+      </view>
     </view>
     
     <!-- 排序选项 -->
@@ -94,7 +180,7 @@
     
     <!-- 筛选选项 -->
     <view class="filter-section">
-      <text class="section-title">筛选条件</text>
+      <text class="section-title">其他筛选</text>
       <view class="filter-options">
         <view 
           class="filter-option-item {{filterConfirmed ? 'active' : ''}}"
@@ -111,6 +197,7 @@
     
     <!-- 底部按钮 -->
     <view class="filter-modal-footer">
+      <button class="btn-reset" bindtap="onFilterReset">重置</button>
       <button class="btn-apply" bindtap="onFilterApply">应用</button>
     </view>
   </view>

@@ -7,7 +7,7 @@ const _ = db.command;
 
 /**
  * 获取地摊列表
- * 支持分类、时间、关键词筛选，支持城市过滤
+ * 支持分类、时间、关键词、距离筛选，支持城市过滤
  */
 exports.main = async (event, context) => {
   const {
@@ -16,7 +16,10 @@ exports.main = async (event, context) => {
     keyword,
     city,
     page = 1,
-    pageSize = 10
+    pageSize = 10,
+    latitude,      // 用户纬度（用于距离筛选和排序）
+    longitude,     // 用户经度
+    maxDistance    // 最大距离（米）
   } = event;
 
   try {

@@ -1,0 +1,9 @@
+{
+  "name": "claimStall",
+  "version": "1.0.0",
+  "description": "摊主认领摊位",
+  "main": "index.js",
+  "dependencies": {
+    "wx-server-sdk": "~3.0.0"
+  }
+}

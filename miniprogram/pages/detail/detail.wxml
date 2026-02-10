@@ -123,8 +123,22 @@
     </view>
   </view>
 
+  <!-- 认领提示区 -->
+  <view class="claim-section" wx:if="{{stall.claimStatus === 'unclaimed' && stall.createdBy === 'admin_proxy'}}">
+    <view class="claim-info">
+      <text class="claim-icon">🏷️</text>
+      <view class="claim-text">
+        <text class="claim-title">营业中（待认领）</text>
+        <text class="claim-desc">这是管理员代录入的摊位，如果你是摊主可以认领</text>
+      </view>
+    </view>
+    <view class="claim-btn" bindtap="onClaimStall">
+      认领摊位
+    </view>
+  </view>
+
   <!-- 管理员操作区 -->
-  <view class="owner-section" wx:if="{{isAdmin}}">
+  <view class="owner-section" wx:if="{{isAdmin || (stall.claimStatus === 'claimed' && stall.isOwner)}}">
     <view class="owner-btn" bindtap="onConfirmStall">
       我是摊主 - 确认摊位
     </view>

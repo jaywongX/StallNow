@@ -99,6 +99,10 @@ function generateStallData(index, categoryIds) {
   const now = new Date();
   const createTime = new Date(Date.now() - randomInt(0, 30 * 24 * 60 * 60 * 1000));
   
+  // 随机决定是摊主申请还是管理员代录
+  const createdBy = Math.random() > 0.8 ? 'admin_proxy' : 'vendor_self';
+  const isProxy = createdBy === 'admin_proxy';
+  
   return {
     displayName: name,
     categoryId: categoryId,
@@ -126,7 +130,12 @@ function generateStallData(index, categoryIds) {
       consentDate: createTime.toISOString(),
       consentMethod: 'online'
     },
-    ownerUserId: `test_user_${randomInt(1, 10)}`,
+    // v2.0 新增字段：代申请功能
+    createdBy: createdBy, // admin_proxy（管理员代录）/ vendor_self（摊主申请）
+    claimStatus: isProxy ? 'unclaimed' : 'claimed', // unclaimed（待认领）/ claimed（已认领）
+    claimedBy: isProxy ? '' : `test_user_${randomInt(1, 10)}`,
+    claimedAt: isProxy ? null : createTime.toISOString(),
+    ownerUserId: isProxy ? '' : `test_user_${randomInt(1, 10)}`,
     viewCount: randomInt(10, 500),
     favoriteCount: randomInt(0, 100),
     createTime: createTime.toISOString(),

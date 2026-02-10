@@ -4,7 +4,10 @@ Page({
   data: {
     // 筛选条件
     selectedCategory: '',
+    selectedCategoryName: '分类',
     selectedTime: '',
+    selectedDistance: '', // 距离筛选：''附近, 500, 1000, 3000
+    selectedDistanceName: '附近',
     keyword: '',
     sortBy: 'default', // default, distance, activity
     filterConfirmed: false, // 只看近期确认的
@@ -24,11 +27,30 @@ Page({
     page: 1,
     pageSize: 10,
     
+    // 距离选项（美团样式）
+    distanceOptions: [
+      { value: '', name: '附近' },
+      { value: 500, name: '附近500m' },
+      { value: 1000, name: '附近1km' },
+      { value: 3000, name: '附近3km' },
+      { value: -1, name: '全城' }
+    ],
+    
+    // 出摊时间选项
+    timeOptions: [
+      { value: '', name: '全部时间' },
+      { value: 'afternoon', name: '下午' },
+      { value: 'evening', name: '晚上' },
+      { value: 'weekend', name: '周末' },
+      { value: 'unfixed', name: '不固定' }
+    ],
+    
     // 排序选项
     sortOptions: [
-      { id: 'default', name: '默认排序' },
+      { id: 'default', name: '智能排序' },
       { id: 'distance', name: '离我最近' },
-      { id: 'activity', name: '最近活跃' }
+      { id: 'activity', name: '最近活跃' },
+      { id: 'newest', name: '最新上架' }
     ],
     
     // 筛选选项
@@ -95,14 +117,37 @@ Page({
         filterConfirmed: this.data.filterConfirmed
       };
       
-      // 如果按距离排序，需要传入用户位置
-      if (this.data.sortBy === 'distance' && this.data.userLatitude) {
+      // 如果按距离排序或有距离筛选，需要传入用户位置
+      if ((this.data.sortBy === 'distance' || this.data.selectedDistance) && this.data.userLatitude) {
         options.latitude = this.data.userLatitude;
         options.longitude = this.data.userLongitude;
+      }
+      
+      // 距离筛选（米）
+      if (this.data.selectedDistance && this.data.selectedDistance > 0) {
+        options.maxDistance = this.data.selectedDistance;
       }
 
       const result = await api.getStalls(options);
       let newStalls = result.data || [];
+      
+      // 计算每个摊位的距离
+      if (this.data.userLatitude && newStalls.length > 0) {
+        newStalls = newStalls.map(stall => {
+          const distance = this.calculateDistance(
+            this.data.userLatitude, 
+            this.data.userLongitude,
+            stall.location.latitude, 
+            stall.location.longitude
+          );
+          return { ...stall, distance: Math.round(distance) };
+        });
+      }
+      
+      // 前端距离筛选（如果后端不支持）
+      if (this.data.selectedDistance && this.data.selectedDistance > 0 && this.data.userLatitude) {
+        newStalls = newStalls.filter(stall => stall.distance <= this.data.selectedDistance);
+      }
       
       // 前端距离排序（如果后端不支持）
       if (this.data.sortBy === 'distance' && this.data.userLatitude && newStalls.length > 0) {
@@ -112,6 +157,11 @@ Page({
       // 活跃度排序（最近确认时间）
       if (this.data.sortBy === 'activity' && newStalls.length > 0) {
         newStalls = this.sortByActivity(newStalls);
+      }
+      
+      // 最新上架排序
+      if (this.data.sortBy === 'newest' && newStalls.length > 0) {
+        newStalls = this.sortByNewest(newStalls);
       }
       
       // 筛选只看近期确认的
@@ -168,6 +218,91 @@ Page({
     });
   },
   
+  // 按最新上架排序
+  sortByNewest(stalls) {
+    return stalls.sort((a, b) => {
+      const timeA = a.createTime ? new Date(a.createTime).getTime() : 0;
+      const timeB = b.createTime ? new Date(b.createTime).getTime() : 0;
+      return timeB - timeA; // 降序，最新的在前
+    });
+  },
+  
+  // 打开距离选择弹窗
+  onOpenDistanceFilter() {
+    this.setData({ showDistanceModal: true });
+  },
+  
+  // 关闭距离选择弹窗
+  onCloseDistanceFilter() {
+    this.setData({ showDistanceModal: false });
+  },
+  
+  // 选择距离
+  onDistanceSelect(e) {
+    const value = e.currentTarget.dataset.value;
+    const name = e.currentTarget.dataset.name;
+    
+    // 检查是否需要位置权限
+    if (value && value > 0 && !this.data.userLatitude) {
+      wx.showModal({
+        title: '需要位置权限',
+        content: '距离筛选需要获取您的位置信息',
+        confirmText: '去设置',
+        success: (res) => {
+          if (res.confirm) {
+            wx.openSetting();
+          }
+        }
+      });
+      return;
+    }
+    
+    this.setData({
+      selectedDistance: value,
+      selectedDistanceName: name,
+      showDistanceModal: false,
+      page: 1,
+      stalls: [],
+      hasMore: true
+    }, () => {
+      this.loadStalls();
+    });
+  },
+  
+  // 打开分类选择弹窗
+  onOpenCategoryFilter() {
+    this.setData({ showCategoryModal: true });
+  },
+  
+  // 关闭分类选择弹窗
+  onCloseCategoryFilter() {
+    this.setData({ showCategoryModal: false });
+  },
+  
+  // 选择分类（从弹窗）
+  onCategorySelectFromModal(e) {
+    const id = e.currentTarget.dataset.id;
+    const name = e.currentTarget.dataset.name;
+    this.setData({
+      selectedCategory: id,
+      selectedCategoryName: name || '分类',
+      showCategoryModal: false,
+      page: 1,
+      stalls: [],
+      hasMore: true
+    }, () => {
+      this.loadStalls();
+    });
+  },
+  
+  // 选择时间（从弹窗）
+  onTimeSelectFromModal(e) {
+    const value = e.currentTarget.dataset.value;
+    this.setData({
+      selectedTime: value
+    });
+  },
+  
   // 打开筛选弹窗
   onOpenFilter() {
     this.setData({ showFilterModal: true });
@@ -216,6 +351,15 @@ Page({
       showFilterModal: false
     }, () => {
       this.loadStalls();
+    });
+  },
+  
+  // 重置筛选
+  onFilterReset() {
+    this.setData({
+      selectedTime: '',
+      sortBy: 'default',
+      filterConfirmed: false
     });
   },
 

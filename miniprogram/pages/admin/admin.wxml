@@ -1,3 +1,6 @@
+<!-- 引入辅助函数 -->
+<wxs src="./admin.wxs" module="helper" />
+
 <!-- 标签栏 -->
 <view class="tab-bar">
   <view
@@ -6,6 +9,13 @@
     bindtap="onTabChange"
   >
     入驻申请
+  </view>
+  <view
+    class="tab-item {{activeTab === 'proxyApply' ? 'active' : ''}}"
+    data-tab="proxyApply"
+    bindtap="onTabChange"
+  >
+    代录入
   </view>
   <view
     class="tab-item {{activeTab === 'stalls' ? 'active' : ''}}"
@@ -23,8 +33,8 @@
   </view>
 </view>
 
-<!-- 状态筛选 -->
-<view class="status-filter" wx:if="{{activeTab !== 'applications'}}">
+<!-- 状态筛选 - 只在摊位管理和反馈管理显示 -->
+<view class="status-filter" wx:if="{{activeTab === 'stalls' || activeTab === 'feedbacks'}}">
   <view
     class="filter-item {{statusFilter == 0 ? 'active' : ''}}"
     data-status="0"
@@ -43,10 +53,267 @@
     class="filter-item {{statusFilter == 2 ? 'active' : ''}}"
     data-status="2"
     bindtap="onStatusFilter"
-    wx:if="{{activeTab === 'stalls' || activeTab === 'feedbacks'}}"
   >
     {{activeTab === 'stalls' ? '已下线' : '已处理'}}
   </view>
+</view>
+
+<!-- 代录入入口 -->
+<view class="proxy-container" wx:if="{{activeTab === 'proxyApply'}}">
+  <!-- 页面标题 -->
+  <view class="page-header">
+    <text class="header-title">代录入摊位</text>
+    <text class="header-subtitle">帮助商贩录入信息，录入后直接上架</text>
+  </view>
+  
+  <!-- 表单 -->
+  <view class="form-section">
+    <!-- Step 1: 摊位类型 -->
+    <view class="form-group">
+      <view class="group-header">
+        <text class="group-title">商品类型</text>
+        <text class="required">*</text>
+      </view>
+      <view class="category-grid">
+        <view 
+          wx:for="{{categories}}" 
+          wx:key="_id"
+          class="category-item {{proxyForm.categoryId === item._id ? 'active' : ''}}"
+          data-id="{{item._id}}"
+          data-name="{{item.name}}"
+          bindtap="onProxyCategorySelect"
+        >
+          <text class="category-icon">{{item.icon}}</text>
+          <text class="category-name">{{item.name}}</text>
+        </view>
+      </view>
+      <text wx:if="{{errors.category}}" class="error-text">{{errors.category}}</text>
+    </view>
+
+    <!-- Step 2: 常见商品 -->
+    <view class="form-group" wx:if="{{proxyForm.categoryId}}">
+      <view class="group-header">
+        <text class="group-title">常见商品（多选）</text>
+        <text class="required">*</text>
+      </view>
+      <view class="tags-container">
+        <view 
+          wx:for="{{currentGoodsOptions}}" 
+          wx:key="*this"
+          class="tag-item {{helper.includes(proxyForm.goodsTags, item) ? 'active' : ''}}"
+          data-tag="{{item}}"
+          bindtap="onProxyGoodsTagSelect"
+        >
+          {{item}}
+        </view>
+      </view>
+      <text class="tags-hint">已选择 {{proxyForm.goodsTags.length}}/5 个</text>
+      <text wx:if="{{errors.goods}}" class="error-text">{{errors.goods}}</text>
+    </view>
+    
+    <!-- Step 3: 定位位置（必选） -->
+    <view class="form-group">
+      <view class="group-header">
+        <text class="group-title">摊位定位</text>
+        <text class="required">*</text>
+      </view>
+      
+      <view class="location-selector" bindtap="onProxySelectLocation">
+        <view wx:if="{{!proxyForm.location}}" class="location-empty">
+          <text class="location-icon">📍</text>
+          <text class="location-text">点击选择摊位位置</text>
+          <text class="location-hint">在地图上标记摊位位置</text>
+        </view>
+        
+        <view wx:if="{{proxyForm.location}}" class="location-selected">
+          <view class="location-header">
+            <text class="location-name">{{proxyForm.location.name || '已选择位置'}}</text>
+            <text class="location-change">重新选择</text>
+          </view>
+          <text class="location-address">{{proxyForm.location.address}}</text>
+          <view class="location-coords">
+            <text>纬度: {{proxyForm.location.latitude.toFixed(4)}}  经度: {{proxyForm.location.longitude.toFixed(4)}}</text>
+          </view>
+        </view>
+      </view>
+      <text class="input-hint">点击上方区域，在地图上选择摊位位置</text>
+      <text wx:if="{{errors.location}}" class="error-text">{{errors.location}}</text>
+    </view>
+
+    <!-- Step 4: 常出没区域（可选） -->
+    <view class="form-group">
+      <view class="group-header">
+        <text class="group-title">常出没区域</text>
+        <text class="optional">（选填）</text>
+      </view>
+      <input 
+        class="form-input"
+        placeholder="例如：老街夜市、万达广场附近"
+        value="{{proxyForm.address}}"
+        data-field="address"
+        bindinput="onProxyInput"
+      />
+      <text class="input-hint">填写常出没的大致区域，帮助用户更容易找到摊位</text>
+    </view>
+    
+    <!-- Step 5: 外观特征 -->
+    <view class="form-group">
+      <view class="group-header">
+        <text class="group-title">外观特征</text>
+        <text class="optional">（选填）</text>
+      </view>
+      <input 
+        class="form-input"
+        placeholder="例如：红色推车、黄色招牌"
+        value="{{proxyForm.landmark}}"
+        data-field="landmark"
+        bindinput="onProxyInput"
+      />
+    </view>
+    
+    <!-- Step 6: 出摊时间 -->
+    <view class="form-group">
+      <view class="group-header">
+        <text class="group-title">一般什么时候出摊？</text>
+        <text class="required">*</text>
+      </view>
+      <view class="schedule-grid">
+        <view 
+          wx:for="{{scheduleOptions}}" 
+          wx:key="id"
+          class="schedule-item {{helper.includes(proxyForm.scheduleTypes, item.id) ? 'active' : ''}}"
+          data-id="{{item.id}}"
+          bindtap="onProxyScheduleSelect"
+        >
+          <text class="schedule-icon">{{item.icon}}</text>
+          <text class="schedule-name">{{item.name}}</text>
+        </view>
+      </view>
+      
+      <!-- 自定义时间段选择（选择"不固定"时显示） -->
+      <view class="custom-time-section" wx:if="{{helper.includes(proxyForm.scheduleTypes, 'unfixed')}}">
+        <text class="custom-time-label">选择出摊时间段：</text>
+        <view class="time-picker-row">
+          <picker mode="selector" range="{{timePickerRange}}" bindchange="onCustomTimeStartChange">
+            <view class="time-picker-btn">
+              <text class="time-text">{{proxyForm.customTimeStart || '开始时间'}}</text>
+              <text class="time-icon">▼</text>
+            </view>
+          </picker>
+          <text class="time-separator">至</text>
+          <picker mode="selector" range="{{timePickerRange}}" bindchange="onCustomTimeEndChange">
+            <view class="time-picker-btn">
+              <text class="time-text">{{proxyForm.customTimeEnd || '结束时间'}}</text>
+              <text class="time-icon">▼</text>
+            </view>
+          </picker>
+        </view>
+      </view>
+      
+      <text wx:if="{{errors.schedule}}" class="error-text">{{errors.schedule}}</text>
+    </view>
+    
+    <!-- Step 7: 摊位照片（选填） -->
+    <view class="form-group">
+      <view class="group-header">
+        <text class="group-title">摊位照片</text>
+        <text class="optional">（选填，最多3张）</text>
+      </view>
+      <!-- 合规提示 -->
+      <view class="compliance-notice">
+        <text class="notice-icon">💡</text>
+        <view class="notice-content">
+          <text class="notice-title">请上传摊位实拍照片</text>
+          <text class="notice-text">照片请不要包含：价格标签、收款码、促销广告</text>
+        </view>
+      </view>
+      <view class="image-upload-container">
+        <view 
+          class="image-item" 
+          wx:for="{{proxyForm.images}}" 
+          wx:key="index"
+          data-index="{{index}}"
+          bindtap="onProxyPreviewImage"
+        >
+          <image src="{{item}}" mode="aspectFill" />
+          <view class="delete-btn" data-index="{{index}}" catchtap="onProxyDeleteImage">×</view>
+        </view>
+        <view 
+          class="upload-btn-large"
+          bindtap="onProxyUploadImage"
+          wx:if="{{proxyForm.images.length < 3}}"
+        >
+          <text class="icon">📷</text>
+          <text class="text">上传照片</text>
+          <text class="sub-text">{{proxyForm.images.length}}/3</text>
+        </view>
+      </view>
+      <text class="input-hint">上传摊位实拍照片，帮助大家认出摊位</text>
+    </view>
+
+    <!-- Step 8: 摊位称呼（选填） -->
+    <view class="form-group">
+      <view class="group-header">
+        <text class="group-title">摊位称呼</text>
+        <text class="optional">（选填）</text>
+      </view>
+      <input 
+        class="form-input"
+        placeholder="例如：老王烧烤、广场手工摊"
+        value="{{proxyForm.displayName}}"
+        data-field="displayName"
+        bindinput="onProxyInput"
+      />
+      <view class="compliance-notice-small">
+        <text class="notice-icon-small">💡</text>
+        <text class="notice-text-small">请不要包含价格信息、促销用语、联系方式</text>
+      </view>
+      <text class="input-hint">不填将由系统自动生成</text>
+    </view>
+    
+    <!-- Step 9: 联系方式（选填） -->
+    <view class="form-group">
+      <view class="group-header">
+        <text class="group-title">联系方式</text>
+        <text class="optional">（选填，仅用于用户联系摊主）</text>
+      </view>
+      <view class="contact-inputs">
+        <input 
+          class="form-input"
+          type="number"
+          maxlength="11"
+          placeholder="手机号码"
+          value="{{proxyForm.phone}}"
+          data-field="phone"
+          bindinput="onProxyInput"
+        />
+      </view>
+    </view>
+    
+    <!-- Step 10: 备注 -->
+    <view class="form-group">
+      <view class="group-header">
+        <text class="group-title">备注</text>
+        <text class="optional">（选填）</text>
+      </view>
+      <textarea 
+        class="form-textarea"
+        placeholder="其他需要说明的信息"
+        value="{{proxyForm.remark}}"
+        data-field="remark"
+        bindinput="onProxyInput"
+      />
+    </view>
+  </view>
+  
+  <!-- 提交按钮 -->
+  <view class="submit-section">
+    <button class="submit-btn" bindtap="onProxySubmit">提交录入</button>
+    <text class="submit-tips">提交后摊位将直接上架，状态为"营业中（待认领）"</text>
+  </view>
+  
+  <!-- 隐藏的 canvas 用于图片压缩 -->
+  <canvas canvas-id="compressCanvas" class="compress-canvas"></canvas>
 </view>
 
 <!-- 入驻申请列表 -->
@@ -188,7 +455,11 @@
   <view class="card" wx:for="{{stalls}}" wx:key="_id">
     <view class="card-header">
       <text class="title">{{item.displayName}}</text>
-      <text class="status">{{item.status === 1 ? '已上架' : item.status === 2 ? '已下架' : '已下线'}}</text>
+      <view class="status-tags">
+        <text class="status">{{item.status === 1 ? '已上架' : item.status === 2 ? '已下架' : '已下线'}}</text>
+        <text wx:if="{{item.claimStatus === 'unclaimed'}}" class="status-unclaimed">待认领</text>
+        <text wx:if="{{item.createdBy === 'admin_proxy'}}" class="status-proxy">代录</text>
+      </view>
     </view>
     <view class="card-body">
       <view class="row">
@@ -198,6 +469,10 @@
       <view class="row">
         <text class="label">最后确认：</text>
         <text class="value">{{item.lastConfirmedAt || '-'}}</text>
+      </view>
+      <view class="row" wx:if="{{item.claimStatus === 'claimed' && item.claimedAt}}">
+        <text class="label">认领时间：</text>
+        <text class="value">{{item.claimedAt}}</text>
       </view>
     </view>
     <view class="card-footer">

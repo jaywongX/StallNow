@@ -224,25 +224,47 @@ Page({
       let markerId = 1;
       const newMarkers = newStalls.map(stall => {
         const categoryColor = this.categoryColors[stall.categoryId] || '#FF6B35';
+        // 截取摊位名称（前5个字+省略号）
+        const shortName = stall.displayName.length > 5 
+          ? stall.displayName.substring(0, 5) + '...' 
+          : stall.displayName;
         return {
           id: markerId++,  // 使用数字ID
           _stallId: stall._id,  // 保存原始ID用于跳转
           latitude: stall.location.latitude,
           longitude: stall.location.longitude,
+          // 使用 marker.png，增大尺寸
           iconPath: '/images/marker.png',
           width: 36,
           height: 36,
-          // 使用自定义气泡显示更多信息
+          anchor: { x: 0.5, y: 1 },  // 锚点设置在底部中心
+          // label 显示摊位名称（常显）
+          label: {
+            content: shortName,
+            color: '#333',
+            fontSize: 12,
+            anchorX: 0,
+            anchorY: -38,  // 向上偏移，避免遮挡标记
+            bgColor: '#fff',
+            padding: 6,
+            borderWidth: 1,
+            borderColor: categoryColor,
+            borderRadius: 6,
+            textAlign: 'center'
+          },
+          // 点击后显示详细气泡
           callout: {
             content: `${stall.displayName}\n${stall.categoryName || '其他'}`,
             color: '#333',
-            fontSize: 13,
+            fontSize: 14,
             borderRadius: 8,
             bgColor: '#fff',
             padding: 10,
-            display: 'BYCLICK',
+            display: 'BYCLICK',  // 点击时显示
             borderWidth: 2,
-            borderColor: categoryColor
+            borderColor: categoryColor,
+            anchorX: 0,
+            anchorY: 0
           }
         };
       });
@@ -302,15 +324,31 @@ Page({
   // 地图标记点击 - 显示卡片预览
   onMarkerTap(e) {
     const markerId = e.detail.markerId;
-    // 通过 markerId 查找对应的摊位
+    console.log('[DEBUG] 标记点击, markerId:', markerId);
+    
+    if (!markerId) {
+      console.error('[DEBUG] 无效的 markerId');
+      return;
+    }
+    
+    // 通过 markerId 查找对应的 marker
     const marker = this.data.markers.find(m => m.id === markerId);
+    if (!marker) {
+      console.error('[DEBUG] 未找到对应的 marker, markerId:', markerId);
+      return;
+    }
+    
+    // 查找对应的摊位
     const stall = this.data.stalls.find(s => s._id === marker._stallId);
     
     if (stall) {
+      console.log('[DEBUG] 找到摊位:', stall.displayName);
       this.setData({
         showMarkerCard: true,
         selectedStall: stall
       });
+    } else {
+      console.error('[DEBUG] 未找到对应的摊位, _stallId:', marker._stallId);
     }
   },
   

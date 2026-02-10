@@ -26,11 +26,59 @@
 .filter-bar {
   background-color: #FFF;
   border-top: 1rpx solid #F0F0F0;
+  padding: 16rpx 20rpx;
 }
 
-/* 列表容器 */
+/* 筛选行 */
+.filter-row {
+  display: flex;
+  align-items: center;
+}
+
+.filter-row + .filter-row {
+  margin-top: 16rpx;
+}
+
+/* 第一行：分类 - 使用原有样式 */
+.category-row {
+  display: block;
+}
+
+/* 第二行：附近和筛选按钮 */
+.sub-filter-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* 距离筛选 */
+.distance-filter {
+  display: flex;
+  align-items: center;
+  padding: 12rpx 24rpx;
+  background: #F5F5F5;
+  border-radius: 32rpx;
+  border: 2rpx solid transparent;
+}
+
+.distance-filter .distance-text {
+  font-size: 26rpx;
+  color: #666;
+  margin-right: 8rpx;
+}
+
+.distance-filter .distance-text.active {
+  color: #FF6B35;
+}
+
+.distance-filter .distance-icon {
+  font-size: 20rpx;
+  color: #999;
+}
+
+/* 列表容器 - 调整高度以适应两行筛选栏 */
 .list-container {
-  height: calc(100vh - 300rpx);
+  height: calc(100vh - 360rpx);
   padding: 20rpx;
   overflow-y: auto;
 }
@@ -57,7 +105,11 @@
 .sort-filter-btns {
   display: flex;
   justify-content: flex-end;
-  padding: 0 20rpx 20rpx;
+}
+
+/* 在子筛选行中的排序按钮不需要额外padding */
+.sub-filter-row .sort-filter-btns {
+  padding: 0;
 }
 
 .filter-btn {
@@ -216,11 +268,29 @@
 
 /* 底部按钮 */
 .filter-modal-footer {
+  display: flex;
+  gap: 20rpx;
   padding: 20rpx 30rpx 40rpx;
 }
 
+.btn-reset {
+  flex: 1;
+  height: 88rpx;
+  line-height: 88rpx;
+  background: #F5F5F5;
+  color: #666;
+  font-size: 30rpx;
+  border-radius: 44rpx;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  margin: 0;
+}
+
 .btn-apply {
-  width: 100%;
+  flex: 2;
   height: 88rpx;
   line-height: 88rpx;
   background: #FF6B35;
@@ -228,4 +298,9 @@
   font-size: 30rpx;
   border-radius: 44rpx;
   border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  margin: 0;
 }

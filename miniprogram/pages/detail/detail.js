@@ -380,5 +380,50 @@ Page({
       wx.hideLoading();
       wx.showToast({ title: err.message || '操作失败', icon: 'none' });
     }
+  },
+
+  // 摊主认领摊位
+  async onClaimStall() {
+    wx.showModal({
+      title: '认领摊位',
+      content: '确认这是您的摊位吗？认领后您可以管理这个摊位。',
+      confirmText: '确认认领',
+      success: async (res) => {
+        if (res.confirm) {
+          await this.doClaimStall();
+        }
+      }
+    });
+  },
+
+  // 执行认领
+  async doClaimStall() {
+    try {
+      wx.showLoading({ title: '处理中...' });
+      
+      const { result } = await wx.cloud.callFunction({
+        name: 'claimStall',
+        data: { stallId: this.data.stallId }
+      });
+      
+      wx.hideLoading();
+      
+      if (result.code === 0) {
+        wx.showToast({
+          title: '认领成功',
+          icon: 'success'
+        });
+        // 刷新详情
+        this.loadStallDetail();
+      } else {
+        throw new Error(result.message);
+      }
+    } catch (err) {
+      wx.hideLoading();
+      wx.showToast({
+        title: err.message || '认领失败',
+        icon: 'none'
+      });
+    }
   }
 });

@@ -20,6 +20,8 @@
     longitude="{{longitude}}"
     markers="{{markers}}"
     bindmarkertap="onMarkerTap"
+    bindcallouttap="onMarkerTap"
+    bindlabeltap="onMarkerTap"
     show-location
     scale="14"
   ></map>

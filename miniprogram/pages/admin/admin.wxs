@@ -1,0 +1,11 @@
+// 辅助函数模块
+
+// 检查数组是否包含指定值
+function includes(array, value) {
+  if (!array || !array.length) return false;
+  return array.indexOf(value) > -1;
+}
+
+module.exports = {
+  includes: includes
+};
