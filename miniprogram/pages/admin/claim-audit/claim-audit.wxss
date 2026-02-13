@@ -1,0 +1,248 @@
+.container {
+  min-height: 100vh;
+  background: #f5f5f5;
+}
+
+/* 状态标签 */
+.status-tabs {
+  display: flex;
+  background: #fff;
+  padding: 0 20rpx;
+  border-bottom: 2rpx solid #f0f0f0;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.tab-item {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 30rpx 0;
+  position: relative;
+}
+
+.tab-item.active::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60rpx;
+  height: 4rpx;
+  background: #FF6B35;
+  border-radius: 2rpx;
+}
+
+.tab-label {
+  font-size: 28rpx;
+  color: #666;
+}
+
+.tab-item.active .tab-label {
+  color: #FF6B35;
+  font-weight: bold;
+}
+
+.tab-count {
+  font-size: 22rpx;
+  color: #fff;
+  background: #F44336;
+  padding: 2rpx 12rpx;
+  border-radius: 20rpx;
+  margin-left: 10rpx;
+  min-width: 32rpx;
+  text-align: center;
+}
+
+/* 列表 */
+.claims-list {
+  padding: 20rpx;
+}
+
+.claim-card {
+  background: #fff;
+  border-radius: 16rpx;
+  padding: 30rpx;
+  margin-bottom: 20rpx;
+}
+
+/* 申请人信息 */
+.applicant-info {
+  display: flex;
+  align-items: center;
+  margin-bottom: 24rpx;
+}
+
+.avatar {
+  width: 80rpx;
+  height: 80rpx;
+  border-radius: 50%;
+  margin-right: 20rpx;
+  background: #f0f0f0;
+}
+
+.applicant-detail {
+  flex: 1;
+}
+
+.nickname {
+  font-size: 30rpx;
+  color: #333;
+  font-weight: bold;
+  display: block;
+  margin-bottom: 8rpx;
+}
+
+.submit-time {
+  font-size: 24rpx;
+  color: #999;
+}
+
+.status-badge {
+  padding: 8rpx 20rpx;
+  border-radius: 8rpx;
+  font-size: 24rpx;
+}
+
+.status-badge.status-0 {
+  background: #FFF7E6;
+  color: #FF9500;
+}
+
+.status-badge.status-1 {
+  background: #F6FFED;
+  color: #52C41A;
+}
+
+.status-badge.status-2 {
+  background: #FFF1F0;
+  color: #F5222D;
+}
+
+/* 摊位信息 */
+.stall-info {
+  background: #f8f8f8;
+  padding: 20rpx;
+  border-radius: 12rpx;
+  margin-bottom: 24rpx;
+}
+
+.stall-label {
+  font-size: 24rpx;
+  color: #999;
+  margin-bottom: 8rpx;
+  display: block;
+}
+
+.stall-name {
+  font-size: 30rpx;
+  color: #333;
+  font-weight: bold;
+  margin-bottom: 8rpx;
+}
+
+.stall-address {
+  font-size: 26rpx;
+  color: #666;
+  display: flex;
+  align-items: center;
+}
+
+.stall-address .icon {
+  margin-right: 8rpx;
+}
+
+/* 证明材料预览 */
+.materials-preview {
+  margin-bottom: 20rpx;
+}
+
+.preview-title {
+  font-size: 26rpx;
+  color: #666;
+  margin-bottom: 16rpx;
+}
+
+.preview-images {
+  display: flex;
+  gap: 16rpx;
+  position: relative;
+}
+
+.preview-image {
+  width: 160rpx;
+  height: 160rpx;
+  border-radius: 12rpx;
+  background: #f0f0f0;
+}
+
+.more-count {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 160rpx;
+  height: 160rpx;
+  background: rgba(0,0,0,0.5);
+  color: #fff;
+  font-size: 32rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12rpx;
+}
+
+/* 审核信息 */
+.audit-info {
+  padding-top: 20rpx;
+  border-top: 2rpx solid #f0f0f0;
+}
+
+.audit-time {
+  font-size: 24rpx;
+  color: #999;
+  display: block;
+  margin-bottom: 8rpx;
+}
+
+.audit-remark {
+  font-size: 24rpx;
+  color: #666;
+}
+
+/* 空状态 */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 100rpx 40rpx;
+}
+
+.empty-icon {
+  font-size: 80rpx;
+  margin-bottom: 20rpx;
+}
+
+.empty-text {
+  font-size: 28rpx;
+  color: #999;
+}
+
+/* 加载更多 */
+.load-more, .no-more {
+  text-align: center;
+  padding: 30rpx;
+  font-size: 24rpx;
+  color: #999;
+}
+
+/* 加载中 */
+.loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 100rpx;
+  font-size: 28rpx;
+  color: #999;
+}

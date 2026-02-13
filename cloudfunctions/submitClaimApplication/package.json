@@ -1,0 +1,9 @@
+{
+  "name": "submitClaimApplication",
+  "version": "1.0.0",
+  "description": "提交摊位认领申请",
+  "main": "index.js",
+  "dependencies": {
+    "wx-server-sdk": "latest"
+  }
+}

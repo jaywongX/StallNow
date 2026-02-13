@@ -112,6 +112,10 @@
 | `contact.phone` | String | 否 | 联系电话 |
 | `contact.wechatQR` | String | 否 | 微信二维码图片URL |
 | `ownerUserId` | String | 否 | 绑定的摊主用户ID（关联 users._id） |
+| `createdBy` | String | 否 | 创建方式：`vendor_self`（摊主申请）/ `admin_proxy`（管理员代录） |
+| `claimStatus` | String | 否 | 认领状态：`unclaimed`（待认领）/ `pending`（审核中）/ `claimed`（已认领）/ `rejected`（审核拒绝） |
+| `claimedBy` | String | 否 | 认领摊主的用户ID |
+| `claimedAt` | Date | 否 | 认领时间 |
 | `viewCount` | Number | 是 | 访问计数（用于可信度计算） |
 | `createTime` | Date | 是 | 创建时间 |
 | `updateTime` | Date | 是 | 更新时间 |
@@ -132,6 +136,15 @@
 | 0 | 近期确认 | 30天内有确认 | 正常展示，显示🟢 |
 | 1 | 可能还在 | 31-90天未确认 | 折叠展示，显示🟡 |
 | 2 | 信息过期 | 超过90天未确认 | 默认不展示，显示🔴 |
+
+**claimStatus 认领状态说明**（仅适用于 `createdBy='admin_proxy'` 的摊位）：
+
+| 值 | 状态 | 说明 |
+|----|------|------|
+| `unclaimed` | 待认领 | 管理员代录入，等待摊主认领 |
+| `pending` | 审核中 | 摊主已提交认领申请，等待管理员审核 |
+| `claimed` | 已认领 | 审核通过，摊主已获得管理权 |
+| `rejected` | 审核拒绝 | 认领申请被拒绝，摊主可重新申请 |
 
 ---
 
@@ -191,7 +204,38 @@
 
 ---
 
-### 5. feedbacks（反馈表）
+### 5. stallClaims（摊位认领申请表）⭐ 新增
+
+存储摊主认领管理员代录入摊位的申请记录。
+
+| 字段 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| `_id` | String | 是 | 唯一标识 |
+| `stallId` | String | 是 | 关联摊位ID（关联 stalls._id） |
+| `userId` | String | 是 | 申请人用户ID（关联 users._id） |
+| `realName` | String | 是 | 真实姓名 |
+| `phone` | String | 是 | 手机号码 |
+| `wechatId` | String | 否 | 微信号 |
+| `idCardNumber` | String | 否 | 身份证号（加密存储）|
+| `stallPhotos` | Array | 是 | 摊位实拍照片URL数组（1-3张）|
+| `idCardPhoto` | String | 否 | 身份证照片URL |
+| `businessLicense` | String | 否 | 营业执照照片URL |
+| `status` | Number | 是 | 认领状态：0待审核 1已通过 2已拒绝 |
+| `remark` | String | 否 | 审核备注（拒绝时填写原因）|
+| `submitTime` | Date | 是 | 提交时间 |
+| `auditTime` | Date | 否 | 审核时间 |
+| `auditAdminId` | String | 否 | 审核管理员ID |
+
+**认领流程说明**：
+1. 管理员代录入的摊位 `createdBy='admin_proxy'`，`claimStatus='unclaimed'`
+2. 摊主扫码后提交认领申请，创建 stallClaims 记录，`status=0`
+3. 摊位状态更新为 `claimStatus='pending'`
+4. 管理员审核通过后：`stallClaims.status=1`，`stalls.claimStatus='claimed'`，`stalls.claimedBy=userId`
+5. 管理员审核拒绝后：`stallClaims.status=2`，`stalls.claimStatus='rejected'`（摊主可重新申请）
+
+---
+
+### 6. feedbacks（反馈表）
 
 存储用户反馈和意见。
 
@@ -258,6 +302,12 @@
 
 // 按摊主查询
 { ownerUserId: 1 }
+
+// 按认领状态查询（认领审核列表）
+{ claimStatus: 1 }
+
+// 复合索引：创建方式+认领状态（代录入摊位筛选）
+{ createdBy: 1, claimStatus: 1 }
 ```
 
 ### applications 集合
@@ -268,6 +318,25 @@
 
 // 按状态查询（审核列表）
 { status: 1 }
+
+// 复合索引：状态+提交时间
+{ status: 1, submitTime: -1 }
+```
+
+### stallClaims 集合 ⭐ 新增
+
+```javascript
+// 按摊位查询认领申请
+{ stallId: 1 }
+
+// 按用户查询认领申请
+{ userId: 1 }
+
+// 按状态查询（审核列表）
+{ status: 1 }
+
+// 复合索引：摊位+用户（检查是否已申请）
+{ stallId: 1, userId: 1 }
 
 // 复合索引：状态+提交时间
 { status: 1, submitTime: -1 }
@@ -311,6 +380,12 @@
   "write": "doc.userId == auth.openid && doc.status == 0"  // 只能写自己的待审核申请
 }
 
+// stallClaims 集合（认领申请）
+{
+  "read": "doc.userId == auth.openid",  // 用户只能读自己的认领申请
+  "write": "doc.userId == auth.openid && doc.status == 0"  // 只能写自己的待审核申请
+}
+
 // feedbacks 集合
 {
   "read": false,  // 只能通过云函数读取
@@ -350,6 +425,44 @@
 └───────────────┘
 ```
 
+### 摊主认领摊位流程（代录入摊位）
+
+```
+┌─────────────┐     管理员代录入     ┌───────────────┐
+│   管理员      │ ───────────────→ │     stalls      │
+│  (role=admin) │                  │ createdBy='admin_proxy'
+└─────────────┘                  │ claimStatus='unclaimed'
+                                 └────────┬──────┘
+                                          │
+                                          │ 摊主扫码
+                                          ▼
+                                 ┌─────────────────┐
+                                 │   填写认证信息    │
+                                 │  - 真实姓名      │
+                                 │  - 手机号码      │
+                                 │  - 摊位照片      │
+                                 └────────┬────────┘
+                                          │
+                                          │ 提交认领申请
+                                          ▼
+                                 ┌─────────────────┐
+                                 │   stallClaims   │
+                                 │    status=0     │
+                                 │   (待审核状态)   │
+                                 └────────┬────────┘
+                                          │
+                                          │ 管理员审核
+                                          ▼
+                    ┌─────────────────────┴─────────────────────┐
+                    │ 通过                                      │ 拒绝
+                    ▼                                           ▼
+           ┌─────────────────┐                        ┌─────────────────┐
+           │  stalls.claimStatus    │                        │  stalls.claimStatus    │
+           │   → 'claimed'    │                        │   → 'rejected'   │
+           │ 摊主获得管理权    │                        │ 摊主可重新申请    │
+           └─────────────────┘                        └─────────────────┘
+```
+
 ---
 
 ## 版本历史
@@ -357,3 +470,4 @@
 | 版本 | 日期 | 说明 |
 |------|------|------|
 | v1.0 | 2025-02-03 | 初始版本，包含5个核心集合 |
+| v1.1 | 2025-02-11 | 新增认领审核功能，新增 `stallClaims` 集合，扩展 `stalls.claimStatus` 枚举值 |

@@ -419,6 +419,15 @@ Page({
   onTabChange(e) {
     const tab = e.currentTarget.dataset.tab;
     console.log('[DEBUG admin] 切换标签:', tab);
+
+    // 认领审核是独立页面，需要跳转
+    if (tab === 'claimAudit') {
+      wx.navigateTo({
+        url: '/pages/admin/claim-audit/claim-audit'
+      });
+      return;
+    }
+
     this.setData({
       activeTab: tab,
       statusFilter: 0
@@ -598,9 +607,6 @@ Page({
       case 'online':
         this.onlineStall(id);
         break;
-      case 'confirm':
-        this.confirmStall(id);
-        break;
     }
   },
 
@@ -632,23 +638,6 @@ Page({
       this.loadData();
     } catch (err) {
       wx.showToast({ title: '操作失败', icon: 'none' });
-    }
-  },
-
-  // 确认地摊
-  async confirmStall(id) {
-    try {
-      const result = await api.confirmStall(id);
-
-      // 检查云函数返回的业务状态码
-      if (result.code !== 0) {
-        throw new Error(result.message || '确认失败');
-      }
-
-      wx.showToast({ title: '已确认', icon: 'success' });
-      this.loadData();
-    } catch (err) {
-      wx.showToast({ title: err.message || '操作失败', icon: 'none' });
     }
   },
 

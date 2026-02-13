@@ -220,6 +220,130 @@
   font-size: 26rpx;
 }
 
+/* 认领提示区 */
+.claim-section {
+  margin: 20rpx;
+  padding: 30rpx;
+  border-radius: 20rpx;
+  border: 2rpx solid;
+  box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.1);
+}
+
+/* 待认领状态 */
+.claim-section.claim-unclaimed {
+  background: linear-gradient(135deg, #E3F2FD 0%, #E8F5E9 100%);
+  border-color: rgba(25, 118, 210, 0.2);
+}
+
+.claim-section.claim-unclaimed .claim-title {
+  color: #1976D2;
+}
+
+.claim-section.claim-unclaimed .claim-desc {
+  color: #555;
+}
+
+.claim-section.claim-unclaimed .claim-btn {
+  background: linear-gradient(135deg, #1976D2 0%, #2196F3 100%);
+}
+
+/* 审核中状态 */
+.claim-section.claim-pending {
+  background: linear-gradient(135deg, #FFF7E6 0%, #FFF5E0 100%);
+  border-color: rgba(255, 149, 0, 0.2);
+}
+
+.claim-section.claim-pending .claim-title {
+  color: #FF9500;
+}
+
+.claim-section.claim-pending .claim-desc {
+  color: #666;
+}
+
+/* 已通过状态 */
+.claim-section.claim-claimed {
+  background: linear-gradient(135deg, #E8F5E9 0%, #F1F8E9 100%);
+  border-color: rgba(76, 175, 80, 0.2);
+}
+
+.claim-section.claim-claimed .claim-title {
+  color: #2E7D32;
+}
+
+.claim-section.claim-claimed .claim-desc {
+  color: #558B2F;
+}
+
+.claim-section.claim-claimed .claim-btn {
+  background: linear-gradient(135deg, #4CAF50 0%, #66BB6A 100%);
+}
+
+/* 已拒绝状态 */
+.claim-section.claim-rejected {
+  background: linear-gradient(135deg, #FFF1F0 0%, #FFF0F0 100%);
+  border-color: rgba(245, 34, 45, 0.2);
+}
+
+.claim-section.claim-rejected .claim-title {
+  color: #F5222D;
+}
+
+.claim-section.claim-rejected .claim-desc {
+  color: #666;
+}
+
+.claim-section.claim-rejected .claim-btn {
+  background: linear-gradient(135deg, #F5222D 0%, #FF4D4F 100%);
+}
+
+.claim-info {
+  display: flex;
+  align-items: flex-start;
+  margin-bottom: 24rpx;
+}
+
+.claim-icon {
+  font-size: 48rpx;
+  margin-right: 20rpx;
+  flex-shrink: 0;
+}
+
+.claim-text {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.claim-title {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #2E7D32;
+  margin-bottom: 8rpx;
+}
+
+.claim-desc {
+  font-size: 26rpx;
+  color: #558B2F;
+  line-height: 1.5;
+}
+
+.claim-btn {
+  background: linear-gradient(135deg, #4CAF50 0%, #66BB6A 100%);
+  color: #FFF;
+  text-align: center;
+  padding: 24rpx;
+  border-radius: 12rpx;
+  font-size: 30rpx;
+  font-weight: 600;
+  box-shadow: 0 4rpx 16rpx rgba(76, 175, 80, 0.3);
+  transition: transform 0.2s;
+}
+
+.claim-btn:active {
+  transform: scale(0.98);
+}
+
 /* 摊主操作区 */
 .owner-section {
   background-color: #FFF;

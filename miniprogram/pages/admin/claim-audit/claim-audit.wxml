@@ -1,0 +1,108 @@
+<!-- 权限检查中 -->
+<view class="loading" wx:if="{{checkingAuth}}">
+  <text>检查权限中...</text>
+</view>
+
+<!-- 页面内容 -->
+<view class="container" wx:if="{{!checkingAuth && isAdmin}}">
+  <!-- 状态筛选标签 -->
+  <view class="status-tabs">
+    <view 
+      class="tab-item {{currentStatus === tab.value ? 'active' : ''}}"
+      wx:for="{{statusTabs}}"
+      wx:for-item="tab"
+      wx:key="value"
+      data-status="{{tab.value}}"
+      bindtap="onStatusChange"
+    >
+      <text class="tab-label">{{tab.label}}</text>
+      <text class="tab-count" wx:if="{{statusStats[tab.key] > 0}}">{{statusStats[tab.key]}}</text>
+    </view>
+  </view>
+
+  <!-- 认领申请列表 -->
+  <view class="claims-list">
+    <view 
+      class="claim-card"
+      wx:for="{{claims}}"
+      wx:key="_id"
+      data-id="{{item._id}}"
+      bindtap="onGoToDetail"
+    >
+      <!-- 申请人信息 -->
+      <view class="applicant-info">
+        <image 
+          class="avatar" 
+          src="{{item.applicantInfo.avatarUrl || '/images/profile.png'}}" 
+          mode="aspectFill"
+        />
+        <view class="applicant-detail">
+          <text class="nickname">{{item.applicantInfo.nickName || '未知用户'}}</text>
+          <text class="submit-time">{{formatTime(item.submitTime)}}</text>
+        </view>
+        <view class="status-badge status-{{item.status}}">
+          <text wx:if="{{item.status === 0}}">待审核</text>
+          <text wx:if="{{item.status === 1}}">已通过</text>
+          <text wx:if="{{item.status === 2}}">已拒绝</text>
+        </view>
+      </view>
+
+      <!-- 摊位信息 -->
+      <view class="stall-info">
+        <view class="stall-header">
+          <text class="stall-label">申请认领摊位</text>
+        </view>
+        <view class="stall-name">{{item.stallInfo.displayName}}</view>
+        <view class="stall-address" wx:if="{{item.stallInfo.address}}">
+          <text class="icon">📍</text>
+          <text>{{item.stallInfo.address}}</text>
+        </view>
+      </view>
+
+      <!-- 证明材料预览 -->
+      <view class="materials-preview" wx:if="{{item.stallPhotos && item.stallPhotos.length > 0}}">
+        <view class="preview-title">证明材料</view>
+        <view class="preview-images">
+          <image 
+            wx:for="{{item.stallPhotos}}"
+            wx:for-item="photo"
+            wx:key="*this"
+            class="preview-image"
+            src="{{photo}}"
+            mode="aspectFill"
+          />
+          <view class="more-count" wx:if="{{item.stallPhotos.length > 3}}">
+            +{{item.stallPhotos.length - 3}}
+          </view>
+        </view>
+      </view>
+
+      <!-- 审核信息（已通过/已拒绝时显示） -->
+      <view class="audit-info" wx:if="{{item.status !== 0}}">
+        <text class="audit-time">审核时间：{{item.auditTime}}</text>
+        <text class="audit-remark" wx:if="{{item.remark}}">备注：{{item.remark}}</text>
+      </view>
+    </view>
+
+    <!-- 空状态 -->
+    <view class="empty-state" wx:if="{{!loading && claims.length === 0}}">
+      <text class="empty-icon">📋</text>
+      <text class="empty-text">
+        <text wx:if="{{currentStatus === 0}}">暂无待审核的认领申请</text>
+        <text wx:if="{{currentStatus === 1}}">暂无已通过的认领申请</text>
+        <text wx:if="{{currentStatus === 2}}">暂无已拒绝的认领申请</text>
+      </text>
+    </view>
+  </view>
+
+  <!-- 加载更多 -->
+  <view class="load-more" wx:if="{{hasMore}}">
+    <text wx:if="{{loading}}">加载中...</text>
+    <text wx:else>上拉加载更多</text>
+  </view>
+
+  <!-- 到底提示 -->
+  <view class="no-more" wx:if="{{!hasMore && claims.length > 0}}">
+    <text>没有更多了</text>
+  </view>
+</view>

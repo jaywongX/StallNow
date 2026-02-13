@@ -204,20 +204,7 @@ Page({
       // 处理摊位数据，添加显示的字段
       newStalls.forEach(stall => {
         // 处理出摊时间显示
-        if (stall.schedule) {
-          stall.scheduleType = stall.schedule.type || 
-            (stall.schedule.customTime ? stall.schedule.customTime : '时间不详');
-        } else if (stall.scheduleTypes && stall.scheduleTypes.length > 0) {
-          const typeMap = {
-            'afternoon': '下午',
-            'evening': '晚上',
-            'weekend': '周末',
-            'unfixed': '不固定'
-          };
-          stall.scheduleType = stall.scheduleTypes.map(t => typeMap[t] || t).join('、');
-        } else {
-          stall.scheduleType = '时间不详';
-        }
+        stall.scheduleDisplay = this.formatScheduleDisplay(stall);
       });
 
       // 构建地图标记（id 必须是数字）
@@ -377,6 +364,45 @@ Page({
     wx.navigateTo({
       url: `/pages/detail/detail?id=${stallId}`
     });
+  },
+
+  // 格式化时间显示
+  formatScheduleDisplay(stall) {
+    if (!stall.schedule && !stall.scheduleTypes) return '时间待定';
+    
+    const schedule = stall.schedule || {};
+    const types = stall.scheduleTypes || schedule.types || [];
+    
+    // 时间选项名称映射
+    const typeNames = {
+      'afternoon': '下午',
+      'evening': '晚上',
+      'weekend': '周末',
+      'unfixed': '不固定'
+    };
+    
+    // 如果选择了不固定且有自定义时间段
+    if (types.includes('unfixed') && schedule.customTimeStart && schedule.customTimeEnd) {
+      return `${schedule.customTimeStart} - ${schedule.customTimeEnd}`;
+    }
+    
+    // 如果选择了不固定但没有自定义时间段
+    if (types.includes('unfixed')) {
+      return '时间不固定';
+    }
+    
+    // 显示选中的时间段
+    if (types.length > 0) {
+      const typeLabels = types.map(t => typeNames[t] || t).join('、');
+      return typeLabels;
+    }
+    
+    // 兼容旧数据
+    if (schedule.customTime) {
+      return schedule.customTime;
+    }
+    
+    return schedule.display || schedule.type || '时间待定';
   },
 
   // 定位到当前位置

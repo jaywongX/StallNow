@@ -319,7 +319,22 @@ StallNow/
 │   │   │   └── profile.wxss
 │   │   ├── list/                   # 列表页
 │   │   ├── detail/                 # 详情页
+│   │   ├── claim-apply/            # ⭐ 摊位认领申请
+│   │   │   ├── claim-apply.js      # 填写认证信息
+│   │   │   ├── claim-apply.json
+│   │   │   ├── claim-apply.wxml
+│   │   │   └── claim-apply.wxss
 │   │   └── admin/                  # 管理后台（简单版）
+│   │       ├── claim-audit/        # ⭐ 认领审核
+│   │       │   ├── claim-audit.js  # 认领审核列表
+│   │       │   ├── claim-audit.json
+│   │       │   ├── claim-audit.wxml
+│   │       │   ├── claim-audit.wxss
+│   │       └── claim-detail/       # ⭐ 认领审核详情
+│   │           ├── claim-detail.js # 审核详情和操作
+│   │           ├── claim-detail.json
+│   │           ├── claim-detail.wxml
+│   │           └── claim-detail.wxss
 │   ├── components/                 # 公共组件
 │   │   ├── stall-marker/           # 地图标记组件
 │   │   ├── stall-card/             # 地摊卡片组件
@@ -332,8 +347,12 @@ StallNow/
 │   ├── getStalls/                  # 获取地摊列表（带可信度筛选+城市过滤）
 │   ├── getStallDetail/             # 获取地摊详情（更新访问计数）
 │   ├── submitApplication/          # 提交入驻申请
-│   ├── auditApplication/           # 审核申请（管理员）
-│   ├── adminGetApplications/       # 获取申请列表
+│   ├── auditApplication/           # 审核入驻申请（管理员）
+│   ├── adminGetApplications/       # 获取入驻申请列表
+│   ├── submitClaimApplication/     # ⭐ 提交认领申请
+│   ├── auditClaimApplication/      # ⭐ 审核认领申请（管理员）
+│   ├── getClaimApplications/       # ⭐ 获取认领申请列表
+│   ├── getMyClaimStatus/           # ⭐ 获取用户对某摊位的认领状态
 │   ├── confirmStall/               # 摊主确认摊位（扫码确认）
 │   ├── submitFeedback/             # 提交反馈
 │   ├── offlineStall/               # 一键下线摊位
@@ -926,7 +945,152 @@ if (isAdmin || isOwner) {
 
 ---
 
-### 3. 管理员代申请功能 👨‍💼
+### 3. 认领审核功能 👨‍💼
+
+**问题**：当前摊主认领管理员代录入的摊位时，无需任何审核，直接认领成功。这存在恶意认领风险，无法验证认领者身份真实性。
+
+**解决方案**：认领时收集认证信息，提交后由管理员审核
+
+#### 3.1 新增认领申请表集合 `stallClaims`
+
+```javascript
+{
+  _id: String,              // 申请ID
+  stallId: String,          // 关联摊位ID
+  userId: String,           // 申请人用户ID
+  
+  // 认证信息
+  realName: String,         // 真实姓名
+  phone: String,            // 手机号码（需短信验证）
+  wechatId: String,         // 微信号
+  idCardNumber: String,     // 身份证号（可选，加密存储）
+  
+  // 证明材料
+  stallPhotos: Array,       // 摊位实拍照片（1-3张，必填）
+  idCardPhoto: String,      // 身份证照片（可选）
+  businessLicense: String,  // 营业执照（可选）
+  
+  // 审核状态
+  status: Number,           // 0待审核 1已通过 2已拒绝
+  remark: String,           // 审核备注（拒绝时填写原因）
+  submitTime: Date,         // 提交时间
+  auditTime: Date,          // 审核时间
+  auditAdminId: String      // 审核管理员ID
+}
+```
+
+#### 3.2 摊位表字段扩展
+
+```javascript
+stalls: {
+  createdBy: 'admin_proxy',     // admin_proxy（管理员代录）/ vendor_self（摊主申请）
+  claimStatus: 'unclaimed',     // unclaimed（待认领）/ pending（审核中）/ claimed（已认领）/ rejected（审核拒绝）
+  claimedBy: '',               // 认领摊主的用户ID
+  claimedAt: Date              // 认领时间
+}
+```
+
+#### 3.3 认领流程（带审核）
+
+```
+┌───────────┐    扫码/点击认领    ┌───────────┐
+│  摊主发现   │ ───────────────→ │  填写认证信息 │
+│  待认领摊位  │                  │  - 姓名      │
+└───────────┘                  │  - 手机号    │
+                               │  - 微信号    │
+                               │  - 摊位照片  │
+                               └─────┬─────┘
+                                     │
+                                     ▼ 提交申请
+                               ┌───────────┐
+                               │  claimStatus  │
+                               │  → 'pending' │
+                               └─────┬─────┘
+                                     │
+                                     ▼
+                               ┌───────────┐
+                               │ 管理员审核  │
+                               └─────┬─────┘
+                         ┌──────────┴──────────┐
+                         │                     │
+                         ▼ 通过                ▼ 拒绝
+                   ┌───────────┐         ┌───────────┐
+                   │ claimStatus│         │ claimStatus│
+                   │→'claimed' │         │→'rejected'│
+                   │ 获得管理权  │         │ 可重新申请 │
+                   └───────────┘         └───────────┘
+```
+
+#### 3.4 认领申请页面设计
+
+**Step 1｜基本信息**
+- 真实姓名（必填）
+- 手机号码（必填，需短信验证）
+- 微信号（选填）
+
+**Step 2｜证明材料**
+- 摊位实拍照片（1-3张，必填）
+  - 💡 提示：请上传能证明这是您摊位的照片，如摊位外观、商品陈列等
+- 身份证照片（可选，增加可信度）
+- 营业执照（如有）
+
+**Step 3｜确认提交**
+- 信息预览
+- 勾选"我确认以上信息真实有效，如有虚假愿意承担相应责任"
+- 提交按钮
+
+#### 3.5 管理后台 - 认领审核
+
+**审核列表页**：
+- 筛选：待审核 / 已通过 / 已拒绝
+- 列表项：申请人头像/昵称、申请摊位名称、提交时间
+
+**审核详情页**：
+- 申请人信息（姓名、手机号、微信号）
+- 关联摊位信息（名称、位置、现有照片）
+- 提交的证明材料（摊位照片、身份证等）
+- 地图展示摊位位置
+- 审核操作：通过 / 拒绝 + 填写原因
+
+#### 3.6 用户端状态展示
+
+**详情页"我是摊主"区域**：
+```
+情况1：待认领
+  [认领这个摊位] 按钮
+
+情况2：审核中
+  ⏳ 认领申请审核中
+  您提交的认领申请正在审核，请耐心等待
+
+情况3：审核通过（已是摊主）
+  ✅ 您是该摊位的摊主
+  [管理摊位]
+
+情况4：审核拒绝
+  ❌ 认领申请未通过
+  原因：照片无法确认摊位归属
+  [重新申请]
+```
+
+#### 3.7 技术实现
+
+- **云函数**：
+  - `submitClaimApplication` - 提交认领申请
+  - `auditClaimApplication` - 审核认领申请
+  - `getClaimApplications` - 获取认领申请列表
+  - `getMyClaimStatus` - 获取当前用户对某摊位的认领状态
+  
+- **前端页面**：
+  - `pages/claim-apply/claim-apply` - 认领申请表单
+  - `pages/admin/claim-audit/` - 认领审核列表和详情
+
+- **数据权限**：
+  - 用户只能查看自己的认领申请
+  - 只有管理员可以审核
+  - 摊位照片需压缩上传
+
+### 4. 管理员代申请功能 👨‍💼
 
 **问题**：部分商贩不熟悉小程序操作，无法自主完成入驻申请
 
@@ -935,7 +1099,7 @@ if (isAdmin || isOwner) {
   ```javascript
   stalls: {
     createdBy: 'admin_proxy', // admin_proxy（管理员代录）/ vendor_self（摊主申请）
-    claimStatus: 'unclaimed', // unclaimed（待认领）/ claimed（已认领）
+    claimStatus: 'unclaimed', // unclaimed（待认领）/ pending（审核中）/ claimed（已认领）/ rejected（审核拒绝）
     claimedBy: '',           // 认领摊主的用户ID
     claimedAt: Date          // 认领时间
   }
@@ -947,14 +1111,15 @@ if (isAdmin || isOwner) {
   4. 摊位状态显示为"营业中（待认领）"
 - **摊主认领流程**：
   1. 摊主扫码摊位详情页二维码
-  2. 显示"这是你的摊位吗？"
-  3. 确认后绑定摊主身份，`claimStatus` 变为 `claimed`
-  4. 摊主获得摊位管理权限
+  2. 填写认证信息（姓名、手机号、摊位照片等）
+  3. 提交审核，等待管理员确认
+  4. 审核通过后，摊主获得摊位管理权限
 
 **技术实现**：
 - 云函数：`createStallByAdmin`（管理员代录入）
-- 云函数：`claimStall`（摊主认领）
-- 管理后台页面：新增代录入表单
+- 云函数：`submitClaimApplication`（提交认领申请）
+- 云函数：`auditClaimApplication`（审核认领申请）
+- 管理后台页面：新增代录入表单、认领审核列表
 - 摊位卡片：待认领状态显示特殊标识
 
 ---
@@ -1089,6 +1254,7 @@ if (isAdmin || isOwner) {
 
 | 优先级 | 功能 | 预计工作量 | 目标版本 | 需求来源 |
 |--------|------|------------|----------|----------|
+| **P0** | **认领审核功能** | **3天** | **v2.0** | **用户明确需求** |
 | P0 | 地图标记显示图标+文本 | 1天 | v2.0 | 用户反馈 #1 |
 | P0 | 筛选功能美团样式重构 | 2天 | v2.0 | 用户反馈 #2 |
 | P0 | 管理员代申请功能 | 2天 | v2.0 | 用户反馈 #3 |

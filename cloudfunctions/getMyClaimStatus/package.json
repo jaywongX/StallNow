@@ -1,0 +1,9 @@
+{
+  "name": "getMyClaimStatus",
+  "version": "1.0.0",
+  "description": "获取用户对某摊位的认领状态",
+  "main": "index.js",
+  "dependencies": {
+    "wx-server-sdk": "latest"
+  }
+}

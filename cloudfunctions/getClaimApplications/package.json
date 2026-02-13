@@ -1,0 +1,9 @@
+{
+  "name": "getClaimApplications",
+  "version": "1.0.0",
+  "description": "获取摊位认领申请列表",
+  "main": "index.js",
+  "dependencies": {
+    "wx-server-sdk": "latest"
+  }
+}

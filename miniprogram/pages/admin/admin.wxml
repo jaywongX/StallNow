@@ -18,6 +18,13 @@
     代录入
   </view>
   <view
+    class="tab-item {{activeTab === 'claimAudit' ? 'active' : ''}}"
+    data-tab="claimAudit"
+    bindtap="onTabChange"
+  >
+    认领审核
+  </view>
+  <view
     class="tab-item {{activeTab === 'stalls' ? 'active' : ''}}"
     data-tab="stalls"
     bindtap="onTabChange"
@@ -476,14 +483,6 @@
       </view>
     </view>
     <view class="card-footer">
-      <view
-        class="btn btn-secondary"
-        data-id="{{item._id}}"
-        data-action="confirm"
-        bindtap="onStallAction"
-      >
-        确认
-      </view>
       <view
         class="btn"
         data-id="{{item._id}}"

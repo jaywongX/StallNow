@@ -54,20 +54,22 @@
     <!-- 位置信息 -->
     <view class="info-row">
       <text class="icon">📍</text>
-      <text class="text">{{stall.address}}</text>
+      <text class="label">地址：</text>
+      <text class="text">{{stall.address || '暂无'}}</text>
     </view>
 
     <!-- 外观特征 -->
     <view class="info-row" wx:if="{{stall.landmark}}">
       <text class="icon">🏪</text>
+      <text class="label">外观：</text>
       <text class="text">{{stall.landmark}}</text>
     </view>
 
     <!-- 出摊时间 -->
     <view class="info-row">
       <text class="icon">🕐</text>
-      <text class="text">{{stall.schedule.display || stall.schedule.timeRange || '时间待定'}}</text>
-      <text class="note" wx:if="{{stall.schedule.note}}">{{stall.schedule.note}}</text>
+      <text class="label">时间：</text>
+      <text class="text">{{scheduleDisplay}}</text>
     </view>
 
     <!-- 导航按钮 -->
@@ -123,8 +125,9 @@
     </view>
   </view>
 
-  <!-- 认领提示区 -->
-  <view class="claim-section" wx:if="{{stall.claimStatus === 'unclaimed' && stall.createdBy === 'admin_proxy'}}">
+  <!-- 认领状态展示区 -->
+  <!-- 情况1：待认领 -->
+  <view class="claim-section claim-unclaimed" wx:if="{{stall.claimStatus === 'unclaimed' && stall.createdBy === 'admin_proxy' && (!claimStatus || claimStatus.canApply)}}">
     <view class="claim-info">
       <text class="claim-icon">🏷️</text>
       <view class="claim-text">
@@ -137,11 +140,49 @@
     </view>
   </view>
 
-  <!-- 管理员操作区 -->
-  <view class="owner-section" wx:if="{{isAdmin || (stall.claimStatus === 'claimed' && stall.isOwner)}}">
-    <view class="owner-btn" bindtap="onConfirmStall">
-      我是摊主 - 确认摊位
+  <!-- 情况2：审核中 -->
+  <view class="claim-section claim-pending" wx:if="{{claimStatus && claimStatus.myClaim && claimStatus.myClaim.status === 0}}">
+    <view class="claim-info">
+      <text class="claim-icon">⏳</text>
+      <view class="claim-text">
+        <text class="claim-title">认领申请审核中</text>
+        <text class="claim-desc">您提交的认领申请正在审核，请耐心等待</text>
+      </view>
     </view>
+  </view>
+
+  <!-- 情况3：审核通过（已是摊主）或摊主自己创建的摊位 -->
+  <view class="claim-section claim-claimed" wx:if="{{claimStatus && claimStatus.isOwner}}">
+    <view class="claim-info">
+      <text class="claim-icon">✅</text>
+      <view class="claim-text">
+        <text class="claim-title">您是该摊位的摊主</text>
+        <text class="claim-desc" wx:if="{{claimStatus.isCreator}}">这是您自己创建的摊位</text>
+        <text class="claim-desc" wx:else>您已通过审核，可以管理这个摊位</text>
+      </view>
+    </view>
+    <view class="claim-btn manage" bindtap="onManageStall">
+      管理摊位
+    </view>
+  </view>
+
+  <!-- 情况4：审核拒绝 -->
+  <view class="claim-section claim-rejected" wx:if="{{claimStatus && claimStatus.myClaim && claimStatus.myClaim.status === 2}}">
+    <view class="claim-info">
+      <text class="claim-icon">❌</text>
+      <view class="claim-text">
+        <text class="claim-title">认领申请未通过</text>
+        <text class="claim-desc" wx:if="{{claimStatus.myClaim.remark}}">原因：{{claimStatus.myClaim.remark}}</text>
+        <text class="claim-desc" wx:else>您的认领申请未通过审核</text>
+      </view>
+    </view>
+    <view class="claim-btn" bindtap="onReapplyClaim">
+      重新申请
+    </view>
+  </view>
+
+  <!-- 摊主/管理员操作区 -->
+  <view class="owner-section" wx:if="{{isAdmin || (stall.claimStatus === 'claimed' && stall.isOwner)}}">
     <view class="owner-btn danger" bindtap="onOfflineStall">
       一键下线
     </view>

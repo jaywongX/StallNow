@@ -1,0 +1,446 @@
+.container {
+  padding: 20rpx 30rpx 140rpx;
+  background: #f5f5f5;
+  min-height: 100vh;
+}
+
+/* 状态卡片 */
+.status-card {
+  display: flex;
+  align-items: center;
+  padding: 40rpx;
+  border-radius: 16rpx;
+  margin-bottom: 20rpx;
+}
+
+.status-card.status-0 {
+  background: #FFF7E6;
+}
+
+.status-card.status-1 {
+  background: #F6FFED;
+}
+
+.status-card.status-2 {
+  background: #FFF1F0;
+}
+
+.status-icon {
+  font-size: 60rpx;
+  margin-right: 24rpx;
+}
+
+.status-info {
+  flex: 1;
+}
+
+.status-text {
+  font-size: 36rpx;
+  font-weight: bold;
+  display: block;
+  margin-bottom: 8rpx;
+}
+
+.status-card.status-0 .status-text {
+  color: #FF9500;
+}
+
+.status-card.status-1 .status-text {
+  color: #52C41A;
+}
+
+.status-card.status-2 .status-text {
+  color: #F5222D;
+}
+
+.status-time {
+  font-size: 26rpx;
+  color: #666;
+}
+
+/* 区块 */
+.section {
+  background: #fff;
+  border-radius: 16rpx;
+  padding: 30rpx;
+  margin-bottom: 20rpx;
+}
+
+.section-title {
+  font-size: 32rpx;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 24rpx;
+}
+
+/* 信息卡片 */
+.info-card {
+  background: #f8f8f8;
+  border-radius: 12rpx;
+  padding: 20rpx;
+}
+
+.info-item {
+  display: flex;
+  padding: 16rpx 0;
+  border-bottom: 2rpx solid #eee;
+}
+
+.info-item:last-child {
+  border-bottom: none;
+}
+
+.info-label {
+  width: 160rpx;
+  font-size: 28rpx;
+  color: #666;
+}
+
+.info-value {
+  flex: 1;
+  font-size: 28rpx;
+  color: #333;
+  word-break: break-all;
+}
+
+.info-value.user-info {
+  display: flex;
+  align-items: center;
+}
+
+.user-avatar {
+  width: 60rpx;
+  height: 60rpx;
+  border-radius: 50%;
+  margin-right: 16rpx;
+  background: #e0e0e0;
+}
+
+.info-value.copyable {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.copy-btn {
+  font-size: 24rpx;
+  color: #FF6B35;
+  padding: 8rpx 20rpx;
+  background: #FFF2E8;
+  border-radius: 8rpx;
+}
+
+.info-value.pass {
+  color: #52C41A;
+  font-weight: bold;
+}
+
+.info-value.reject {
+  color: #F5222D;
+  font-weight: bold;
+}
+
+.info-value.remark {
+  color: #666;
+  line-height: 1.6;
+}
+
+/* 摊位详情卡片 */
+.stall-card-detail {
+  background: #f8f8f8;
+  border-radius: 12rpx;
+  padding: 24rpx;
+}
+
+.stall-header {
+  margin-bottom: 16rpx;
+}
+
+.stall-name {
+  font-size: 32rpx;
+  font-weight: bold;
+  color: #333;
+}
+
+.stall-location {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20rpx;
+}
+
+.location-info {
+  display: flex;
+  align-items: center;
+  flex: 1;
+}
+
+.location-info .icon {
+  margin-right: 8rpx;
+  font-size: 28rpx;
+}
+
+.address {
+  font-size: 28rpx;
+  color: #666;
+}
+
+.navigate-btn {
+  font-size: 24rpx;
+  color: #FF6B35;
+  padding: 12rpx 24rpx;
+  background: #FFF2E8;
+  border-radius: 8rpx;
+  margin-left: 20rpx;
+}
+
+.stall-existing-photos {
+  margin-top: 20rpx;
+  padding-top: 20rpx;
+  border-top: 2rpx solid #eee;
+}
+
+.photos-label {
+  font-size: 26rpx;
+  color: #666;
+  margin-bottom: 16rpx;
+  display: block;
+}
+
+.photos-list {
+  display: flex;
+  gap: 16rpx;
+  flex-wrap: wrap;
+}
+
+.photo-item {
+  width: 160rpx;
+  height: 160rpx;
+  border-radius: 12rpx;
+  background: #e0e0e0;
+}
+
+/* 证明材料 */
+.material-section {
+  margin-bottom: 30rpx;
+}
+
+.material-section:last-child {
+  margin-bottom: 0;
+}
+
+.material-title {
+  font-size: 28rpx;
+  color: #333;
+  margin-bottom: 16rpx;
+  display: flex;
+  align-items: center;
+}
+
+.material-count {
+  font-size: 24rpx;
+  color: #999;
+  margin-left: 16rpx;
+}
+
+.optional {
+  font-size: 24rpx;
+  color: #999;
+  font-weight: normal;
+  margin-left: 8rpx;
+}
+
+.material-photos {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16rpx;
+}
+
+.material-photo {
+  width: 200rpx;
+  height: 200rpx;
+  border-radius: 12rpx;
+  background: #f0f0f0;
+}
+
+/* 底部操作按钮 */
+.footer-actions {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 20rpx 30rpx;
+  padding-bottom: calc(20rpx + env(safe-area-inset-bottom));
+  background: #fff;
+  display: flex;
+  gap: 20rpx;
+  box-shadow: 0 -4rpx 20rpx rgba(0,0,0,0.05);
+}
+
+.btn-reject, .btn-pass {
+  flex: 1;
+  height: 88rpx;
+  border-radius: 44rpx;
+  font-size: 30rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+}
+
+.btn-reject {
+  background: #f0f0f0;
+  color: #666;
+}
+
+.btn-pass {
+  background: #52C41A;
+  color: #fff;
+}
+
+.btn-reject::after, .btn-pass::after {
+  border: none;
+}
+
+/* 弹窗 */
+.modal-mask {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0,0,0,0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+}
+
+.modal-content {
+  background: #fff;
+  border-radius: 24rpx;
+  width: 80%;
+  max-width: 600rpx;
+  overflow: hidden;
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 30rpx;
+  border-bottom: 2rpx solid #f0f0f0;
+}
+
+.modal-title {
+  font-size: 32rpx;
+  font-weight: bold;
+  color: #333;
+}
+
+.modal-close {
+  font-size: 36rpx;
+  color: #999;
+  padding: 10rpx;
+}
+
+.modal-body {
+  padding: 30rpx;
+}
+
+.modal-desc {
+  font-size: 28rpx;
+  color: #666;
+  line-height: 1.6;
+  margin-bottom: 30rpx;
+}
+
+.remark-section {
+  margin-top: 20rpx;
+}
+
+.remark-section.optional {
+  margin-top: 10rpx;
+}
+
+.remark-label {
+  font-size: 28rpx;
+  color: #333;
+  margin-bottom: 16rpx;
+  display: block;
+}
+
+.required {
+  color: #F44336;
+}
+
+.remark-input {
+  width: 100%;
+  height: 200rpx;
+  background: #f8f8f8;
+  border-radius: 12rpx;
+  padding: 20rpx;
+  font-size: 28rpx;
+  color: #333;
+  box-sizing: border-box;
+}
+
+.remark-count {
+  font-size: 24rpx;
+  color: #999;
+  text-align: right;
+  margin-top: 10rpx;
+  display: block;
+}
+
+.modal-footer {
+  display: flex;
+  padding: 20rpx 30rpx 30rpx;
+  gap: 20rpx;
+}
+
+.btn-cancel, .btn-confirm {
+  flex: 1;
+  height: 80rpx;
+  border-radius: 40rpx;
+  font-size: 28rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+}
+
+.btn-cancel {
+  background: #f0f0f0;
+  color: #666;
+}
+
+.btn-confirm {
+  color: #fff;
+}
+
+.btn-confirm.pass {
+  background: #52C41A;
+}
+
+.btn-confirm.reject {
+  background: #F44336;
+}
+
+.btn-confirm[disabled] {
+  background: #ccc;
+}
+
+.btn-cancel::after, .btn-confirm::after {
+  border: none;
+}
+
+/* 加载中 */
+.loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 100rpx;
+  font-size: 28rpx;
+  color: #999;
+}

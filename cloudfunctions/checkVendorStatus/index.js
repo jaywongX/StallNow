@@ -30,11 +30,34 @@ exports.main = async (event, context) => {
 
     // 2. 如果已经是摊主，直接返回
     if (role === 'vendor') {
+      // 兼容处理：如果 role 是 vendor 但 stallIds 为空，尝试从 stalls 集合查询
+      let stallIds = userInfo.stallIds || [];
+      
+      if (stallIds.length === 0) {
+        console.log('[DEBUG checkVendorStatus] 用户角色是vendor但stallIds为空，尝试查询stalls集合');
+        const stallRes = await db.collection('stalls').where({
+          ownerUserId: userInfo._id
+        }).get();
+        
+        if (stallRes.data.length > 0) {
+          stallIds = stallRes.data.map(s => s._id);
+          console.log('[DEBUG checkVendorStatus] 从stalls集合查询到摊位:', stallIds);
+          
+          // 更新用户的 stallIds
+          await db.collection('users').doc(userInfo._id).update({
+            data: {
+              stallIds: stallIds,
+              updateTime: new Date().toISOString()
+            }
+          });
+        }
+      }
+      
       return {
         code: 0,
         data: {
           role: 'vendor',
-          stallIds: userInfo.stallIds || [],
+          stallIds: stallIds,
           application: null
         },
         message: '已是摊主'

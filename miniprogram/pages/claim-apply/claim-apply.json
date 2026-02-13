@@ -1,0 +1,6 @@
+{
+  "navigationBarTitleText": "认领摊位",
+  "usingComponents": {
+    "reliability-badge": "/components/reliability-badge/reliability-badge"
+  }
+}

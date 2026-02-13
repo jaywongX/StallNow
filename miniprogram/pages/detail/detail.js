@@ -9,6 +9,7 @@ Page({
     showContactModal: false,
     showFeedbackModal: false,
     isAdmin: false,
+    scheduleDisplay: '', // 格式化后的时间显示
     
     // 收藏引导
     showFavoriteGuide: false,
@@ -17,7 +18,11 @@ Page({
     
     // 摊位状态
     isStallActive: true,
-    stallStatusText: ''
+    stallStatusText: '',
+    
+    // 认领状态
+    claimStatus: null, // 用户的认领状态
+    checkingClaimStatus: false
   },
 
   onLoad(options) {
@@ -68,12 +73,19 @@ Page({
       // 判断摊位状态
       const stallStatus = this.checkStallStatus(stall);
       
+      // 格式化时间显示
+      const scheduleDisplay = this.formatScheduleDisplay(stall);
+      
       this.setData({
         stall: stall,
         isStallActive: stallStatus.isActive,
         stallStatusText: stallStatus.statusText,
+        scheduleDisplay: scheduleDisplay,
         loading: false
       });
+
+      // 加载认领状态
+      this.loadClaimStatus();
     } catch (err) {
       console.error('加载详情失败', err);
       this.setData({ loading: false });
@@ -81,6 +93,81 @@ Page({
         title: '加载失败',
         icon: 'none'
       });
+    }
+  },
+
+  // 格式化时间显示
+  formatScheduleDisplay(stall) {
+    if (!stall.schedule) return '时间待定';
+    
+    const schedule = stall.schedule;
+    const types = schedule.types || [];
+    
+    // 时间选项名称映射
+    const typeNames = {
+      'afternoon': '下午',
+      'evening': '晚上',
+      'weekend': '周末',
+      'unfixed': '不固定'
+    };
+    
+    // 如果选择了不固定且有自定义时间段
+    if (types.includes('unfixed') && schedule.customTimeStart && schedule.customTimeEnd) {
+      return `${schedule.customTimeStart} - ${schedule.customTimeEnd}`;
+    }
+    
+    // 如果选择了不固定但没有自定义时间段
+    if (types.includes('unfixed')) {
+      return '时间不固定，请提前联系确认';
+    }
+    
+    // 显示选中的时间段
+    if (types.length > 0) {
+      const typeLabels = types.map(t => typeNames[t] || t).join('、');
+      return typeLabels;
+    }
+    
+    // 兼容旧数据
+    return schedule.display || schedule.timeRange || '时间待定';
+  },
+
+  // 加载认领状态
+  async loadClaimStatus() {
+    const stall = this.data.stall;
+    if (!stall) return;
+
+    // 情况1：摊主自己申请的摊位，直接判断是否为创建者
+    if (stall.createdBy === 'vendor_self') {
+      const { result } = await wx.cloud.callFunction({
+        name: 'getUserInfo'
+      });
+      if (result.code === 0 && result.data && result.data.openid === stall._openid) {
+        this.setData({
+          claimStatus: { isOwner: true, isCreator: true },
+          checkingClaimStatus: false
+        });
+      }
+      return;
+    }
+
+    // 情况2：代录入摊位，查询认领状态
+    if (stall.createdBy === 'admin_proxy') {
+      this.setData({ checkingClaimStatus: true });
+      try {
+        const { result } = await wx.cloud.callFunction({
+          name: 'getMyClaimStatus',
+          data: { stallId: this.data.stallId }
+        });
+        if (result.code === 0) {
+          this.setData({
+            claimStatus: result.data,
+            checkingClaimStatus: false
+          });
+        }
+      } catch (err) {
+        console.error('获取认领状态失败', err);
+        this.setData({ checkingClaimStatus: false });
+      }
     }
   },
   
@@ -205,48 +292,6 @@ Page({
   // 取消反馈
   onCancelFeedback() {
     this.setData({ showFeedbackModal: false });
-  },
-
-  // 我是摊主 - 扫码确认
-  onConfirmStall() {
-    const that = this;
-    wx.showModal({
-      title: '摊主确认',
-      content: '请扫描摊位二维码确认',
-      confirmText: '去扫码',
-      success(res) {
-        if (res.confirm) {
-          wx.scanCode({
-            success(scanRes) {
-              that.doConfirmStall(scanRes.result);
-            }
-          });
-        }
-      }
-    });
-  },
-
-  // 执行确认摊位
-  async doConfirmStall(qrCode) {
-    try {
-      const result = await api.confirmStall(this.data.stallId);
-      if (result.code === 0) {
-        wx.showToast({
-          title: '确认成功',
-          icon: 'success'
-        });
-        // 刷新详情
-        this.loadStallDetail();
-      } else {
-        throw new Error(result.message || '确认失败');
-      }
-    } catch (err) {
-      console.error('确认失败', err);
-      wx.showToast({
-        title: err.message || '确认失败',
-        icon: 'none'
-      });
-    }
   },
 
   // 一键下线
@@ -382,48 +427,32 @@ Page({
     }
   },
 
-  // 摊主认领摊位
-  async onClaimStall() {
+  // 摊主认领摊位 - 跳转到申请页面
+  onClaimStall() {
+    wx.navigateTo({
+      url: `/pages/claim-apply/claim-apply?stallId=${this.data.stallId}`
+    });
+  },
+
+  // 重新申请认领
+  onReapplyClaim() {
     wx.showModal({
-      title: '认领摊位',
-      content: '确认这是您的摊位吗？认领后您可以管理这个摊位。',
-      confirmText: '确认认领',
-      success: async (res) => {
+      title: '重新申请',
+      content: '您的上次认领申请被拒绝，确认要重新申请吗？',
+      success: (res) => {
         if (res.confirm) {
-          await this.doClaimStall();
+          wx.navigateTo({
+            url: `/pages/claim-apply/claim-apply?stallId=${this.data.stallId}`
+          });
         }
       }
     });
   },
 
-  // 执行认领
-  async doClaimStall() {
-    try {
-      wx.showLoading({ title: '处理中...' });
-      
-      const { result } = await wx.cloud.callFunction({
-        name: 'claimStall',
-        data: { stallId: this.data.stallId }
-      });
-      
-      wx.hideLoading();
-      
-      if (result.code === 0) {
-        wx.showToast({
-          title: '认领成功',
-          icon: 'success'
-        });
-        // 刷新详情
-        this.loadStallDetail();
-      } else {
-        throw new Error(result.message);
-      }
-    } catch (err) {
-      wx.hideLoading();
-      wx.showToast({
-        title: err.message || '认领失败',
-        icon: 'none'
-      });
-    }
+  // 管理摊位
+  onManageStall() {
+    wx.navigateTo({
+      url: `/pages/vendor-manage/vendor-manage?stallId=${this.data.stallId}`
+    });
   }
 });

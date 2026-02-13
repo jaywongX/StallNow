@@ -93,23 +93,6 @@ async function adminGetApplications(options = {}) {
 }
 
 /**
- * 摊主确认摊位（扫码确认）
- * @param {String} stallId - 地摊ID
- */
-async function confirmStall(stallId) {
-  try {
-    const res = await cloud.callFunction({
-      name: 'confirmStall',
-      data: { stallId }
-    });
-    return res.result;
-  } catch (err) {
-    console.error('确认摊位失败', err);
-    throw err;
-  }
-}
-
-/**
  * 提交反馈
  * @param {Object} data - 反馈数据
  */
@@ -212,17 +195,41 @@ async function unbindStallOwner(stallId) {
 }
 
 /**
+ * 压缩图片
+ * @param {String} src - 图片路径
+ * @param {Number} quality - 压缩质量 0-100
+ */
+async function compressImage(src, quality = 80) {
+  return new Promise((resolve, reject) => {
+    wx.compressImage({
+      src,
+      quality,
+      success: resolve,
+      fail: reject
+    });
+  });
+}
+
+/**
  * 上传图片
  * @param {String} filePath - 本地文件路径
- * @param {String} cloudPath - 云存储路径
+ * @param {String} dir - 云存储目录
  */
-async function uploadImage(filePath, cloudPath) {
+async function uploadImage(filePath, dir = '') {
   try {
+    // 生成文件名
+    const ext = filePath.match(/\.[^.]+$/);
+    const fileName = `${Date.now()}_${Math.random().toString(36).substr(2, 9)}${ext ? ext[0] : '.jpg'}`;
+    const cloudPath = `${dir}${fileName}`;
+    
     const res = await cloud.uploadFile({
       cloudPath,
       filePath
     });
-    return res.fileID;
+    return {
+      fileID: res.fileID,
+      cloudPath: res.cloudPath
+    };
   } catch (err) {
     console.error('上传图片失败', err);
     throw err;
@@ -235,12 +242,12 @@ module.exports = {
   submitApplication,
   auditApplication,
   adminGetApplications,
-  confirmStall,
   submitFeedback,
   getFeedbacks,
   handleFeedback,
   offlineStall,
   bindStallOwner,
   unbindStallOwner,
-  uploadImage
+  uploadImage,
+  compressImage
 };

@@ -120,11 +120,13 @@
       <view class="card-info">
         <view class="info-row">
           <text class="icon">📍</text>
-          <text class="text">{{selectedStall.address || '位置不详'}}</text>
+          <text class="label">地址：</text>
+          <text class="text">{{selectedStall.address || '暂无'}}</text>
         </view>
         <view class="info-row">
           <text class="icon">🕐</text>
-          <text class="text">{{selectedStall.scheduleType || '时间不详'}}</text>
+          <text class="label">时间：</text>
+          <text class="text">{{selectedStall.scheduleDisplay || '时间待定'}}</text>
         </view>
         <!-- 可信度 -->
         <view class="reliability-row">

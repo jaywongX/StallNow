@@ -53,6 +53,27 @@ exports.main = async (event, context) => {
       console.log('新用户自动注册成功:', openId);
     } else {
       userInfo = userRes.data[0];
+      
+      // 兼容性处理：如果 role 是 vendor 但 stallIds 为空，尝试从 stalls 集合查询
+      if (userInfo.role === 'vendor' && (!userInfo.stallIds || userInfo.stallIds.length === 0)) {
+        console.log('[DEBUG getUserInfo] 用户角色是vendor但stallIds为空，尝试查询stalls集合');
+        const stallRes = await db.collection('stalls').where({
+          ownerUserId: userInfo._id
+        }).get();
+        
+        if (stallRes.data.length > 0) {
+          userInfo.stallIds = stallRes.data.map(s => s._id);
+          console.log('[DEBUG getUserInfo] 从stalls集合查询到摊位:', userInfo.stallIds);
+          
+          // 更新用户的 stallIds
+          await db.collection('users').doc(userInfo._id).update({
+            data: {
+              stallIds: userInfo.stallIds,
+              updateTime: new Date().toISOString()
+            }
+          });
+        }
+      }
     }
 
     return {

@@ -1,7 +1,7 @@
 <view class="about-container">
   <!-- 头部信息 -->
   <view class="header">
-    <image class="logo" src="/images/default-stall.png" mode="aspectFit" />
+    <image class="logo" src="/images/logo.png" mode="aspectFit" />
     <view class="app-name">{{appName}}</view>
     <view class="version">版本 {{version}}</view>
   </view>

@@ -275,12 +275,19 @@
   margin-right: 10rpx;
 }
 
+.info-row .label {
+  font-size: 26rpx;
+  color: #333;
+  flex-shrink: 0;
+}
+
 .info-row .text {
   font-size: 26rpx;
   color: #666;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  flex: 1;
 }
 
 .reliability-row {

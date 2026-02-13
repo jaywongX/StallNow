@@ -261,6 +261,9 @@
   height: 80rpx;
   line-height: 80rpx;
   border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 /* 免责声明弹窗 */

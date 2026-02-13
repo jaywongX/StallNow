@@ -32,6 +32,9 @@
   - **出摊时间灵活选择**：选择"不固定"时可自定义具体时段（如 18:00-22:00）
   - **合规提示**：引导摊主避免上传含价格、交易信息的图片
 - **摊位认领**：扫码认领管理员代录入的摊位
+  - 提交认证信息：姓名、手机号、微信号、摊位照片
+  - 等待管理员审核确认
+  - 审核通过获得摊位管理权
 - **摊位管理**：
   - 编辑摊位信息（名称、照片、联系方式等）
   - 修改出摊时间（实时生效）
@@ -44,14 +47,19 @@
 - **联系方式**：可选展示电话和微信二维码
 
 ### 管理端
-- **审核管理**：审核入驻申请
+- **入驻审核**：审核摊主入驻申请
   - 显示完整申请信息：申请人头像昵称、商品类型、外观特征、摊位照片、位置、出摊时间、联系方式等
   - **地图可视化**：直观展示申请摊位的地图位置，支持缩放查看
   - 支持预览摊位照片
+- **认领审核**：审核摊主认领申请
+  - 查看认领者提交的认证信息：姓名、手机号、微信号
+  - 查看证明材料：摊位实拍照片、身份证、营业执照
+  - 对比摊位现有信息，确认是否为真实摊主
+  - 审核操作：通过 / 拒绝并填写原因
 - **代录入摊位**：帮助不熟悉小程序的商贩录入信息
   - 无需审核，直接上架
   - 摊位状态："营业中（待认领）"
-  - 支持摊主后续扫码认领
+  - 支持摊主后续扫码认领，认领需审核
 - **地摊管理**：上架、下架、确认摊位
 - **反馈处理**：处理用户反馈
 
@@ -81,18 +89,22 @@ StallNow/
 │   ├── utils/            # 工具函数
 │   └── images/           # 图片资源
 ├── cloudfunctions/       # 云函数
-│   ├── getStalls/        # 获取地摊列表
-│   ├── getStallDetail/   # 获取地摊详情
-│   ├── submitApplication/# 提交入驻申请
-│   ├── auditApplication/ # 审核申请
-│   ├── adminGetApplications/# 获取申请列表
-│   ├── confirmStall/    # 确认摊位
-│   ├── submitFeedback/  # 提交反馈
-│   ├── offlineStall/    # 下线摊位
-│   ├── updateReliability/# 更新可信度状态
-│   ├── bindStallOwner/  # 绑定摊主
-│   ├── unbindStallOwner/# 解绑摊主
-│   └── checkCitySupport/# 检查城市支持
+│   ├── getStalls/           # 获取地摊列表
+│   ├── getStallDetail/      # 获取地摊详情
+│   ├── submitApplication/   # 提交入驻申请
+│   ├── auditApplication/    # 审核入驻申请
+│   ├── adminGetApplications/# 获取入驻申请列表
+│   ├── submitClaimApplication/  # ⭐ 提交认领申请
+│   ├── auditClaimApplication/   # ⭐ 审核认领申请
+│   ├── getClaimApplications/    # ⭐ 获取认领申请列表
+│   ├── getMyClaimStatus/        # ⭐ 获取用户对摊位的认领状态
+│   ├── confirmStall/        # 确认摊位
+│   ├── submitFeedback/      # 提交反馈
+│   ├── offlineStall/        # 下线摊位
+│   ├── updateReliability/   # 更新可信度状态
+│   ├── bindStallOwner/      # 绑定摊主
+│   ├── unbindStallOwner/    # 解绑摊主
+│   └── checkCitySupport/    # 检查城市支持
 │
 **注意**：所有云函数统一返回格式为 `{ code: 0, data: ..., message: ... }`，`code: 0` 表示成功，`code: -1` 表示失败
 ├── plan.md              # 产品规划文档
@@ -130,6 +142,7 @@ StallNow/
    - `stalls`（地摊主表）
    - `categories`（分类表）
    - `applications`（摊主申请表）
+   - `stallClaims`（摊位认领申请表）⭐ 新增
    - `feedbacks`（反馈表）
 
 2. 创建云函数 `initDatabase`，将 `database-init.js` 的内容复制进去
@@ -224,7 +237,7 @@ StallNow/
 | contact | Object | 联系方式 |
 | **ownerUserId** | String | **绑定的摊主用户ID（关联 users._id）** |
 | **createdBy** | String | **创建方式：vendor_self（摊主申请）/ admin_proxy（管理员代录）** |
-| **claimStatus** | String | **认领状态：unclaimed（待认领）/ claimed（已认领）** |
+| **claimStatus** | String | **认领状态：unclaimed（待认领）/ pending（审核中）/ claimed（已认领）/ rejected（审核拒绝）** |
 | **claimedBy** | String | **认领人用户ID** |
 | **claimedAt** | Date | **认领时间** |
 
@@ -248,6 +261,26 @@ StallNow/
 | audit | Object | 审核信息 {adminId, result, remark, time} |
 | submitTime | Date | 申请时间 |
 | updateTime | Date | 更新时间 |
+
+### stallClaims（摊位认领申请表）⭐ 新增
+
+| 字段 | 类型 | 说明 |
+| --- | --- | --- |
+| _id | String | 唯一标识 |
+| **stallId** | String | **关联摊位ID** |
+| **userId** | String | **申请人用户ID** |
+| realName | String | 真实姓名 |
+| phone | String | 手机号码 |
+| wechatId | String | 微信号 |
+| idCardNumber | String | 身份证号（加密存储）|
+| stallPhotos | Array | 摊位实拍照片URL数组（1-3张）|
+| idCardPhoto | String | 身份证照片URL |
+| businessLicense | String | 营业执照照片URL |
+| status | Number | **0待审核 1已通过 2已拒绝** |
+| remark | String | 审核备注（拒绝原因）|
+| submitTime | Date | 提交时间 |
+| auditTime | Date | 审核时间 |
+| auditAdminId | String | 审核管理员ID |
 
 ### feedbacks（反馈表）
 
