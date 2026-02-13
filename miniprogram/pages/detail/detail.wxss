@@ -102,6 +102,27 @@
   font-size: 24rpx;
 }
 
+/* 商品标签行 */
+.info-row.goods-row {
+  align-items: flex-start;
+}
+
+.goods-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10rpx;
+  flex: 1;
+}
+
+.goods-tag {
+  font-size: 26rpx;
+  color: #FF6B35;
+  background: #FFF3E0;
+  padding: 6rpx 16rpx;
+  border-radius: 8rpx;
+  white-space: nowrap;
+}
+
 .navigate-btn {
   margin-top: 20rpx;
   background-color: #FFF3E0;

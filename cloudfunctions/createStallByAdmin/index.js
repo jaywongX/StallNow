@@ -32,6 +32,7 @@ exports.main = async (event, context) => {
       displayName: stallData.displayName,
       categoryId: stallData.categoryId,
       categoryName: stallData.categoryName,
+      goodsTags: stallData.goodsTags || [], // 商品标签
       landmark: stallData.landmark || '',
       address: stallData.address || (stallData.location ? stallData.location.address : ''),
       city: stallData.city || '汕尾市',

@@ -30,7 +30,11 @@ Page({
     
     // 标记卡片预览
     showMarkerCard: false,
-    selectedStall: null
+    selectedStall: null,
+    
+    // 欢迎弹窗
+    showWelcomeModal: false,
+    tempNickname: ''
   },
   
   // 分类对应的颜色
@@ -46,6 +50,8 @@ Page({
     await this.initData();
     // 等待城市检查完成后显示提示
     this.checkCityAfterReady();
+    // 检查是否需要显示欢迎弹窗
+    this.checkWelcomeModal();
   },
 
   onShow() {
@@ -439,5 +445,77 @@ Page({
     this.loadStalls().then(() => {
       wx.stopPullDownRefresh();
     });
+  },
+
+  // 检查是否显示欢迎弹窗
+  checkWelcomeModal() {
+    const app = getApp();
+    // 检查是否是新用户且没有昵称
+    if (app.globalData.isNewUser) {
+      // 延迟显示，避免和城市提示冲突
+      setTimeout(() => {
+        this.setData({ showWelcomeModal: true });
+      }, 1000);
+    }
+  },
+
+  // 昵称输入
+  onNicknameInput(e) {
+    this.setData({
+      tempNickname: e.detail.value
+    });
+  },
+
+  // 确认昵称
+  async onConfirmNickname() {
+    const { tempNickname } = this.data;
+    
+    if (!tempNickname || !tempNickname.trim()) {
+      wx.showToast({
+        title: '请输入昵称',
+        icon: 'none'
+      });
+      return;
+    }
+    
+    try {
+      wx.showLoading({ title: '保存中...' });
+      
+      await wx.cloud.callFunction({
+        name: 'updateUserInfo',
+        data: { nickName: tempNickname.trim() }
+      });
+      
+      // 更新全局状态
+      const app = getApp();
+      app.globalData.isNewUser = false;
+      if (app.globalData.userInfo) {
+        app.globalData.userInfo.nickName = tempNickname.trim();
+      }
+      
+      wx.hideLoading();
+      
+      this.setData({ showWelcomeModal: false });
+      
+      wx.showToast({
+        title: '欢迎加入',
+        icon: 'success'
+      });
+    } catch (err) {
+      wx.hideLoading();
+      console.error('保存昵称失败', err);
+      wx.showToast({
+        title: '保存失败',
+        icon: 'none'
+      });
+    }
+  },
+
+  // 跳过欢迎
+  onSkipWelcome() {
+    this.setData({ showWelcomeModal: false });
+    // 标记不再提示
+    const app = getApp();
+    app.globalData.isNewUser = false;
   }
 });

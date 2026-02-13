@@ -131,6 +131,44 @@
   margin-top: 16rpx;
 }
 
+/* 自定义商品输入 */
+.custom-goods-section {
+  margin-top: 24rpx;
+  padding-top: 24rpx;
+  border-top: 1rpx solid #F0F0F0;
+}
+
+.custom-goods-label {
+  display: block;
+  font-size: 26rpx;
+  color: #666;
+  margin-bottom: 16rpx;
+}
+
+.custom-goods-input-row {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+}
+
+.custom-goods-input {
+  flex: 1;
+  height: 72rpx;
+  background: #F8F8F8;
+  border-radius: 8rpx;
+  padding: 0 20rpx;
+  font-size: 26rpx;
+}
+
+.custom-goods-add-btn {
+  padding: 16rpx 28rpx;
+  background: #FF6B35;
+  color: #fff;
+  border-radius: 8rpx;
+  font-size: 26rpx;
+  white-space: nowrap;
+}
+
 /* 表单输入 */
 .form-input {
   width: 100%;

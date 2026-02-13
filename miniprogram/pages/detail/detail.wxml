@@ -51,6 +51,15 @@
       expanded="{{false}}"
     />
 
+    <!-- 商品标签 -->
+    <view class="info-row goods-row" wx:if="{{stall.goodsTags && stall.goodsTags.length > 0}}">
+      <text class="icon">📦</text>
+      <text class="label">商品：</text>
+      <view class="goods-tags">
+        <text class="goods-tag" wx:for="{{stall.goodsTags}}" wx:key="*this">{{item}}</text>
+      </view>
+    </view>
+
     <!-- 位置信息 -->
     <view class="info-row">
       <text class="icon">📍</text>

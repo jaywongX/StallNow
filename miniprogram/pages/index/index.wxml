@@ -118,6 +118,14 @@
       
       <!-- 信息 -->
       <view class="card-info">
+        <!-- 商品标签 -->
+        <view class="info-row goods-row" wx:if="{{selectedStall.goodsTags && selectedStall.goodsTags.length > 0}}">
+          <text class="icon">📦</text>
+          <text class="label">商品：</text>
+          <view class="goods-tags">
+            <text class="goods-tag" wx:for="{{selectedStall.goodsTags}}" wx:key="*this">{{item}}</text>
+          </view>
+        </view>
         <view class="info-row">
           <text class="icon">📍</text>
           <text class="label">地址：</text>
@@ -140,6 +148,36 @@
     <!-- 卡片底部 -->
     <view class="card-footer">
       <button class="btn-detail" bindtap="onGoToDetail">查看详情</button>
+    </view>
+  </view>
+</view>
+
+<!-- 欢迎弹窗 - 新用户获取昵称 -->
+<view class="welcome-modal" wx:if="{{showWelcomeModal}}">
+  <view class="welcome-mask" bindtap="onSkipWelcome"></view>
+  <view class="welcome-content">
+    <view class="welcome-header">
+      <text class="welcome-emoji">🎉</text>
+      <text class="welcome-title">欢迎来到摆地摊了么</text>
+      <text class="welcome-desc">设置昵称，让我们认识你</text>
+    </view>
+    <view class="welcome-body">
+      <!-- 昵称输入 -->
+      <view class="welcome-input-wrap">
+        <input
+          class="welcome-nickname-input"
+          type="nickname"
+          placeholder="点击获取微信昵称"
+          value="{{tempNickname}}"
+          bindinput="onNicknameInput"
+          bindblur="onNicknameConfirm"
+        />
+      </view>
+      <text class="welcome-hint">点击输入框可使用微信昵称</text>
+    </view>
+    <view class="welcome-footer">
+      <button class="welcome-btn welcome-btn-skip" bindtap="onSkipWelcome">稍后再说</button>
+      <button class="welcome-btn welcome-btn-confirm" bindtap="onConfirmNickname">确认</button>
     </view>
   </view>
 </view>

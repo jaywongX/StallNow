@@ -18,17 +18,47 @@
   padding-bottom: 40rpx;
 }
 
+/* 头像按钮 */
+.avatar-btn {
+  width: 120rpx;
+  height: 120rpx;
+  padding: 0;
+  margin: 0 24rpx 0 0;
+  background: transparent;
+  border: none;
+  line-height: 1;
+}
+
+.avatar-btn::after {
+  border: none;
+}
+
 .user-avatar {
   width: 120rpx;
   height: 120rpx;
   border-radius: 50%;
   border: 4rpx solid rgba(255,255,255,0.3);
-  margin-right: 24rpx;
   background: #f0f0f0;
 }
 
 .user-meta {
   flex: 1;
+}
+
+/* 昵称输入框 */
+.nickname-input {
+  font-size: 40rpx;
+  font-weight: bold;
+  color: #fff;
+  background: transparent;
+  padding: 0;
+  margin-bottom: 12rpx;
+  height: 56rpx;
+  line-height: 56rpx;
+}
+
+.nickname-input::placeholder {
+  color: rgba(255,255,255,0.6);
 }
 
 .user-name {

@@ -226,6 +226,7 @@ stalls（摊位表）
 | _id | String | 唯一标识 |
 | displayName | String | 展示名（系统生成：[商品类型]｜[区域]） |
 | categoryId | String | 分类ID（商品类型） |
+| **goodsTags** | **Array** | **商品标签列表（如["烧烤", "臭豆腐"]，最多5个）** |
 | landmark | String | 外观/地标特征（如"红色棚子"、"白色推车"） |
 | location | GeoPoint | 地理位置（大致范围） |
 | address | String | 大致位置描述（如"老街夜市"、"广场附近"） |

@@ -30,6 +30,8 @@ Page({
       'other': ['鲜花', '袜子', '手机配件', '日用百货', '二手物品']
     },
     currentGoodsOptions: [],
+    // 自定义商品输入
+    customGoodsInput: '',
     proxyForm: {
       displayName: '',
       categoryId: '',
@@ -88,6 +90,7 @@ Page({
       'proxyForm.categoryName': name,
       'proxyForm.goodsTags': [],
       currentGoodsOptions: goodsOptions,
+      customGoodsInput: '',
       errors: {}
     });
   },
@@ -113,6 +116,48 @@ Page({
     
     this.setData({
       'proxyForm.goodsTags': newTags
+    });
+  },
+  
+  // 输入自定义商品
+  onCustomGoodsInput(e) {
+    this.setData({
+      customGoodsInput: e.detail.value
+    });
+  },
+  
+  // 添加自定义商品（代录入）
+  onProxyAddCustomGoods() {
+    const { customGoodsInput, proxyForm } = this.data;
+    const trimmedInput = customGoodsInput.trim();
+    
+    if (!trimmedInput) {
+      wx.showToast({
+        title: '请输入商品名称',
+        icon: 'none'
+      });
+      return;
+    }
+    
+    if (proxyForm.goodsTags.includes(trimmedInput)) {
+      wx.showToast({
+        title: '该商品已添加',
+        icon: 'none'
+      });
+      return;
+    }
+    
+    if (proxyForm.goodsTags.length >= 5) {
+      wx.showToast({
+        title: '最多选5个',
+        icon: 'none'
+      });
+      return;
+    }
+    
+    this.setData({
+      'proxyForm.goodsTags': [...proxyForm.goodsTags, trimmedInput],
+      customGoodsInput: ''
     });
   },
   
@@ -398,6 +443,7 @@ Page({
                 remark: ''
               },
               currentGoodsOptions: [],
+              customGoodsInput: '',
               errors: {}
             });
             // 切换到摊位管理

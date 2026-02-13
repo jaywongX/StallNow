@@ -158,6 +158,10 @@ App({
             this.globalData.role = result.data?.role || 'user';
             this.globalData.isAdmin = result.data?.role === 'admin';
             this.globalData.isVendor = result.data?.role === 'vendor';
+            
+            // 检查是否是新用户（没有昵称）
+            this.globalData.isNewUser = !result.data?.nickName;
+            
             return result.data;
         } catch (err) {
             console.error('获取用户信息失败', err);
@@ -174,6 +178,7 @@ App({
         userInfo: null,
         role: 'user',
         isAdmin: false,
-        isVendor: false
+        isVendor: false,
+        isNewUser: false  // 是否是新用户（需要设置昵称）
     }
 });

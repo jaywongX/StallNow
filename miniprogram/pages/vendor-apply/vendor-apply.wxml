@@ -49,6 +49,22 @@
       </view>
       </view>
       <text class="tags-hint">已选择 {{form.goodsTags.length}}/5 个</text>
+      
+      <!-- 自定义商品输入 -->
+      <view class="custom-goods-section">
+        <text class="custom-goods-label">没有找到？自定义商品：</text>
+        <view class="custom-goods-input-row">
+          <input 
+            class="custom-goods-input"
+            placeholder="输入商品名称"
+            value="{{customGoodsInput}}"
+            bindinput="onCustomGoodsInput"
+            maxlength="10"
+          />
+          <view class="custom-goods-add-btn" bindtap="onAddCustomGoods">添加</view>
+        </view>
+      </view>
+      
       <text wx:if="{{errors.goods}}" class="error-text">{{errors.goods}}</text>
     </view>
 

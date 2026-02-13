@@ -25,9 +25,6 @@ Page({
             // 先获取全局数据
             const globalData = app.globalData;
             
-            // 获取微信用户信息
-            const wxUserInfo = wx.getStorageSync('wxUserInfo');
-            
             // 获取服务器用户信息
             const { result } = await wx.cloud.callFunction({
                 name: 'getUserInfo'
@@ -39,8 +36,8 @@ Page({
                 this.setData({
                     userInfo: {
                         ...serverUserInfo,
-                        nickName: wxUserInfo?.nickName || serverUserInfo?.nickName || '微信用户',
-                        avatarUrl: wxUserInfo?.avatarUrl || serverUserInfo?.avatarUrl || ''
+                        nickName: serverUserInfo?.nickName || '',
+                        avatarUrl: serverUserInfo?.avatarUrl || ''
                     },
                     role: serverUserInfo?.role || 'user',
                     isAdmin: serverUserInfo?.role === 'admin',
@@ -56,27 +53,68 @@ Page({
         }
     },
 
-    // 获取微信用户信息
-    async getWxUserProfile() {
+    // 选择头像
+    async onChooseAvatar(e) {
+        const { avatarUrl } = e.detail;
+        
+        // 显示加载
+        wx.showLoading({ title: '保存中...' });
+        
         try {
-            const res = await wx.getUserProfile({
-                desc: '用于完善用户资料'
+            // 上传头像到云存储
+            const cloudPath = `avatars/${Date.now()}_${Math.random().toString(36).substr(2, 9)}.jpg`;
+            const uploadRes = await wx.cloud.uploadFile({
+                cloudPath,
+                filePath: avatarUrl
             });
-            
-            wx.setStorageSync('wxUserInfo', res.userInfo);
             
             // 更新到服务器
             await wx.cloud.callFunction({
                 name: 'updateUserInfo',
                 data: {
-                    nickName: res.userInfo.nickName,
-                    avatarUrl: res.userInfo.avatarUrl
+                    avatarUrl: uploadRes.fileID
                 }
             });
             
-            this.loadUserInfo();
+            // 更新本地显示
+            this.setData({
+                'userInfo.avatarUrl': uploadRes.fileID
+            });
+            
+            wx.hideLoading();
+            wx.showToast({ title: '头像已更新', icon: 'success' });
         } catch (err) {
-            console.error('获取用户信息失败', err);
+            wx.hideLoading();
+            console.error('上传头像失败', err);
+            wx.showToast({ title: '更新失败', icon: 'none' });
+        }
+    },
+
+    // 昵称输入
+    onNicknameInput(e) {
+        this.setData({
+            'userInfo.nickName': e.detail.value
+        });
+    },
+
+    // 昵称失焦保存
+    async onNicknameBlur(e) {
+        const nickName = e.detail.value.trim();
+        
+        if (!nickName) {
+            return;
+        }
+        
+        try {
+            await wx.cloud.callFunction({
+                name: 'updateUserInfo',
+                data: { nickName }
+            });
+            
+            wx.showToast({ title: '昵称已更新', icon: 'success' });
+        } catch (err) {
+            console.error('更新昵称失败', err);
+            wx.showToast({ title: '更新失败', icon: 'none' });
         }
     },
 

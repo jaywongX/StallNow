@@ -85,6 +85,7 @@
 | `_id` | String | 是 | 唯一标识 |
 | `displayName` | String | 是 | 展示名（系统生成或摊主自定义） |
 | `categoryId` | String | 是 | 分类ID（关联 categories._id） |
+| `goodsTags` | Array | 是 | 商品标签列表，如["烧烤", "臭豆腐"]，最多5个 |
 | `landmark` | String | 否 | 外观/地标特征，如"红色棚子"、"白色推车" |
 | `location` | Object | 是 | 地理位置（用户手动选择的地图位置） |
 | `location.latitude` | Number | 是 | 纬度 |

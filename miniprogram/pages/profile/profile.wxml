@@ -1,19 +1,29 @@
 <view class="container">
   <!-- 用户信息区 -->
   <view class="user-section">
-    <view class="user-info" bindtap="getWxUserProfile">
-      <image 
-        class="user-avatar" 
-        src="{{userInfo.avatarUrl || '/images/default-avatar.png'}}"
-        mode="aspectFill"
-      />
+    <view class="user-info">
+      <!-- 头像获取按钮 -->
+      <button class="avatar-btn" open-type="chooseAvatar" bindchooseavatar="onChooseAvatar">
+        <image
+          class="user-avatar"
+          src="{{userInfo.avatarUrl || '/images/default-avatar.png'}}"
+          mode="aspectFill"
+        />
+      </button>
       <view class="user-meta">
-        <text class="user-name">{{userInfo.nickName || '点击登录'}}</text>
+        <!-- 昵称输入框 -->
+        <input
+          class="nickname-input"
+          type="nickname"
+          placeholder="点击设置昵称"
+          value="{{userInfo.nickName}}"
+          bindblur="onNicknameBlur"
+          bindinput="onNicknameInput"
+        />
         <view class="user-badge" wx:if="{{role !== 'user'}}">
           <text class="badge-text">{{role === 'admin' ? '管理员' : '摊主'}}</text>
         </view>
       </view>
-      <text class="arrow">></text>
     </view>
     
     <!-- 城市选择 -->

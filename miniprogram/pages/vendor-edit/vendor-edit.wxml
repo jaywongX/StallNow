@@ -33,6 +33,22 @@
           {{item}}
         </view>
       </view>
+      
+      <!-- 自定义商品输入 -->
+      <view class="custom-goods-section">
+        <text class="custom-goods-label">没有找到？自定义商品：</text>
+        <view class="custom-goods-input-row">
+          <input 
+            class="custom-goods-input"
+            placeholder="输入商品名称"
+            value="{{customGoodsInput}}"
+            bindinput="onCustomGoodsInput"
+            maxlength="10"
+          />
+          <view class="custom-goods-add-btn" bindtap="onAddCustomGoods">添加</view>
+        </view>
+      </view>
+      
       <view wx:if="{{errors.goods}}" class="error-text">{{errors.goods}}</view>
     </view>
     

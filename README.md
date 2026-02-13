@@ -225,6 +225,7 @@ StallNow/
 | _id | String | 唯一标识 |
 | displayName | String | 展示名（系统生成） |
 | categoryId | String | 分类ID |
+| **goodsTags** | **Array** | **商品标签列表（如["烧烤", "臭豆腐"]，最多5个）** |
 | landmark | String | 外观/地标特征 |
 | location | GeoPoint | 地理位置 |
 | address | String | 大致位置描述 |

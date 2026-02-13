@@ -55,6 +55,9 @@ Page({
         // 当前显示的商品标签
         currentGoodsOptions: [],
         
+        // 自定义商品输入
+        customGoodsInput: '',
+        
         // 表单验证
         errors: {}
     },
@@ -125,6 +128,7 @@ Page({
             'form.categoryName': name,
             'form.goodsTags': [],
             currentGoodsOptions: goodsOptions,
+            customGoodsInput: '',
             errors: {}
         });
     },
@@ -150,6 +154,48 @@ Page({
         
         this.setData({
             'form.goodsTags': newTags
+        });
+    },
+    
+    // 输入自定义商品
+    onCustomGoodsInput(e) {
+        this.setData({
+            customGoodsInput: e.detail.value
+        });
+    },
+    
+    // 添加自定义商品
+    onAddCustomGoods() {
+        const { customGoodsInput, form } = this.data;
+        const trimmedInput = customGoodsInput.trim();
+        
+        if (!trimmedInput) {
+            wx.showToast({
+                title: '请输入商品名称',
+                icon: 'none'
+            });
+            return;
+        }
+        
+        if (form.goodsTags.includes(trimmedInput)) {
+            wx.showToast({
+                title: '该商品已添加',
+                icon: 'none'
+            });
+            return;
+        }
+        
+        if (form.goodsTags.length >= 5) {
+            wx.showToast({
+                title: '最多选5个',
+                icon: 'none'
+            });
+            return;
+        }
+        
+        this.setData({
+            'form.goodsTags': [...form.goodsTags, trimmedInput],
+            customGoodsInput: ''
         });
     },
 
