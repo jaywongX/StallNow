@@ -1,0 +1,113 @@
+// 时间类型名称映射
+var typeNames = {
+  'morning': '早上',
+  'afternoon': '下午',
+  'evening': '晚上',
+  'weekend': '周末',
+  'unfixed': '不固定'
+};
+
+// 获取商品标签文本
+function getGoodsTagsText(stall) {
+  if (!stall) {
+    return '';
+  }
+  var tags = stall.goodsTags || [];
+  if (tags.length === 0) {
+    return '';
+  }
+  var result = [];
+  for (var i = 0; i < tags.length && i < 3; i++) {
+    result.push(tags[i]);
+  }
+  return result.join('、');
+}
+
+// 获取时间显示文本
+function getScheduleText(stall) {
+  if (!stall) {
+    return '时间待定';
+  }
+  
+  var schedule = stall.schedule || {};
+  var scheduleTypes = stall.scheduleTypes || schedule.types || [];
+
+  // 如果选择了不固定且有自定义时间段
+  if (hasValue(scheduleTypes, 'unfixed') && schedule.customTimeStart && schedule.customTimeEnd) {
+    return schedule.customTimeStart + '-' + schedule.customTimeEnd;
+  }
+
+  // 如果选择了不固定但没有自定义时间段
+  if (hasValue(scheduleTypes, 'unfixed')) {
+    return '时间不固定';
+  }
+
+  // 显示时间类型
+  if (scheduleTypes.length > 0) {
+    var names = [];
+    for (var i = 0; i < scheduleTypes.length; i++) {
+      var t = scheduleTypes[i];
+      if (typeNames[t]) {
+        names.push(typeNames[t]);
+      }
+    }
+    if (names.length > 0) {
+      return names.join('、');
+    }
+  }
+
+  // 兼容旧数据
+  if (schedule.display) {
+    return schedule.display;
+  }
+  if (schedule.timeRange) {
+    return schedule.timeRange;
+  }
+
+  return '时间待定';
+}
+
+// 获取可信度信息
+function getReliabilityInfo(stall) {
+  var reliability = 2;
+  if (stall && (stall.reliability !== undefined && stall.reliability !== null)) {
+    reliability = stall.reliability;
+  }
+  
+  if (reliability === 0) {
+    return { text: '近期确认', icon: '🟢' };
+  } else if (reliability === 1) {
+    return { text: '信息较旧', icon: '🟡' };
+  } else {
+    return { text: '已过期', icon: '🔴' };
+  }
+}
+
+// 检查是否有商品
+function hasGoodsTags(stall) {
+  if (!stall) {
+    return false;
+  }
+  var tags = stall.goodsTags || [];
+  return tags.length > 0;
+}
+
+// 辅助函数：检查数组是否包含某值
+function hasValue(arr, val) {
+  if (!arr || !arr.length) {
+    return false;
+  }
+  for (var i = 0; i < arr.length; i++) {
+    if (arr[i] === val) {
+      return true;
+    }
+  }
+  return false;
+}
+
+module.exports = {
+  getGoodsTagsText: getGoodsTagsText,
+  getScheduleText: getScheduleText,
+  getReliabilityInfo: getReliabilityInfo,
+  hasGoodsTags: hasGoodsTags
+};

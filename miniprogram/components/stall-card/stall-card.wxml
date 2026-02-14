@@ -1,3 +1,5 @@
+<wxs src="stall-card.wxs" module="utils" />
+
 <view class="stall-card" bindtap="onTap">
   <!-- 图片 -->
   <image
@@ -11,26 +13,32 @@
     <!-- 展示名 -->
     <view class="stall-name">{{stall.displayName}}</view>
 
-    <!-- 商家名称（可选） -->
-    <view class="vendor-name" wx:if="{{stall.vendorName}}">{{stall.vendorName}}</view>
-
-    <!-- 分类标签 -->
+    <!-- 分类和可信度标签 -->
     <view class="tags">
       <text class="tag tag-primary">{{stall.categoryName || '其他'}}</text>
-      <text class="tag tag-secondary" wx:if="{{showReliability}}">{{getReliabilityInfo().icon}} {{getReliabilityInfo().text}}</text>
+      <text class="tag tag-secondary" wx:if="{{showReliability}}">{{utils.getReliabilityInfo(stall).icon}} {{utils.getReliabilityInfo(stall).text}}</text>
+    </view>
+
+    <!-- 商品信息 -->
+    <view class="info-row" wx:if="{{utils.hasGoodsTags(stall)}}">
+      <text class="icon">🏷️</text>
+      <text class="label">商品：</text>
+      <text class="value">{{utils.getGoodsTagsText(stall)}}</text>
     </view>
 
     <!-- 位置信息 -->
-    <view class="location">
+    <view class="info-row">
       <text class="icon">📍</text>
-      <text class="text">{{stall.address}}</text>
+      <text class="label">地址：</text>
+      <text class="value">{{stall.address || stall.location.name || '位置未设置'}}</text>
     </view>
 
     <!-- 出摊时间 -->
-    <view class="schedule">
+    <view class="info-row">
       <text class="icon">🕐</text>
-      <text class="text">{{stall.schedule.display || stall.schedule.timeRange || '时间待定'}}</text>
-      <text class="note" wx:if="{{stall.schedule.note}}">{{stall.schedule.note}}</text>
+      <text class="label">时间：</text>
+      <text class="value">{{utils.getScheduleText(stall)}}</text>
+      <text class="note" wx:if="{{stall.schedule && stall.schedule.note}}">{{stall.schedule.note}}</text>
     </view>
   </view>
 </view>

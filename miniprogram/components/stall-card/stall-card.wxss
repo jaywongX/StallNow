@@ -20,13 +20,7 @@
   font-size: 32rpx;
   font-weight: bold;
   color: #333;
-  margin-bottom: 8rpx;
-}
-
-.vendor-name {
-  font-size: 26rpx;
-  color: #666;
-  margin-bottom: 16rpx;
+  margin-bottom: 12rpx;
 }
 
 .tags {
@@ -54,23 +48,32 @@
   color: #666;
 }
 
-.location, .schedule {
+.info-row {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   font-size: 26rpx;
   color: #666;
-  margin-bottom: 12rpx;
+  margin-bottom: 10rpx;
+  line-height: 1.5;
 }
 
-.icon {
-  margin-right: 8rpx;
+.info-row .icon {
+  margin-right: 4rpx;
+  flex-shrink: 0;
 }
 
-.text {
-  flex: 1;
-}
-
-.note {
+.info-row .label {
   color: #999;
-  margin-left: 12rpx;
+  flex-shrink: 0;
+}
+
+.info-row .value {
+  flex: 1;
+  color: #333;
+}
+
+.info-row .note {
+  color: #999;
+  margin-left: 8rpx;
+  font-size: 24rpx;
 }

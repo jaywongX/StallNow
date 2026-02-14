@@ -381,6 +381,7 @@ Page({
     
     // 时间选项名称映射
     const typeNames = {
+      'morning': '早上',
       'afternoon': '下午',
       'evening': '晚上',
       'weekend': '周末',
