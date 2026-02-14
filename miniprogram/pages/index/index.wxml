@@ -138,7 +138,7 @@
         </view>
         <!-- 可信度 -->
         <view class="reliability-row">
-          <text wx:if="{{selectedStall.reliability === 2}}" class="reliability high">🟢 今日可能在</text>
+          <text wx:if="{{selectedStall.reliability === 0}}" class="reliability high">🟢 今日可能在</text>
           <text wx:elif="{{selectedStall.reliability === 1}}" class="reliability medium">🟡 最近没摆</text>
           <text wx:else class="reliability low">⚪ 信息过期</text>
         </view>

@@ -166,7 +166,7 @@ Page({
       
       // 筛选只看近期确认的
       if (this.data.filterConfirmed) {
-        newStalls = newStalls.filter(stall => stall.reliability === 2);
+        newStalls = newStalls.filter(stall => stall.reliability === 0);
       }
 
       this.setData({
