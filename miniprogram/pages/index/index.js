@@ -336,9 +336,13 @@ Page({
     
     if (stall) {
       console.log('[DEBUG] 找到摊位:', stall.displayName);
+      // 获取分类图标
+      const category = this.data.categories.find(c => c.id === stall.categoryId);
+      const categoryIcon = category ? category.icon : '🏪';
+      
       this.setData({
         showMarkerCard: true,
-        selectedStall: stall
+        selectedStall: { ...stall, categoryIcon }
       });
     } else {
       console.error('[DEBUG] 未找到对应的摊位, _stallId:', marker._stallId);

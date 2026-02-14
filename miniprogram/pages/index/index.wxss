@@ -214,12 +214,25 @@
 }
 
 .category-tag {
-  font-size: 22rpx;
-  color: #fff;
-  padding: 6rpx 14rpx;
-  border-radius: 8rpx;
+  display: flex;
+  align-items: center;
+  background: rgba(255, 107, 53, 0.08);
+  border-left: 6rpx solid var(--cat-color, #FF6B35);
+  border-radius: 0 12rpx 12rpx 0;
+  padding: 8rpx 16rpx 8rpx 12rpx;
   margin-right: 12rpx;
   flex-shrink: 0;
+}
+
+.category-icon {
+  font-size: 26rpx;
+  margin-right: 6rpx;
+}
+
+.category-text {
+  font-size: 24rpx;
+  font-weight: 500;
+  color: var(--cat-color, #FF6B35);
 }
 
 .stall-name {

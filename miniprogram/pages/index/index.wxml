@@ -101,9 +101,10 @@
     <!-- 卡片头部 -->
     <view class="card-header">
       <view class="stall-info">
-        <text class="category-tag" style="background: {{categoryColors[selectedStall.categoryId] || '#999'}}">
-          {{selectedStall.categoryName || '其他'}}
-        </text>
+        <view class="category-tag" style="--cat-color: {{categoryColors[selectedStall.categoryId] || '#FF6B35'}}">
+          <text class="category-icon">{{selectedStall.categoryIcon || '🏪'}}</text>
+          <text class="category-text">{{selectedStall.categoryName || '其他'}}</text>
+        </view>
         <text class="stall-name">{{selectedStall.displayName}}</text>
       </view>
       <text class="close-btn" bindtap="onCloseMarkerCard">✕</text>
