@@ -363,14 +363,27 @@ Page({
     });
   },
 
-  // 搜索
+  // 搜索（带防抖）
+  searchTimer: null,
   onSearch(e) {
-    this.setData({
-      keyword: e.detail.value,
-      page: 1,
-      stalls: []
-    });
-    this.loadStalls();
+    const keyword = e.detail.value;
+    
+    // 清除之前的定时器
+    if (this.searchTimer) {
+      clearTimeout(this.searchTimer);
+    }
+    
+    // 防抖：300ms 后执行搜索
+    this.searchTimer = setTimeout(() => {
+      this.setData({
+        keyword: keyword,
+        page: 1,
+        stalls: [],
+        hasMore: true
+      }, () => {
+        this.loadStalls();
+      });
+    }, 300);
   },
 
   // 选择分类
