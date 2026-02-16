@@ -125,7 +125,7 @@ Page({
       });
 
       if (result.code === 0) {
-        const { list, total, hasMore, statusStats } = result.data;
+        const { list, hasMore, statusStats } = result.data;
         
         this.setData({
           claims: this.data.page === 1 ? list : [...this.data.claims, ...list],
@@ -145,6 +145,7 @@ Page({
       this.setData({ loading: false });
     }
   },
+
 
   // 加载更多
   loadMore() {

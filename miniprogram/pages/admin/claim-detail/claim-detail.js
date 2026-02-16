@@ -9,6 +9,7 @@ Page({
     showAuditModal: false,
     auditAction: '', // 'pass' 或 'reject'
     auditRemark: '',
+    canConfirm: true, // 是否可以确认（拒绝时需要填写原因）
     auditing: false,
     
     // 权限检查
@@ -62,43 +63,34 @@ Page({
     this.setData({ loading: true });
 
     try {
-      // 获取认领申请详情
+      // 直接通过 ID 获取认领申请详情（云函数已转换图片链接）
       const { result } = await wx.cloud.callFunction({
         name: 'getClaimApplications',
         data: {
-          isAdmin: true,
-          page: 1,
-          pageSize: 1
+          claimId: this.data.claimId,
+          isAdmin: true
         }
       });
 
-      if (result.code === 0) {
-        // 在当前列表中找到对应的申请
-        const claim = result.data.list.find(item => item._id === this.data.claimId);
-        
-        if (claim) {
-          // 获取摊位详细信息
-          const stallRes = await wx.cloud.callFunction({
-            name: 'getStallDetail',
-            data: { stallId: claim.stallId }
-          });
+      if (result.code === 0 && result.data.claim) {
+        const claim = result.data.claim;
 
-          if (stallRes.result.code === 0) {
-            claim.stallDetail = stallRes.result.data;
-          }
+        // 获取摊位详细信息
+        const stallRes = await wx.cloud.callFunction({
+          name: 'getStallDetail',
+          data: { stallId: claim.stallId }
+        });
 
-          // 获取云存储图片的临时链接
-          await this.loadImageTempUrls(claim);
-
-          this.setData({ 
-            claim: claim,
-            loading: false
-          });
-        } else {
-          throw new Error('认领申请不存在');
+        if (stallRes.result.code === 0) {
+          claim.stallDetail = stallRes.result.data;
         }
+
+        this.setData({ 
+          claim: claim,
+          loading: false
+        });
       } else {
-        throw new Error(result.message);
+        throw new Error(result.message || '认领申请不存在');
       }
     } catch (err) {
       console.error('加载详情失败', err);
@@ -107,57 +99,6 @@ Page({
         icon: 'none'
       });
       this.setData({ loading: false });
-    }
-  },
-
-  // 获取云存储图片的临时链接
-  async loadImageTempUrls(claim) {
-    // 收集所有需要转换的 fileID
-    const fileIds = [];
-    
-    // 摊位照片
-    if (claim.stallPhotos && claim.stallPhotos.length > 0) {
-      claim.stallPhotos.forEach(id => {
-        if (id && id.startsWith('cloud://')) {
-          fileIds.push(id);
-        }
-      });
-    }
-    
-    // 身份证照片
-    if (claim.idCardPhoto && claim.idCardPhoto.startsWith('cloud://')) {
-      fileIds.push(claim.idCardPhoto);
-    }
-    
-    // 如果没有需要转换的，直接返回
-    if (fileIds.length === 0) {
-      return;
-    }
-    
-    try {
-      const { fileList } = await wx.cloud.getTempFileURL({
-        fileList: fileIds
-      });
-      
-      // 创建映射表
-      const urlMap = {};
-      if (fileList) {
-        fileList.forEach(item => {
-          if (item.tempFileURL) {
-            urlMap[item.fileID] = item.tempFileURL;
-          }
-        });
-      }
-      
-      // 替换为临时链接
-      if (claim.stallPhotos) {
-        claim.stallPhotos = claim.stallPhotos.map(id => urlMap[id] || id);
-      }
-      if (claim.idCardPhoto) {
-        claim.idCardPhoto = urlMap[claim.idCardPhoto] || claim.idCardPhoto;
-      }
-    } catch (err) {
-      console.error('获取图片临时链接失败', err);
     }
   },
 
@@ -171,12 +112,18 @@ Page({
     });
   },
 
+  // 阻止事件冒泡（空方法）
+  onPreventBubble() {
+    // 阻止点击事件冒泡到父元素
+  },
+
   // 显示审核通过弹窗
   onShowPassModal() {
     this.setData({
       showAuditModal: true,
       auditAction: 'pass',
-      auditRemark: ''
+      auditRemark: '',
+      canConfirm: true
     });
   },
 
@@ -185,7 +132,8 @@ Page({
     this.setData({
       showAuditModal: true,
       auditAction: 'reject',
-      auditRemark: ''
+      auditRemark: '',
+      canConfirm: false
     });
   },
 
@@ -194,13 +142,19 @@ Page({
     this.setData({
       showAuditModal: false,
       auditAction: '',
-      auditRemark: ''
+      auditRemark: '',
+      canConfirm: true
     });
   },
 
   // 输入审核备注
   onRemarkInput(e) {
-    this.setData({ auditRemark: e.detail.value });
+    const remark = e.detail.value;
+    const canConfirm = this.data.auditAction === 'pass' || remark.trim().length > 0;
+    this.setData({ 
+      auditRemark: remark,
+      canConfirm: canConfirm
+    });
   },
 
   // 确认审核

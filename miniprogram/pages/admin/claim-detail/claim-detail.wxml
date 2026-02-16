@@ -163,7 +163,7 @@
 
 <!-- 审核弹窗 -->
 <view class="modal-mask" wx:if="{{showAuditModal}}" bindtap="onCloseAuditModal">
-  <view class="modal-content" catchtap>
+  <view class="modal-content" catchtap="onPreventBubble">
     <view class="modal-header">
       <text class="modal-title">
         {{auditAction === 'pass' ? '确认通过' : '确认拒绝'}}
@@ -210,7 +210,7 @@
         class="btn-confirm {{auditAction}}"
         bindtap="onConfirmAudit"
         loading="{{auditing}}"
-        disabled="{{auditAction === 'reject' && !auditRemark.trim()}}"
+        disabled="{{!canConfirm}}"
       >
         {{auditAction === 'pass' ? '确认通过' : '确认拒绝'}}
       </button>
