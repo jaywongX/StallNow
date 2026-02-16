@@ -112,6 +112,97 @@
   margin-left: 0;
 }
 
+/* 联系我们卡片 */
+.contact-card {
+  background-color: #FFF;
+  border-radius: 16rpx;
+  margin-bottom: 20rpx;
+  box-shadow: 0 4rpx 20rpx rgba(255, 107, 53, 0.1);
+  overflow: hidden;
+}
+
+.contact-header {
+  background: linear-gradient(90deg, #FF6B35, #FF8F50);
+  padding: 24rpx 30rpx;
+  text-align: center;
+}
+
+.contact-title {
+  font-size: 32rpx;
+  font-weight: bold;
+  color: #FFF;
+}
+
+.contact-body {
+  padding: 40rpx 30rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.qr-code {
+  width: 280rpx;
+  height: 280rpx;
+  border: 4rpx solid #FFF5F2;
+  border-radius: 12rpx;
+  background-color: #FAFAFA;
+}
+
+.wechat-id-row {
+  display: flex;
+  align-items: center;
+  margin-top: 24rpx;
+  padding: 16rpx 24rpx;
+  background-color: #F9F9F9;
+  border-radius: 8rpx;
+}
+
+.wechat-id {
+  font-size: 28rpx;
+  color: #333;
+}
+
+.copy-btn {
+  margin-left: 16rpx;
+  padding: 8rpx 20rpx;
+  background: linear-gradient(135deg, #FF6B35, #FF8F50);
+  color: #FFF;
+  font-size: 24rpx;
+  border-radius: 20rpx;
+}
+
+.contact-desc {
+  display: flex;
+  align-items: center;
+  margin-top: 20rpx;
+}
+
+.desc-icon {
+  font-size: 28rpx;
+  margin-right: 8rpx;
+}
+
+.desc-text {
+  font-size: 26rpx;
+  color: #666;
+}
+
+.contact-time {
+  display: flex;
+  align-items: center;
+  margin-top: 12rpx;
+}
+
+.time-icon {
+  font-size: 28rpx;
+  margin-right: 8rpx;
+}
+
+.time-text {
+  font-size: 24rpx;
+  color: #999;
+}
+
 .footer {
   text-align: center;
   padding: 40rpx 30rpx;

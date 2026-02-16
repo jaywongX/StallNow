@@ -34,6 +34,33 @@
       </view>
     </view>
 
+    <!-- 联系我们卡片 -->
+    <view class="contact-card">
+      <view class="contact-header">
+        <text class="contact-title">联系我们</text>
+      </view>
+      <view class="contact-body">
+        <image 
+          class="qr-code" 
+          src="/images/wechat.png" 
+          mode="aspectFit"
+          bindtap="previewQRCode"
+        />
+        <view class="wechat-id-row">
+          <text class="wechat-id">微信号：{{wechatId}}</text>
+          <text class="copy-btn" bindtap="copyWechatId">复制</text>
+        </view>
+        <view class="contact-desc">
+          <text class="desc-icon">💬</text>
+          <text class="desc-text">技术咨询 & 商务合作</text>
+        </view>
+        <view class="contact-time">
+          <text class="time-icon">🕐</text>
+          <text class="time-text">工作日 9:00-18:00</text>
+        </view>
+      </view>
+    </view>
+
     <!-- 底部说明 -->
     <view class="footer">
       <text class="footer-text">版本 {{version}} | 最后更新：2026年1月1日</text>

@@ -2,11 +2,32 @@ Page({
   data: {
     appName: '摆地摊了么',
     version: '1.0.0',
+    wechatId: 'wxid_z3wss3eme2lm12',
     sections: []
   },
 
   onLoad() {
     this.loadAboutContent();
+  },
+
+  // 复制微信号
+  copyWechatId() {
+    wx.setClipboardData({
+      data: this.data.wechatId,
+      success: () => {
+        wx.showToast({
+          title: '已复制微信号',
+          icon: 'success'
+        });
+      }
+    });
+  },
+
+  // 预览二维码
+  previewQRCode() {
+    wx.previewImage({
+      urls: ['/images/wechat.png']
+    });
   },
 
   loadAboutContent() {
