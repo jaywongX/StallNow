@@ -57,7 +57,6 @@ exports.main = async (event, context) => {
     // 4. 检查用户是否已有其他摊位
     if (user.role === 'vendor' && user.stallIds && user.stallIds.length > 0) {
       // 允许一个摊主认领多个摊位
-      console.log('[DEBUG claimStall] 用户已有摊位，继续认领');
     }
 
     const now = new Date().toISOString();
@@ -102,7 +101,7 @@ exports.main = async (event, context) => {
     };
 
   } catch (err) {
-    console.error('[DEBUG claimStall] 认领失败:', err);
+    console.error('认领失败:', err);
     return {
       code: -1,
       message: '认领失败: ' + err.message

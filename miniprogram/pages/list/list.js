@@ -400,10 +400,9 @@ Page({
   // 点击地摊卡片
   onStallTap(e) {
     const stallId = e.currentTarget.dataset.id;
-    console.log('[DEBUG list] 点击卡片，stallId:', stallId);
     
     if (!stallId) {
-      console.error('[DEBUG list] 无效的摊位ID');
+      console.error('无效的摊位ID');
       wx.showToast({ title: '数据错误', icon: 'none' });
       return;
     }

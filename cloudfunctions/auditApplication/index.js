@@ -93,15 +93,12 @@ exports.main = async (event, context) => {
         updateTime: now
       };
 
-      console.log('[DEBUG auditApplication] 准备创建摊位，数据:', JSON.stringify(stall));
       const stallRes = await db.collection('stalls').add({
         data: stall
       });
-      console.log('[DEBUG auditApplication] 摊位创建成功，ID:', stallRes._id);
 
       // 更新用户角色为 vendor，并绑定摊位
       // 使用 _.set 设置 vendorInfo，避免 null 无法更新的问题
-      console.log('[DEBUG auditApplication] 更新用户角色，userId:', userId);
       const userUpdateRes = await db.collection('users').doc(userId).update({
         data: {
           role: 'vendor',
@@ -112,7 +109,6 @@ exports.main = async (event, context) => {
           updateTime: now
         }
       });
-      console.log('[DEBUG auditApplication] 用户更新结果:', userUpdateRes);
 
       return {
         code: 0,

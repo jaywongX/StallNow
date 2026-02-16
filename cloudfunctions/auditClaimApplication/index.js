@@ -103,11 +103,9 @@ exports.main = async (event, context) => {
           claimMethod: 'audit_claim'
         });
 
-        console.log('[DEBUG auditClaimApplication] 更新用户数据:', claim.userId, updateData);
         const userUpdateRes = await db.collection('users').doc(claim.userId).update({
           data: updateData
         });
-        console.log('[DEBUG auditClaimApplication] 用户更新结果:', userUpdateRes);
       }
 
       return {
@@ -154,7 +152,7 @@ exports.main = async (event, context) => {
     }
 
   } catch (err) {
-    console.error('[DEBUG auditClaimApplication] 审核失败:', err);
+    console.error('审核失败:', err);
     return {
       code: -1,
       message: '审核失败: ' + err.message

@@ -34,14 +34,12 @@ exports.main = async (event, context) => {
       let stallIds = userInfo.stallIds || [];
       
       if (stallIds.length === 0) {
-        console.log('[DEBUG checkVendorStatus] 用户角色是vendor但stallIds为空，尝试查询stalls集合');
         const stallRes = await db.collection('stalls').where({
           ownerUserId: userInfo._id
         }).get();
         
         if (stallRes.data.length > 0) {
           stallIds = stallRes.data.map(s => s._id);
-          console.log('[DEBUG checkVendorStatus] 从stalls集合查询到摊位:', stallIds);
           
           // 更新用户的 stallIds
           await db.collection('users').doc(userInfo._id).update({

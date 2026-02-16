@@ -84,11 +84,9 @@ exports.main = async (event, context) => {
       }
     };
 
-    console.log('[DEBUG createStallByAdmin] 准备创建摊位:', JSON.stringify(stall));
     const stallRes = await db.collection('stalls').add({
       data: stall
     });
-    console.log('[DEBUG createStallByAdmin] 摊位创建成功，ID:', stallRes._id);
 
     return {
       code: 0,
@@ -99,7 +97,7 @@ exports.main = async (event, context) => {
     };
 
   } catch (err) {
-    console.error('[DEBUG createStallByAdmin] 代录入失败:', err);
+    console.error('代录入失败:', err);
     return {
       code: -1,
       message: '代录入失败: ' + err.message

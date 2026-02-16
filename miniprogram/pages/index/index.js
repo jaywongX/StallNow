@@ -189,7 +189,6 @@ Page({
     if (this.data.loading || !this.data.hasMore) return;
 
     this.setData({ loading: true });
-    console.log('[DEBUG] 开始加载摊位列表...');
 
     try {
       const app = getApp();
@@ -201,10 +200,8 @@ Page({
         page: this.data.page,
         pageSize: this.data.pageSize
       };
-      console.log('[DEBUG] getStalls 请求参数:', options);
 
       const result = await api.getStalls(options);
-      console.log('[DEBUG] getStalls 返回结果:', result);
       const newStalls = result.data || [];
 
       // 处理摊位数据，添加显示的字段
@@ -317,17 +314,16 @@ Page({
   // 地图标记点击 - 显示卡片预览
   onMarkerTap(e) {
     const markerId = e.detail.markerId;
-    console.log('[DEBUG] 标记点击, markerId:', markerId);
     
     if (!markerId) {
-      console.error('[DEBUG] 无效的 markerId');
+      console.error('无效的 markerId');
       return;
     }
     
     // 通过 markerId 查找对应的 marker
     const marker = this.data.markers.find(m => m.id === markerId);
     if (!marker) {
-      console.error('[DEBUG] 未找到对应的 marker, markerId:', markerId);
+      console.error('未找到对应的 marker, markerId:', markerId);
       return;
     }
     
@@ -335,7 +331,6 @@ Page({
     const stall = this.data.stalls.find(s => s._id === marker._stallId);
     
     if (stall) {
-      console.log('[DEBUG] 找到摊位:', stall.displayName);
       // 获取分类图标
       const category = this.data.categories.find(c => c.id === stall.categoryId);
       const categoryIcon = category ? category.icon : '🏪';
@@ -345,7 +340,7 @@ Page({
         selectedStall: { ...stall, categoryIcon }
       });
     } else {
-      console.error('[DEBUG] 未找到对应的摊位, _stallId:', marker._stallId);
+      console.error('未找到对应的摊位, _stallId:', marker._stallId);
     }
   },
   

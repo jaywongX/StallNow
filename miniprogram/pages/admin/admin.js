@@ -464,7 +464,6 @@ Page({
   // 切换标签
   onTabChange(e) {
     const tab = e.currentTarget.dataset.tab;
-    console.log('[DEBUG admin] 切换标签:', tab);
 
     // 认领审核是独立页面，需要跳转
     if (tab === 'claimAudit') {
@@ -478,14 +477,12 @@ Page({
       activeTab: tab,
       statusFilter: 0
     }, () => {
-      console.log('[DEBUG admin] 标签切换完成, activeTab:', this.data.activeTab);
       this.loadData();
     });
   },
 
   // 加载数据
   async loadData() {
-    console.log('[DEBUG admin] loadData, activeTab:', this.data.activeTab, 'statusFilter:', this.data.statusFilter);
     this.setData({ loading: true });
 
     try {
@@ -502,8 +499,6 @@ Page({
         case 'feedbacks':
           await this.loadFeedbacks();
           break;
-        default:
-          console.error('[DEBUG admin] 未知的activeTab:', this.data.activeTab);
       }
     } catch (err) {
       console.error('加载数据失败', err);
@@ -544,18 +539,15 @@ Page({
   // 加载地摊列表
   async loadStalls() {
     try {
-      console.log('[DEBUG admin] loadStalls, statusFilter:', this.data.statusFilter);
       const db = wx.cloud.database();
       const query = this.data.statusFilter == 0 ? { status: 1 }
         : this.data.statusFilter == 1 ? { status: 2 }
         : { status: 3 };
-      console.log('[DEBUG admin] loadStalls 查询条件:', query);
 
       const res = await db.collection('stalls')
         .where(query)
         .orderBy('updateTime', 'desc')
         .get();
-      console.log('[DEBUG admin] loadStalls 查询结果:', res.data.length, '条');
       this.setData({ stalls: res.data || [] });
     } catch (err) {
       console.error('加载地摊失败', err);
@@ -564,15 +556,12 @@ Page({
 
   // 加载反馈列表
   async loadFeedbacks() {
-    console.log('[DEBUG admin] loadFeedbacks, statusFilter:', this.data.statusFilter);
     try {
       const result = await api.getFeedbacks({
         status: this.data.statusFilter
       });
-      console.log('[DEBUG admin] getFeedbacks result:', result);
 
       if (result.code === 0) {
-        console.log('[DEBUG admin] 反馈列表数据:', result.data.length, '条');
         this.setData({ feedbacks: result.data || [] });
       } else {
         throw new Error(result.message || '加载失败');
@@ -589,11 +578,9 @@ Page({
   // 切换状态筛选
   onStatusFilter(e) {
     const status = e.currentTarget.dataset.status;
-    console.log('[DEBUG admin] 切换状态筛选，status:', status, '当前activeTab:', this.data.activeTab);
     this.setData({
       statusFilter: parseInt(status)
     }, () => {
-      console.log('[DEBUG admin] setData后，activeTab:', this.data.activeTab);
       this.loadData();
     });
   },
@@ -705,13 +692,11 @@ Page({
 
   // 执行反馈处理
   async doHandleFeedback(id, action) {
-    console.log('[DEBUG admin] 处理反馈, id:', id, 'action:', action);
     try {
       const result = await api.handleFeedback({
         feedbackId: id,
         action: action
       });
-      console.log('[DEBUG admin] handleFeedback result:', result);
 
       if (result.code !== 0) {
         throw new Error(result.message || '操作失败');

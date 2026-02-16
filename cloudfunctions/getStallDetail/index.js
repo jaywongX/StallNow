@@ -11,24 +11,17 @@ const _ = db.command;
  */
 exports.main = async (event, context) => {
   const { stallId } = event;
-  
-  console.log('[DEBUG getStallDetail] 请求参数 stallId:', stallId);
 
   try {
     // 获取地摊详情
     const stall = await db.collection('stalls').doc(stallId).get();
-    
-    console.log('[DEBUG getStallDetail] 查询结果:', stall);
 
     if (!stall.data) {
-      console.log('[DEBUG getStallDetail] 摊位不存在');
       return {
         code: -1,
         message: '地摊不存在'
       };
     }
-    
-    console.log('[DEBUG getStallDetail] 摊位数据:', stall.data);
 
     // 增加访问计数
     await db.collection('stalls').doc(stallId).update({
@@ -46,7 +39,7 @@ exports.main = async (event, context) => {
           .get();
         categoryName = category.data ? category.data.name : '其他';
       } catch (catErr) {
-        console.log('[DEBUG getStallDetail] 获取分类失败:', catErr.message);
+        // 获取分类失败，使用默认值
       }
     }
 
@@ -69,7 +62,7 @@ exports.main = async (event, context) => {
           }
           resultData.images = resultData.images.map(img => urlMap[img] || img);
         } catch (urlErr) {
-          console.error('[DEBUG getStallDetail] 转换图片URL失败:', urlErr);
+          console.error('转换图片URL失败:', urlErr);
         }
       }
     }
@@ -79,8 +72,7 @@ exports.main = async (event, context) => {
       data: resultData
     };
   } catch (err) {
-    console.error('[DEBUG getStallDetail] 错误详情:', err);
-    console.error('[DEBUG getStallDetail] 错误消息:', err.message);
+    console.error('获取地摊详情失败:', err);
     return {
       code: -1,
       message: '获取地摊详情失败: ' + err.message

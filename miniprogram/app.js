@@ -56,7 +56,6 @@ App({
         // 自动获取用户信息（静默注册）
         // 这是关键：用户首次使用时会自动创建 users 记录
         await this.getUserInfo();
-        console.log('用户信息初始化完成:', this.globalData.userInfo);
     },
 
     onShow() {
