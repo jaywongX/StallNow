@@ -7,6 +7,7 @@ Page({
         stall: null,
         statusText: '',
         statusClass: '',
+        isTodayChecked: false, // 今日是否已签到
 
         // 小程序码弹窗
         showQRModal: false,
@@ -84,6 +85,11 @@ Page({
         const now = new Date();
         const lastConfirmed = stall.lastConfirmedAt ? new Date(stall.lastConfirmedAt) : null;
 
+        // 判断今日是否已签到
+        const today = new Date();
+        const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+        const isTodayChecked = stall.lastCheckInDate === todayStr;
+
         let statusText, statusClass;
 
         if (stall.status === 2) {
@@ -110,6 +116,7 @@ Page({
             stall,
             statusText,
             statusClass,
+            isTodayChecked,
             loading: false
         });
     },
@@ -188,6 +195,63 @@ Page({
             wx.hideLoading();
             wx.showToast({
                 title: err.message || '操作失败',
+                icon: 'error'
+            });
+        }
+    },
+
+    // 签到
+    async onCheckIn() {
+        const { stall, isTodayChecked } = this.data;
+
+        if (isTodayChecked) {
+            wx.showToast({
+                title: '今日已签到',
+                icon: 'none'
+            });
+            return;
+        }
+
+        if (!stall || !stall._id) {
+            wx.showToast({
+                title: '摊位信息加载中',
+                icon: 'none'
+            });
+            return;
+        }
+
+        try {
+            wx.showLoading({ title: '签到中...' });
+
+            const { result } = await wx.cloud.callFunction({
+                name: 'checkinStall',
+                data: { stallId: stall._id }
+            });
+
+            wx.hideLoading();
+
+            if (result.code === 0) {
+                if (result.data && result.data.alreadyCheckIn) {
+                    wx.showToast({
+                        title: '今日已签到',
+                        icon: 'none'
+                    });
+                } else {
+                    wx.showModal({
+                        title: '签到成功！',
+                        content: '您的摊位状态已更新为"今日可能在"，用户更容易找到你了～\n\n提示：建议每天签到，保持摊位状态新鲜',
+                        showCancel: false,
+                        confirmText: '知道了'
+                    });
+                }
+                this.loadStallData();
+            } else {
+                throw new Error(result.message);
+            }
+        } catch (err) {
+            wx.hideLoading();
+            wx.showToast({
+                title: err.message || '签到失败',
                 icon: 'error'
             });
         }

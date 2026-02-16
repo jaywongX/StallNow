@@ -14,7 +14,23 @@
       </view>
       <text class="view-btn" bindtap="onViewDetail">查看详情 ></text>
     </view>
-    
+
+    <!-- 签到按钮区域 -->
+    <view class="checkin-section" wx:if="{{stall.status !== 2}}">
+      <view class="checkin-left">
+        <text class="checkin-icon">📍</text>
+        <text class="checkin-text" wx:if="{{!isTodayChecked}}">每天签到可让用户知道你的摊位还在</text>
+        <text class="checkin-text checked" wx:else>✅ 今日已签到，明天再来吧！</text>
+      </view>
+      <button
+        class="checkin-btn {{isTodayChecked ? 'checked' : ''}}"
+        bindtap="onCheckIn"
+        disabled="{{isTodayChecked}}"
+      >
+        {{isTodayChecked ? '已签到' : '签到'}}
+      </button>
+    </view>
+
     <view class="card-body">
       <view class="info-row">
         <text class="info-label">分类</text>
@@ -66,10 +82,10 @@
   <view wx:if="{{!loading && stall}}" class="tips-section">
     <text class="tips-title">💡 温馨提示</text>
     <text class="tips-text" wx:if="{{stall.status !== 2}}">
-      如果你暂时不出摊，建议点击"暂时不摆了"，这样用户就不会白跑一趟。
+      建议每天签到一次，这样用户就知道你的摊位还在营业中。签到后，摊位状态会显示为"今日可能在"，更容易被找到哦～
     </text>
     <text class="tips-text" wx:if="{{stall.status === 2}}">
-      你的摊位已下线，用户暂时看不到。恢复摆摊后即可重新展示。
+      你的摊位已下线，用户暂时看不到。恢复摆摊后记得签到，让用户更容易找到你。
     </text>
   </view>
   

@@ -93,6 +93,63 @@
   color: #FF6B35;
 }
 
+/* 签到区域 */
+.checkin-section {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 24rpx 0;
+  border-bottom: 1rpx solid #f0f0f0;
+  margin-bottom: 20rpx;
+}
+
+.checkin-left {
+  display: flex;
+  align-items: center;
+  flex: 1;
+}
+
+.checkin-icon {
+  font-size: 32rpx;
+  margin-right: 12rpx;
+}
+
+.checkin-text {
+  font-size: 26rpx;
+  color: #666;
+}
+
+.checkin-text.checked {
+  color: #52C41A;
+}
+
+.checkin-btn {
+  width: auto;
+  min-width: 120rpx;
+  padding: 12rpx 32rpx;
+  font-size: 26rpx;
+  border-radius: 30rpx;
+  background: linear-gradient(135deg, #FF6B35, #FF8C5A);
+  color: #fff;
+  border: none;
+  line-height: 1.4;
+  flex-shrink: 0;
+}
+
+.checkin-btn::after {
+  border: none;
+}
+
+.checkin-btn.checked {
+  background: #E6F7E6;
+  color: #52C41A;
+}
+
+.checkin-btn[disabled] {
+  background: #E6F7E6;
+  color: #52C41A;
+}
+
 .card-body {
   display: flex;
   flex-direction: column;
