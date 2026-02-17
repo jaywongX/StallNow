@@ -19,6 +19,7 @@
     latitude="{{latitude}}"
     longitude="{{longitude}}"
     markers="{{markers}}"
+    circles="{{circles}}"
     bindmarkertap="onMarkerTap"
     bindcallouttap="onMarkerTap"
     bindlabeltap="onMarkerTap"
@@ -47,6 +48,7 @@
     wx:key="_id"
     stall="{{item}}"
     show-reliability="{{false}}"
+    show-distance="{{userLatitude ? true : false}}"
     bindtap="onStallTap"
   />
 

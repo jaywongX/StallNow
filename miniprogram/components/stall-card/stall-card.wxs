@@ -105,9 +105,24 @@ function hasValue(arr, val) {
   return false;
 }
 
+// 格式化距离显示
+function formatDistance(distance) {
+  if (!distance && distance !== 0) {
+    return '';
+  }
+  if (distance < 1000) {
+    return distance + 'm';
+  }
+  // 模拟 toFixed(1)
+  var km = distance / 1000;
+  var rounded = Math.round(km * 10) / 10;
+  return rounded + 'km';
+}
+
 module.exports = {
   getGoodsTagsText: getGoodsTagsText,
   getScheduleText: getScheduleText,
   getReliabilityInfo: getReliabilityInfo,
-  hasGoodsTags: hasGoodsTags
+  hasGoodsTags: hasGoodsTags,
+  formatDistance: formatDistance
 };

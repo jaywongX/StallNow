@@ -10,8 +10,14 @@
 
   <!-- 信息区 -->
   <view class="stall-info">
-    <!-- 展示名 -->
-    <view class="stall-name">{{stall.displayName}}</view>
+    <!-- 展示名和距离 -->
+    <view class="stall-name-row">
+      <view class="stall-name">{{stall.displayName}}</view>
+      <view class="stall-distance" wx:if="{{showDistance && stall.distance}}">
+        <text class="distance-icon">📍</text>
+        <text class="distance-text">{{utils.formatDistance(stall.distance)}}</text>
+      </view>
+    </view>
 
     <!-- 分类和可信度标签 -->
     <view class="tags">

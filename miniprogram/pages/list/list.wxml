@@ -55,6 +55,7 @@
     <stall-card
       stall="{{item}}"
       show-reliability="{{true}}"
+      show-distance="{{userLatitude ? true : false}}"
     />
   </view>
 

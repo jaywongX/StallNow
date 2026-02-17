@@ -7,6 +7,10 @@ Component({
     showReliability: {
       type: Boolean,
       value: false
+    },
+    showDistance: {
+      type: Boolean,
+      value: false
     }
   },
 

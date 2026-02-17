@@ -16,11 +16,42 @@
   padding: 24rpx;
 }
 
+.stall-name-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12rpx;
+}
+
 .stall-name {
   font-size: 32rpx;
   font-weight: bold;
   color: #333;
-  margin-bottom: 12rpx;
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.stall-distance {
+  display: flex;
+  align-items: center;
+  background: linear-gradient(135deg, #4A90E2 0%, #357ABD 100%);
+  padding: 6rpx 16rpx;
+  border-radius: 20rpx;
+  flex-shrink: 0;
+  margin-left: 16rpx;
+}
+
+.distance-icon {
+  font-size: 20rpx;
+  margin-right: 4rpx;
+}
+
+.distance-text {
+  font-size: 22rpx;
+  color: #FFF;
+  font-weight: 500;
 }
 
 .tags {

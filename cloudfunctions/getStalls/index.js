@@ -68,29 +68,28 @@ exports.main = async (event, context) => {
       .limit(pageSize)
       .get();
 
-    // 获取分类名称
-    let stalls = [];
-    try {
-      stalls = await Promise.all(result.data.map(async (stall) => {
-        if (stall.categoryId) {
-          try {
-            const category = await db.collection('categories')
-              .doc(stall.categoryId)
-              .get();
-            return {
-              ...stall,
-              categoryName: category.data ? category.data.name : '其他'
-            };
-          } catch (catErr) {
-            return { ...stall, categoryName: '其他' };
-          }
-        }
-        return { ...stall, categoryName: '其他' };
-      }));
-    } catch (mapErr) {
-      // 如果获取分类失败，直接返回原始数据
-      stalls = result.data.map(s => ({ ...s, categoryName: '其他' }));
+    // 批量获取分类名称（优化：N+1查询 -> 3次查询）
+    let categoryMap = {};
+    const categoryIds = [...new Set(result.data.map(s => s.categoryId).filter(Boolean))];
+
+    if (categoryIds.length > 0) {
+      try {
+        const categoriesRes = await db.collection('categories')
+          .where({ _id: _.in(categoryIds) })
+          .get();
+        categoriesRes.data.forEach(c => {
+          categoryMap[c._id] = c.name;
+        });
+      } catch (catErr) {
+        console.error('批量获取分类失败:', catErr);
+      }
     }
+
+    // 映射分类名称到摊位
+    const stalls = result.data.map(stall => ({
+      ...stall,
+      categoryName: categoryMap[stall.categoryId] || '其他'
+    }));
 
     // 确保每个摊位都有 _id 字段
     let validStalls = stalls.filter(s => {

@@ -7,7 +7,11 @@ Page({
     latitude: 0,
     longitude: 0,
     markers: [],
+    circles: [],  // 用户位置圆圈
     showMap: true,
+    // 用户实际位置（用于距离计算）
+    userLatitude: null,
+    userLongitude: null,
 
     // 筛选相关
     selectedCategory: '',
@@ -97,17 +101,25 @@ Page({
         longitude: res.longitude
       };
       
+      // 保存用户位置用于距离计算
+      const userLocation = {
+        userLatitude: res.latitude,
+        userLongitude: res.longitude
+      };
+      
       // 如果开启了多城市支持或城市已支持，使用用户位置
       if (CITY_CONFIG.multiCityEnabled || app.globalData.isCitySupported) {
         that.setData({
           latitude: res.latitude,
-          longitude: res.longitude
+          longitude: res.longitude,
+          ...userLocation
         });
       } else {
-        // 使用默认位置
+        // 使用默认位置显示地图，但保留用户实际位置用于距离计算
         that.setData({
           latitude: CITY_CONFIG.defaultCity.location.latitude,
-          longitude: CITY_CONFIG.defaultCity.location.longitude
+          longitude: CITY_CONFIG.defaultCity.location.longitude,
+          ...userLocation
         });
       }
     } catch (err) {
@@ -205,6 +217,15 @@ Page({
       newStalls.forEach(stall => {
         // 处理出摊时间显示
         stall.scheduleDisplay = this.formatScheduleDisplay(stall);
+        // 计算距离
+        if (this.data.userLatitude) {
+          stall.distance = Math.round(this.calculateDistance(
+            this.data.userLatitude,
+            this.data.userLongitude,
+            stall.location.latitude,
+            stall.location.longitude
+          ));
+        }
       });
 
       // 构建地图标记（id 必须是数字）
@@ -255,10 +276,24 @@ Page({
           }
         };
       });
+      
+      // 添加用户位置圆圈
+      let userCircle = [];
+      if (this.data.userLatitude) {
+        userCircle = [{
+          latitude: this.data.userLatitude,
+          longitude: this.data.userLongitude,
+          fillColor: '#4A90E233',  // 蓝色半透明填充
+          color: '#4A90E2',  // 蓝色边框
+          radius: 50,  // 半径（米）
+          strokeWidth: 2
+        }];
+      }
 
       this.setData({
         stalls: this.data.page === 1 ? newStalls : [...this.data.stalls, ...newStalls],
         markers: this.data.page === 1 ? newMarkers : [...this.data.markers, ...newMarkers],
+        circles: userCircle,
         loading: false,
         hasMore: newStalls.length >= this.data.pageSize,
         page: this.data.page + 1
@@ -406,6 +441,18 @@ Page({
     }
     
     return schedule.display || schedule.type || '时间待定';
+  },
+
+  // 计算两点间距离（米）
+  calculateDistance(lat1, lon1, lat2, lon2) {
+    const R = 6371000; // 地球半径（米）
+    const dLat = (lat2 - lat1) * Math.PI / 180;
+    const dLon = (lon2 - lon1) * Math.PI / 180;
+    const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+              Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+              Math.sin(dLon/2) * Math.sin(dLon/2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+    return R * c;
   },
 
   // 定位到当前位置

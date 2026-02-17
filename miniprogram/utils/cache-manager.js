@@ -12,8 +12,8 @@ const DEFAULT_TTL = 5 * 60 * 1000; // 5分钟
 // 缓存类型配置
 const CACHE_CONFIG = {
   categories: { ttl: 7 * 24 * 60 * 60 * 1000, persist: true },  // 分类数据：7天
-  stalls: { ttl: 1 * 24 * 60 * 1000, persist: true },               // 摊位列表：1天
-  stallDetail: { ttl: 1 * 24 * 60 * 1000, persist: true },          // 摊位详情：1天
+  stalls: { ttl: 2 * 24 * 60 * 1000, persist: true },               // 摊位列表：2天
+  stallDetail: { ttl: 2 * 24 * 60 * 1000, persist: true },          // 摊位详情：2天
   userInfo: { ttl: 30 * 60 * 1000, persist: false },            // 用户信息：30分钟，仅内存
   favorites: { ttl: 5 * 60 * 1000, persist: false }             // 收藏列表：5分钟，仅内存
 };
