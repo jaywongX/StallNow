@@ -1,4 +1,4 @@
-const api = require('../../utils/api.js');
+const cachedApi = require('../../utils/cached-api.js');
 
 Page({
   data: {
@@ -67,7 +67,8 @@ Page({
     this.setData({ loading: true });
 
     try {
-      const result = await api.getStallDetail(this.data.stallId);
+      // 使用带缓存的API
+      const result = await cachedApi.getStallDetail(this.data.stallId);
       const stall = result.data;
       
       // 判断摊位状态
@@ -139,9 +140,7 @@ Page({
 
     // 情况1：摊主自己申请的摊位，直接判断是否为创建者
     if (stall.createdBy === 'vendor_self') {
-      const { result } = await wx.cloud.callFunction({
-        name: 'getUserInfo'
-      });
+      const result = await cachedApi.getUserInfo();
       if (result.code === 0 && result.data && result.data.openid === stall._openid) {
         this.setData({
           claimStatus: { isOwner: true, isCreator: true },
@@ -272,7 +271,7 @@ Page({
   // 执行提交反馈
   async doSubmitFeedback(type) {
     try {
-      await api.submitFeedback({
+      await cachedApi.submitFeedback({
         stallId: this.data.stallId,
         type: type
       });
@@ -313,7 +312,7 @@ Page({
   // 执行下线
   async doOfflineStall() {
     try {
-      await api.offlineStall(this.data.stallId);
+      await cachedApi.offlineStall(this.data.stallId);
       wx.showToast({
         title: '已下线',
         icon: 'success'

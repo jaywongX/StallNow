@@ -1,4 +1,5 @@
 // 小程序入口文件
+const cachedApi = require('./utils/cached-api.js');
 
 // 城市配置
 const CITY_CONFIG = {
@@ -150,9 +151,7 @@ App({
     // 获取用户信息（含角色）
     async getUserInfo() {
         try {
-            const { result } = await wx.cloud.callFunction({
-                name: 'getUserInfo'
-            });
+            const result = await cachedApi.getUserInfo({ forceRefresh: true });
             this.globalData.userInfo = result.data;
             this.globalData.role = result.data?.role || 'user';
             this.globalData.isAdmin = result.data?.role === 'admin';

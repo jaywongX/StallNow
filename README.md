@@ -91,6 +91,9 @@ StallNow/
 │   ├── pages/            # 页面
 │   ├── components/       # 公共组件
 │   ├── utils/            # 工具函数
+│   │   ├── api.js        # 原始API封装（直接调用云函数）
+│   │   ├── cached-api.js # 带缓存的API封装（推荐）⭐ 新增
+│   │   └── cache-manager.js # 缓存管理器 ⭐ 新增
 │   └── images/           # 图片资源
 ├── cloudfunctions/       # 云函数
 │   ├── getStalls/           # 获取地摊列表
@@ -116,6 +119,56 @@ StallNow/
 ├── README.md           # 项目说明文档
 └── database-init.md    # 数据库初始化指南
 ```
+
+## 数据缓存机制 ⭐
+
+为了降低云函数调用成本并提升用户体验，项目实现了**双层缓存机制**。
+
+### 缓存策略
+
+| 数据类型 | 缓存有效期 | 存储位置 | 触发刷新 |
+|---------|-----------|---------|---------|
+| 分类数据 | 7天 | Storage + 内存 | 手动刷新 |
+| 摊位列表 | 5分钟 | Storage + 内存 | 筛选变化/下拉刷新 |
+| 摊位详情 | 10分钟 | Storage + 内存 | 编辑后/手动刷新 |
+| 用户信息 | 应用生命周期 | 内存 | 修改后 |
+
+### 使用方式
+
+```javascript
+// 方式1：使用带缓存的API（推荐）
+const cachedApi = require('../../utils/cached-api.js');
+
+// 自动使用缓存
+const result = await cachedApi.getStalls({ city: '汕尾市' });
+
+// 强制刷新（忽略缓存）
+const result = await cachedApi.getStalls(
+  { city: '汕尾市' },
+  { forceRefresh: true }
+);
+
+// 方式2：直接使用缓存管理器
+const cacheManager = require('../../utils/cache-manager.js');
+
+// 存储缓存（5分钟有效期）
+cacheManager.set('my_key', data, 5 * 60 * 1000);
+
+// 读取缓存
+const data = cacheManager.get('my_key');
+
+// 清理缓存
+cacheManager.clear(); // 清空所有
+cacheManager.clearByPrefix('stalls_'); // 按前缀清理
+```
+
+### 预期收益
+
+- **云函数调用减少 50-90%**（根据用户使用模式）
+- **页面加载速度提升 30-50%**
+- **降低云开发费用支出**
+
+---
 
 ## 快速开始
 

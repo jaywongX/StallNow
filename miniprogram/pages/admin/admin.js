@@ -1,4 +1,4 @@
-const api = require('../../utils/api.js');
+const cachedApi = require('../../utils/cached-api.js');
 
 Page({
   data: {
@@ -58,12 +58,9 @@ Page({
   // 加载分类
   async loadCategories() {
     try {
-      const db = wx.cloud.database();
-      const res = await db.collection('categories')
-        .orderBy('sort', 'asc')
-        .get();
+      const result = await cachedApi.getCategories();
       this.setData({
-        categories: res.data || []
+        categories: result.data || []
       });
     } catch (err) {
       console.error('加载分类失败', err);
@@ -510,7 +507,7 @@ Page({
   // 加载申请列表
   async loadApplications() {
     try {
-      const result = await api.adminGetApplications({
+      const result = await cachedApi.adminGetApplications({
         status: this.data.statusFilter
       });
 
@@ -557,7 +554,7 @@ Page({
   // 加载反馈列表
   async loadFeedbacks() {
     try {
-      const result = await api.getFeedbacks({
+      const result = await cachedApi.getFeedbacks({
         status: this.data.statusFilter
       });
 
@@ -604,7 +601,7 @@ Page({
   // 执行审核
   async doAuditApplication(id, action) {
     try {
-      const result = await api.auditApplication({
+      const result = await cachedApi.auditApplication({
         applicationId: id,
         status: action === 'approve' ? 1 : 2
       });
@@ -646,7 +643,7 @@ Page({
   // 下线地摊
   async offlineStall(id) {
     try {
-      const result = await api.offlineStall(id);
+      const result = await cachedApi.offlineStall(id);
 
       // 检查云函数返回的业务状态码
       if (result.code !== 0) {
@@ -693,7 +690,7 @@ Page({
   // 执行反馈处理
   async doHandleFeedback(id, action) {
     try {
-      const result = await api.handleFeedback({
+      const result = await cachedApi.handleFeedback({
         feedbackId: id,
         action: action
       });

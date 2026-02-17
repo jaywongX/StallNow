@@ -1362,6 +1362,272 @@ stalls: {
 | P2 | 扫码收藏引导 | 1天 | v2.1 | 原规划 |
 | P2 | 入驻合规提示 | 0.5天 | v2.1 | 原规划 |
 | P2 | 列表筛选增强 | 1.5天 | v2.1 | 原规划 |
+| **P0** | **数据缓存功能** | **2天** | **v2.0** | **用户明确需求 - 降低云函数成本** |
+
+---
+
+## 数据缓存功能设计
+
+### 问题背景
+
+当前每次页面加载、筛选切换、下拉刷新都会调用云函数获取数据，导致：
+- **云函数费用高**：每次调用都产生费用
+- **用户体验差**：网络请求延迟明显
+- **服务器压力大**：重复请求相同数据
+
+### 缓存策略设计
+
+#### 1. 双层缓存架构
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                    缓存访问流程                              │
+├─────────────────────────────────────────────────────────────┤
+│                                                              │
+│   请求数据 ──→ 检查内存缓存 ──→ 命中? ──→ 返回内存数据        │
+│                     │                                       │
+│                     未命中                                  │
+│                     ▼                                       │
+│              检查Storage缓存 ──→ 命中? ──→ 载入内存并返回    │
+│                     │                                       │
+│                     未命中                                  │
+│                     ▼                                       │
+│              调用云函数 ──→ 存入双层缓存 ──→ 返回数据         │
+│                                                              │
+└─────────────────────────────────────────────────────────────┘
+```
+
+#### 2. 各数据类型缓存策略
+
+| 数据类型 | 缓存位置 | 有效期 | 失效触发 |
+|---------|---------|--------|---------|
+| 分类数据 | Storage + 内存 | 7天 | 手动刷新 |
+| 摊位列表 | Storage + 内存 | 5分钟 | 筛选变化/下拉刷新 |
+| 摊位详情 | Storage + 内存 | 10分钟 | 编辑后/手动刷新 |
+| 用户信息 | 内存 | 应用生命周期 | 修改后 |
+| 收藏列表 | 内存 | 应用生命周期 | 增删操作后 |
+
+#### 3. 缓存键规范
+
+```javascript
+// 统一缓存键前缀，避免冲突
+const CACHE_PREFIX = 'stallnow_';
+
+// 摊位列表（带参数哈希）
+`stallnow_stalls_${city}_${categoryId}_${timeType}_${keyword}_${page}`
+
+// 摊位详情
+`stallnow_stall_detail_${stallId}`
+
+// 分类数据
+`stallnow_categories`
+
+// 用户信息
+`stallnow_user_info`
+```
+
+#### 4. 缓存数据结构
+
+```typescript
+interface CacheItem<T> {
+  data: T;           // 缓存数据
+  timestamp: number; // 缓存时间戳
+  ttl: number;       // 有效期（毫秒）
+  version: number;   // 数据版本号
+}
+```
+
+### 核心模块设计
+
+#### Module 1: cache-manager.js（缓存管理器）
+
+```javascript
+// 功能职责：
+// 1. 内存缓存管理（Map结构）
+// 2. Storage持久化（wx.setStorageSync）
+// 3. TTL过期检查
+// 4. 缓存清理策略（LRU/定时清理）
+
+class CacheManager {
+  // 获取缓存（自动检查过期）
+  get(key, options = {}): T | null
+  
+  // 设置缓存
+  set(key, data, ttl, options = {}): void
+  
+  // 删除缓存
+  remove(key): void
+  
+  // 清空所有缓存
+  clear(): void
+  
+  // 清空特定前缀缓存
+  clearByPrefix(prefix): void
+  
+  // 获取缓存统计
+  getStats(): CacheStats
+}
+```
+
+#### Module 2: cached-api.js（带缓存的API层）
+
+```javascript
+// 功能职责：
+// 1. 保持与原api.js一致的接口
+// 2. 内部集成缓存逻辑
+// 3. 提供强制刷新选项
+
+// 摊位列表（带缓存）
+async function getStalls(options = {}, cacheOptions = {}): Promise<Result>
+
+// 摊位详情（带缓存）
+async function getStallDetail(stallId, cacheOptions = {}): Promise<Result>
+
+// 分类数据（长期缓存）
+async function getCategories(cacheOptions = {}): Promise<Result>
+
+// 用户信息（应用生命周期缓存）
+async function getUserInfo(cacheOptions = {}): Promise<Result>
+
+// 缓存选项
+cacheOptions = {
+  useCache: true,      // 是否使用缓存
+  forceRefresh: false, // 是否强制刷新
+  ttl: 300000         // 自定义缓存时间（毫秒）
+}
+```
+
+### 页面集成方案
+
+#### 首页 (index.js)
+
+```javascript
+// onLoad - 优先使用缓存，后台静默刷新
+async onLoad() {
+  // 1. 先加载缓存数据展示
+  const cachedStalls = cacheManager.get('stalls_xxx');
+  if (cachedStalls) {
+    this.setData({ stalls: cachedStalls });
+  }
+  
+  // 2. 后台调用云函数刷新（用户无感知）
+  this.refreshStalls();
+}
+
+// 下拉刷新 - 强制刷新缓存
+async onPullDownRefresh() {
+  await this.refreshStalls({ forceRefresh: true });
+  wx.stopPullDownRefresh();
+}
+
+// 筛选变化 - 清理旧缓存，加载新数据
+onCategorySelect(e) {
+  this.setData({ selectedCategory: e.detail.id });
+  // 清理旧筛选缓存
+  cacheManager.clearByPrefix('stalls_');
+  this.loadStalls();
+}
+```
+
+#### 详情页 (detail.js)
+
+```javascript
+// onLoad - 优先缓存，过期后刷新
+async onLoad(options) {
+  // 先尝试获取缓存
+  const result = await cachedApi.getStallDetail(
+    options.id, 
+    { useCache: true, ttl: 600000 } // 10分钟缓存
+  );
+  
+  // 如果缓存过期，后台静默刷新
+  if (result.fromCache && result.isExpired) {
+    this.silentRefresh(options.id);
+  }
+}
+```
+
+### 缓存一致性保障
+
+#### 1. 写操作自动清理缓存
+
+```javascript
+// 编辑摊位后清理相关缓存
+async updateStall(data) {
+  const result = await cloud.callFunction({ name: 'updateStall', data });
+  // 清理该摊位缓存
+  cacheManager.remove(`stall_detail_${data.stallId}`);
+  // 清理列表缓存（数据已变化）
+  cacheManager.clearByPrefix('stalls_');
+  return result;
+}
+```
+
+#### 2. 版本号机制（可选进阶）
+
+```javascript
+// 云函数返回数据版本号
+const result = await cloud.callFunction({ name: 'getStalls' });
+const cached = cacheManager.get('stalls_xxx');
+
+// 版本不一致则更新
+if (cached && cached.version !== result.data.version) {
+  cacheManager.set('stalls_xxx', result.data, ttl);
+}
+```
+
+### 降级策略
+
+当缓存异常时自动降级：
+
+```javascript
+async function getStallsWithCache(options) {
+  try {
+    // 尝试使用缓存
+    if (shouldUseCache(options)) {
+      const cached = cacheManager.get(cacheKey);
+      if (cached && !isExpired(cached)) {
+        return { data: cached.data, fromCache: true };
+      }
+    }
+  } catch (cacheError) {
+    // 缓存读取失败，降级到云函数
+    console.warn('缓存读取失败，降级到云函数', cacheError);
+  }
+  
+  // 调用云函数
+  const result = await cloud.callFunction({ name: 'getStalls', data: options });
+  
+  try {
+    // 尝试写入缓存
+    cacheManager.set(cacheKey, result.data, ttl);
+  } catch (writeError) {
+    console.warn('缓存写入失败', writeError);
+  }
+  
+  return { data: result.data, fromCache: false };
+}
+```
+
+### 实施步骤
+
+| 步骤 | 任务 | 文件 | 预计时间 |
+|-----|------|------|---------|
+| 1 | 创建缓存管理器 | `miniprogram/utils/cache-manager.js` | 0.5天 |
+| 2 | 创建带缓存的API层 | `miniprogram/utils/cached-api.js` | 0.5天 |
+| 3 | 首页接入缓存 | `miniprogram/pages/index/index.js` | 0.3天 |
+| 4 | 详情页接入缓存 | `miniprogram/pages/detail/detail.js` | 0.2天 |
+| 5 | 摊主相关页面接入 | `vendor-manage.js`, `vendor.js` 等 | 0.3天 |
+| 6 | 测试与优化 | 全链路测试 | 0.2天 |
+
+### 预期收益
+
+| 指标 | 优化前 | 优化后（预估） | 收益 |
+|-----|--------|---------------|------|
+| 首页加载云函数调用 | 2-3次 | 0-1次 | 减少50-70% |
+| 详情页云函数调用 | 2-3次 | 0-1次 | 减少50-70% |
+| 筛选切换云函数调用 | 每次 | 首次+过期 | 减少80% |
+| 重复访问云函数调用 | 每次 | 命中缓存 | 减少90% |
 
 ---
 

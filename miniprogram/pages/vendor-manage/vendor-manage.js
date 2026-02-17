@@ -1,5 +1,6 @@
 // 摊位管理页面
 const app = getApp();
+const cachedApi = require('../../utils/cached-api.js');
 
 Page({
     data: {
@@ -31,9 +32,7 @@ Page({
         try {
             this.setData({ loading: true });
 
-            const { result } = await wx.cloud.callFunction({
-                name: 'getUserInfo'
-            });
+            const result = await cachedApi.getUserInfo();
 
             if (result.code === 0 && result.data) {
                 const userInfo = result.data;
@@ -42,17 +41,14 @@ Page({
                 if (userInfo.stallIds && userInfo.stallIds.length > 0) {
                     const stallId = userInfo.stallIds[0];
 
-                    const stallRes = await wx.cloud.callFunction({
-                        name: 'getStallDetail',
-                        data: { stallId: stallId }
-                    });
+                    const stallRes = await cachedApi.getStallDetail(stallId);
 
-                    if (stallRes.result.code === 0) {
-                        const stall = stallRes.result.data;
+                    if (stallRes.code === 0) {
+                        const stall = stallRes.data;
                         this.updateStallStatus(stall);
                     } else {
-                        console.error('获取摊位详情失败:', stallRes.result.message);
-                        throw new Error(stallRes.result.message || '获取摊位详情失败');
+                        console.error('获取摊位详情失败:', stallRes.message);
+                        throw new Error(stallRes.message || '获取摊位详情失败');
                     }
                 } else {
                     // 没有摊位数据
@@ -172,13 +168,7 @@ Page({
         try {
             wx.showLoading({ title: '处理中...' });
 
-            const { result } = await wx.cloud.callFunction({
-                name: 'offlineStall',
-                data: {
-                    stallId: this.data.stall._id,
-                    status
-                }
-            });
+            const result = await cachedApi.offlineStall(this.data.stall._id);
 
             wx.hideLoading();
 

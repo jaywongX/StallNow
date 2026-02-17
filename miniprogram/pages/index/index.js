@@ -1,6 +1,5 @@
 // 获取应用实例
-const app = getApp();
-const api = require('../../utils/api.js');
+const cachedApi = require('../../utils/cached-api.js');
 
 Page({
   data: {
@@ -171,13 +170,10 @@ Page({
   // 加载分类
   async loadCategories() {
     try {
-      // 从云数据库加载分类数据
-      const db = wx.cloud.database();
-      const res = await db.collection('categories')
-        .orderBy('sort', 'asc')
-        .get();
+      // 使用带缓存的API获取分类数据
+      const result = await cachedApi.getCategories();
       this.setData({
-        categories: res.data || []
+        categories: result.data || []
       });
     } catch (err) {
       console.error('加载分类失败', err);
@@ -185,7 +181,7 @@ Page({
   },
 
   // 加载地摊列表
-  async loadStalls() {
+  async loadStalls(forceRefresh = false) {
     if (this.data.loading || !this.data.hasMore) return;
 
     this.setData({ loading: true });
@@ -201,7 +197,8 @@ Page({
         pageSize: this.data.pageSize
       };
 
-      const result = await api.getStalls(options);
+      // 使用带缓存的API
+      const result = await cachedApi.getStalls(options, { forceRefresh });
       const newStalls = result.data || [];
 
       // 处理摊位数据，添加显示的字段
@@ -442,7 +439,7 @@ Page({
       stalls: [],
       markers: []
     });
-    this.loadStalls().then(() => {
+    this.loadStalls(true).then(() => {  // 强制刷新
       wx.stopPullDownRefresh();
     });
   },

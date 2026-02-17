@@ -1,4 +1,4 @@
-const api = require('../../utils/api.js');
+const cachedApi = require('../../utils/cached-api.js');
 
 Page({
   data: {
@@ -86,12 +86,9 @@ Page({
   // 加载分类
   async loadCategories() {
     try {
-      const db = wx.cloud.database();
-      const res = await db.collection('categories')
-        .orderBy('sort', 'asc')
-        .get();
+      const result = await cachedApi.getCategories();
       this.setData({
-        categories: res.data || []
+        categories: result.data || []
       });
     } catch (err) {
       console.error('加载分类失败', err);
@@ -99,7 +96,7 @@ Page({
   },
 
   // 加载地摊列表
-  async loadStalls() {
+  async loadStalls(forceRefresh = false) {
     if (this.data.loading || !this.data.hasMore) return;
 
     this.setData({ loading: true });
@@ -128,7 +125,7 @@ Page({
         options.maxDistance = this.data.selectedDistance;
       }
 
-      const result = await api.getStalls(options);
+      const result = await cachedApi.getStalls(options, { forceRefresh });
       let newStalls = result.data || [];
       
       // 计算每个摊位的距离
@@ -436,7 +433,7 @@ Page({
       page: 1,
       stalls: []
     });
-    this.loadStalls().then(() => {
+    this.loadStalls(true).then(() => {  // 强制刷新
       wx.stopPullDownRefresh();
     });
   }
