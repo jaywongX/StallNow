@@ -208,7 +208,7 @@ exports.main = async (event, context) => {
       }
     }
 
-    // ===== 2. 生成30个摊位测试数据 =====
+    // ===== 2. 生成10个摊位测试数据 =====
     const categoryIds = categories.map(c => c._id);
     let stallSuccessCount = 0;
     let stallExistCount = 0;
@@ -218,13 +218,13 @@ exports.main = async (event, context) => {
       ownerUserId: /^test_user_/
     }).count();
 
-    if (existingStalls.total >= 30) {
+    if (existingStalls.total >= 10) {
       console.log(`已存在 ${existingStalls.total} 个测试摊位数据，跳过生成`);
       stallExistCount = existingStalls.total;
     } else {
-      // 生成30个摊位数据
-      const batchSize = 20; // 每批插入20个，避免超限
-      const totalStalls = 30;
+      // 生成10个摊位数据
+      const batchSize = 10; // 每批插入10个，避免超限
+      const totalStalls = 10;
 
       for (let batch = 0; batch < Math.ceil(totalStalls / batchSize); batch++) {
         const batchPromises = [];
