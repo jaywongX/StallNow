@@ -108,13 +108,55 @@ Page({
             statusClass = 'expired';
         }
 
+        // 格式化出摊时间显示
+        const scheduleDisplay = this.formatScheduleDisplay(stall);
+
         this.setData({
             stall,
             statusText,
             statusClass,
             isTodayChecked,
+            scheduleDisplay,
             loading: false
         });
+    },
+
+    // 格式化时间显示
+    formatScheduleDisplay(stall) {
+        if (!stall.schedule && !stall.scheduleTypes) return '时间待定';
+        
+        const schedule = stall.schedule || {};
+        const types = stall.scheduleTypes || schedule.types || [];
+        
+        // 时间选项名称映射
+        const typeNames = {
+            'morning': '上午',
+            'afternoon': '下午',
+            'evening': '晚上',
+            'night': '深夜',
+            'weekend': '周末',
+            'unfixed': '不固定'
+        };
+        
+        // 如果选择了不固定且有自定义时间段
+        if (types.includes('unfixed') && (schedule.customTime || schedule.customTimeStart)) {
+            if (schedule.customTimeStart && schedule.customTimeEnd) {
+                return `不固定 (${schedule.customTimeStart}-${schedule.customTimeEnd})`;
+            }
+            return `不固定 (${schedule.customTime || '时间待定'})`;
+        }
+        
+        // 显示选中的时间段
+        if (types.length > 0) {
+            const typeTexts = types.map(t => typeNames[t] || t);
+            return typeTexts.join('、');
+        }
+        
+        // 兼容旧数据
+        if (schedule.display) return schedule.display;
+        if (schedule.type) return typeNames[schedule.type] || schedule.type;
+        
+        return '时间待定';
     },
 
     // 编辑摊位信息

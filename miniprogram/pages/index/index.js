@@ -7,7 +7,6 @@ Page({
     latitude: 0,
     longitude: 0,
     markers: [],
-    circles: [],  // 用户位置圆圈
     showMap: true,
     // 用户实际位置（用于距离计算）
     userLatitude: null,
@@ -277,23 +276,9 @@ Page({
         };
       });
       
-      // 添加用户位置圆圈
-      let userCircle = [];
-      if (this.data.userLatitude) {
-        userCircle = [{
-          latitude: this.data.userLatitude,
-          longitude: this.data.userLongitude,
-          fillColor: '#4A90E233',  // 蓝色半透明填充
-          color: '#4A90E2',  // 蓝色边框
-          radius: 50,  // 半径（米）
-          strokeWidth: 2
-        }];
-      }
-
       this.setData({
         stalls: this.data.page === 1 ? newStalls : [...this.data.stalls, ...newStalls],
         markers: this.data.page === 1 ? newMarkers : [...this.data.markers, ...newMarkers],
-        circles: userCircle,
         loading: false,
         hasMore: newStalls.length >= this.data.pageSize,
         page: this.data.page + 1

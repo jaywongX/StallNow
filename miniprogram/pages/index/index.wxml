@@ -19,7 +19,6 @@
     latitude="{{latitude}}"
     longitude="{{longitude}}"
     markers="{{markers}}"
-    circles="{{circles}}"
     bindmarkertap="onMarkerTap"
     bindcallouttap="onMarkerTap"
     bindlabeltap="onMarkerTap"

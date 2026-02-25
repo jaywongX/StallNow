@@ -31,6 +31,14 @@ async function getTempFileUrls(claims) {
     if (claim.idCardPhoto && typeof claim.idCardPhoto === 'string' && claim.idCardPhoto.startsWith('cloud://')) {
       fileIds.push(claim.idCardPhoto);
     }
+    // 摊位现有照片（stallInfo.images）
+    if (claim.stallInfo && claim.stallInfo.images && Array.isArray(claim.stallInfo.images)) {
+      claim.stallInfo.images.forEach(id => {
+        if (id && typeof id === 'string' && id.startsWith('cloud://')) {
+          fileIds.push(id);
+        }
+      });
+    }
   });
   
   // 如果没有需要转换的，直接返回
@@ -60,6 +68,10 @@ async function getTempFileUrls(claims) {
       }
       if (claim.idCardPhoto) {
         claim.idCardPhoto = urlMap[claim.idCardPhoto] || claim.idCardPhoto;
+      }
+      // 转换摊位现有照片
+      if (claim.stallInfo && claim.stallInfo.images && Array.isArray(claim.stallInfo.images)) {
+        claim.stallInfo.images = claim.stallInfo.images.map(id => urlMap[id] || id);
       }
     });
     

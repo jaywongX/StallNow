@@ -66,18 +66,30 @@ exports.main = async (event, context) => {
 
     const stall = stallRes.data;
 
-    // 3. 检查是否已存在小程序码（永久有效，无需重新生成）
-    if (stall.qrCodeUrl) {
-      console.log('已存在小程序码，直接返回');
-      return {
-        code: 0,
-        message: '获取成功',
-        data: {
-          qrCodeUrl: stall.qrCodeUrl,
-          stallName: stall.displayName,
-          permanent: true
+    // 3. 如果已存在二维码 fileID，获取新的临时链接（避免过期）
+    if (stall.qrCodeFileID) {
+      console.log('已存在小程序码fileID，获取新的临时链接');
+      try {
+        const tempUrlRes = await cloud.getTempFileURL({
+          fileList: [stall.qrCodeFileID]
+        });
+        
+        if (tempUrlRes.fileList && tempUrlRes.fileList[0] && tempUrlRes.fileList[0].tempFileURL) {
+          return {
+            code: 0,
+            message: '获取成功',
+            data: {
+              qrCodeUrl: tempUrlRes.fileList[0].tempFileURL,
+              qrCodeFileID: stall.qrCodeFileID,
+              stallName: stall.displayName,
+              permanent: true
+            }
+          };
         }
-      };
+      } catch (err) {
+        console.log('获取临时链接失败，将重新生成', err);
+        // 继续执行生成新二维码的逻辑
+      }
     }
 
     // 4. 生成小程序码

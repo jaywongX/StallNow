@@ -35,7 +35,8 @@ App({
                 },
                 // 生产环境（浏览器环境）
                 prod: {
-                    env: 'stallnow-7grwcvzp21981e44'
+                    env: 'cloudbase-3g9hw9hm1c01fd63'
+                    // env: 'stallnow-7grwcvzp21981e44'
                 }
             }
 

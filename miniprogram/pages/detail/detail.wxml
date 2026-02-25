@@ -253,18 +253,15 @@
   </view>
 </view>
 
-<!-- 收藏引导轻提示 -->
-<view wx:if="{{showFavoriteGuide}}" class="favorite-guide" animation="{{favoriteGuideAnimation}}">
-  <view class="guide-content">
+<!-- 收藏引导弹窗 -->
+<view wx:if="{{showFavoriteGuide}}" class="favorite-guide-mask" bindtap="onCloseFavoriteGuide">
+  <view class="favorite-guide" catchtap>
     <view class="guide-star">⭐</view>
-    <view class="guide-text">
-      <text class="guide-title">收藏这个摊位</text>
-      <text class="guide-desc">下次更容易找到</text>
-    </view>
+    <view class="guide-title">收藏这个摊位</view>
+    <view class="guide-desc">下次更容易找到</view>
     <view class="guide-actions">
       <button class="btn-favorite" bindtap="onFavoriteStall">收藏</button>
       <button class="btn-later" bindtap="onCloseFavoriteGuide">先看看</button>
     </view>
   </view>
-  <view class="guide-close" bindtap="onCloseFavoriteGuide">✕</view>
 </view>
