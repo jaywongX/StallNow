@@ -81,9 +81,14 @@
       <text class="text">{{scheduleDisplay}}</text>
     </view>
 
-    <!-- 导航按钮 -->
-    <view class="navigate-btn" bindtap="onNavigate">
-      🧭 一键导航
+    <!-- 操作按钮组 -->
+    <view class="action-btns">
+      <view class="navigate-btn" bindtap="onNavigate">
+        🧭 一键导航
+      </view>
+      <view class="favorite-btn {{isFavorite ? 'favorited' : ''}}" bindtap="{{isFavorite ? 'onUnfavoriteStall' : 'onFavoriteStall'}}">
+        {{isFavorite ? '⭐ 已收藏' : '☆ 收藏'}}
+      </view>
     </view>
   </view>
 

@@ -123,8 +123,15 @@
   white-space: nowrap;
 }
 
-.navigate-btn {
+/* 操作按钮组 */
+.action-btns {
+  display: flex;
+  gap: 20rpx;
   margin-top: 20rpx;
+}
+
+.navigate-btn {
+  flex: 1;
   background-color: #FFF3E0;
   color: #FF6B35;
   text-align: center;
@@ -132,6 +139,22 @@
   border-radius: 8rpx;
   font-size: 30rpx;
   font-weight: bold;
+}
+
+.favorite-btn {
+  flex: 1;
+  background-color: #F5F5F5;
+  color: #666;
+  text-align: center;
+  padding: 24rpx;
+  border-radius: 8rpx;
+  font-size: 30rpx;
+  font-weight: bold;
+}
+
+.favorite-btn.favorited {
+  background-color: #FFF9E6;
+  color: #FFB800;
 }
 
 /* 联系方式区 */

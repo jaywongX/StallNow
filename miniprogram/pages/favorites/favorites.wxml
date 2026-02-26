@@ -1,0 +1,85 @@
+<!-- 收藏列表 -->
+<view class="container">
+  <!-- 加载中 -->
+  <view class="loading" wx:if="{{loading && favorites.length === 0}}">
+    <text>加载中...</text>
+  </view>
+
+  <!-- 空状态 -->
+  <view class="empty" wx:if="{{!loading && favorites.length === 0}}">
+    <text class="empty-icon">⭐</text>
+    <text class="empty-text">暂无收藏的摊位</text>
+    <text class="empty-tip">在摊位详情页点击收藏，方便下次查找</text>
+    <navigator url="/pages/list/list" class="empty-btn">去逛摊</navigator>
+  </view>
+
+  <!-- 收藏列表 -->
+  <view class="favorites-list" wx:if="{{favorites.length > 0}}">
+    <view 
+      class="stall-card" 
+      wx:for="{{favorites}}" 
+      wx:key="_id"
+    >
+      <!-- 摊位图片 -->
+      <view class="stall-image" data-id="{{item._id}}" bindtap="onStallTap">
+        <image 
+          wx:if="{{item.images && item.images.length > 0}}"
+          src="{{item.images[0]}}"
+          mode="aspectFill"
+        />
+        <view wx:else class="no-image">
+          <text>暂无图片</text>
+        </view>
+        <!-- 状态标签 -->
+        <view class="status-tag {{item.isActive ? 'active' : 'inactive'}}">
+          {{item.isActive ? '营业中' : '未出摊'}}
+        </view>
+      </view>
+
+      <!-- 摊位信息 -->
+      <view class="stall-info" data-id="{{item._id}}" bindtap="onStallTap">
+        <view class="stall-name">{{item.displayName}}</view>
+        
+        <!-- 商品标签 -->
+        <view class="goods-tags" wx:if="{{item.goodsTags && item.goodsTags.length > 0}}">
+          <text class="goods-tag" wx:for="{{item.goodsTags}}" wx:for-item="tag" wx:key="*this">{{tag}}</text>
+        </view>
+
+        <!-- 地址 -->
+        <view class="stall-address">
+          <text class="icon">📍</text>
+          <text class="text">{{item.address || '暂无地址'}}</text>
+        </view>
+
+        <!-- 时间 -->
+        <view class="stall-time" wx:if="{{item.schedule}}">
+          <text class="icon">🕐</text>
+          <text class="text">{{item.schedule.display || '时间待定'}}</text>
+        </view>
+      </view>
+
+      <!-- 操作区 -->
+      <view class="stall-actions">
+        <view class="action-btn navigate" data-stall="{{item}}" bindtap="onNavigate">
+          <text class="icon">🧭</text>
+          <text>导航</text>
+        </view>
+        <view class="action-btn remove" data-id="{{item._id}}" data-index="{{index}}" bindtap="onRemoveFavorite">
+          <text class="icon">💔</text>
+          <text>取消</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 加载更多 -->
+  <view class="load-more" wx:if="{{favorites.length > 0 && hasMore}}">
+    <text wx:if="{{loading}}">加载中...</text>
+    <text wx:else>上拉加载更多</text>
+  </view>
+
+  <!-- 没有更多 -->
+  <view class="no-more" wx:if="{{favorites.length > 0 && !hasMore}}">
+    <text>没有更多了</text>
+  </view>
+</view>

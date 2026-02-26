@@ -15,7 +15,8 @@
     "pages/privacy/privacy",
     "pages/about/about",
     "pages/feedback/feedback",
-    "pages/contact/contact"
+    "pages/contact/contact",
+    "pages/favorites/favorites"
   ],
   "window": {
     "backgroundTextStyle": "light",

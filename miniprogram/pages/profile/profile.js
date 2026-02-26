@@ -128,17 +128,8 @@ Page({
 
     // 收藏的摊位
     onFavoritesTap() {
-        wx.showToast({
-            title: '收藏功能开发中',
-            icon: 'none'
-        });
-    },
-
-    // 最近看过
-    onHistoryTap() {
-        wx.showToast({
-            title: '历史功能开发中',
-            icon: 'none'
+        wx.navigateTo({
+            url: '/pages/favorites/favorites'
         });
     },
 
