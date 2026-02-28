@@ -62,6 +62,21 @@ exports.main = async (event, context) => {
     const countResult = await queryCommand.count();
     const total = countResult.total;
 
+    // 记录搜索日志（异步执行，不影响主流程）
+    if (keyword && keyword.trim()) {
+      db.collection('searchLogs').add({
+        data: {
+          keyword: keyword.trim(),
+          city: city || '',
+          hasResult: total > 0,
+          resultCount: total,
+          createTime: db.serverDate()
+        }
+      }).catch(err => {
+        console.error('记录搜索日志失败:', err);
+      });
+    }
+
     const result = await queryCommand
       .orderBy('updateTime', 'desc')
       .skip((page - 1) * pageSize)
