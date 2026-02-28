@@ -200,8 +200,9 @@ cacheManager.clearByPrefix('stalls_'); // 按前缀清理
    - `stalls`（地摊主表）
    - `categories`（分类表）
    - `applications`（摊主申请表）
-   - `stallClaims`（摊位认领申请表）⭐ 新增
+   - `stallClaims`（摊位认领申请表）
    - `feedbacks`（反馈表）
+   - `searchLogs`（搜索日志表）⭐ 新增
 
 2. 创建云函数 `initDatabase`，将 `database-init.js` 的内容复制进去
 
@@ -353,6 +354,19 @@ cacheManager.clearByPrefix('stalls_'); // 按前缀清理
 | status | Number | 0待处理 1已标记 2已处理 |
 | createTime | Date | 创建时间 |
 | processedAt | Date | 处理时间 |
+
+### searchLogs（搜索日志表）⭐ 已实现
+
+用于分析用户搜索行为，优化搜索体验。
+
+| 字段 | 类型 | 说明 |
+| --- | --- | --- |
+| _id | String | 唯一标识 |
+| keyword | String | 搜索关键词 |
+| city | String | 搜索城市 |
+| hasResult | Boolean | 是否有搜索结果 |
+| resultCount | Number | 结果数量 |
+| createTime | Date | 搜索时间 |
 
 ## 风险控制机制
 

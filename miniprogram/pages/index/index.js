@@ -80,7 +80,153 @@ Page({
   async initData() {
     await this.getLocation();
     await this.loadCategories();
-    await this.loadStalls();
+    // 地图视图：加载所有摊位用于标记
+    await this.loadAllStallsForMap();
+  },
+
+  // 加载所有摊位用于地图标记（不分页）
+  async loadAllStallsForMap() {
+    if (this.data.loading) return Promise.resolve();
+    
+    this.setData({ loading: true });
+
+    try {
+      const app = getApp();
+      const options = {
+        city: app.globalData.currentCity || '汕尾市',
+        categoryId: this.data.selectedCategory,
+        timeType: this.data.selectedTime,
+        keyword: this.data.keyword,
+        page: 1,
+        pageSize: 500  // 一次性加载最多500个
+      };
+
+      const result = await cachedApi.getStalls(options);
+      const newStalls = result.data || [];
+
+      // 处理摊位数据
+      newStalls.forEach(stall => {
+        stall.scheduleDisplay = this.formatScheduleDisplay(stall);
+        if (this.data.userLatitude) {
+          stall.distance = Math.round(this.calculateDistance(
+            this.data.userLatitude,
+            this.data.userLongitude,
+            stall.location.latitude,
+            stall.location.longitude
+          ));
+        }
+      });
+
+      // 构建地图标记
+      let markerId = 1;
+      const newMarkers = newStalls.map(stall => {
+        const categoryColor = this.categoryColors[stall.categoryId] || '#FF6B35';
+        const shortName = stall.displayName.length > 5 
+          ? stall.displayName.substring(0, 5) + '...' 
+          : stall.displayName;
+        return {
+          id: markerId++,
+          _stallId: stall._id,
+          latitude: stall.location.latitude,
+          longitude: stall.location.longitude,
+          iconPath: '/images/marker.png',
+          width: 36,
+          height: 36,
+          anchor: { x: 0.5, y: 1 },
+          label: {
+            content: shortName,
+            color: '#333',
+            fontSize: 12,
+            anchorX: 0,
+            anchorY: -38,
+            bgColor: '#fff',
+            padding: 6,
+            borderWidth: 1,
+            borderColor: categoryColor,
+            borderRadius: 6,
+            textAlign: 'center'
+          },
+          callout: {
+            content: `${stall.displayName}\n${stall.categoryName || '其他'}`,
+            color: '#333',
+            fontSize: 14,
+            borderRadius: 8,
+            bgColor: '#fff',
+            padding: 10,
+            display: 'BYCLICK',
+            borderWidth: 2,
+            borderColor: categoryColor,
+            anchorX: 0,
+            anchorY: 0
+          }
+        };
+      });
+      
+      this.setData({
+        stalls: newStalls,
+        markers: newMarkers,
+        loading: false,
+        hasMore: newStalls.length >= 500,
+        page: 2
+      });
+    } catch (err) {
+      console.error('加载地摊失败', err);
+      this.setData({ loading: false });
+      wx.showToast({
+        title: '加载失败',
+        icon: 'none'
+      });
+    }
+  },
+
+  // 加载地摊列表（用于列表视图的分页加载）
+  async loadStalls(forceRefresh = false) {
+    if (this.data.loading || !this.data.hasMore) return;
+
+    this.setData({ loading: true });
+
+    try {
+      const app = getApp();
+      const options = {
+        city: app.globalData.currentCity || '汕尾市',
+        categoryId: this.data.selectedCategory,
+        timeType: this.data.selectedTime,
+        keyword: this.data.keyword,
+        page: this.data.page,
+        pageSize: this.data.pageSize
+      };
+
+      const result = await cachedApi.getStalls(options, { forceRefresh });
+      const newStalls = result.data || [];
+
+      // 处理摊位数据
+      newStalls.forEach(stall => {
+        stall.scheduleDisplay = this.formatScheduleDisplay(stall);
+        if (this.data.userLatitude) {
+          stall.distance = Math.round(this.calculateDistance(
+            this.data.userLatitude,
+            this.data.userLongitude,
+            stall.location.latitude,
+            stall.location.longitude
+          ));
+        }
+      });
+
+      // 追加到列表（列表视图分页）
+      this.setData({
+        stalls: [...this.data.stalls, ...newStalls],
+        loading: false,
+        hasMore: newStalls.length >= this.data.pageSize,
+        page: this.data.page + 1
+      });
+    } catch (err) {
+      console.error('加载地摊失败', err);
+      this.setData({ loading: false });
+      wx.showToast({
+        title: '加载失败',
+        icon: 'none'
+      });
+    }
   },
 
   // 获取当前位置
@@ -173,9 +319,10 @@ Page({
     this.setData({
       page: 1,
       stalls: [],
-      markers: []
+      markers: [],
+      hasMore: true
     });
-    this.loadStalls();
+    this.loadAllStallsForMap();
   },
 
   // 加载分类
@@ -297,9 +444,12 @@ Page({
   onSearch(e) {
     this.setData({
       keyword: e.detail.value,
-      page: 1
+      page: 1,
+      stalls: [],
+      markers: [],
+      hasMore: true
     });
-    this.loadStalls();
+    this.loadAllStallsForMap();
   },
 
   // 选择分类
@@ -311,7 +461,7 @@ Page({
       markers: [],
       hasMore: true
     }, () => {
-      this.loadStalls();
+      this.loadAllStallsForMap();
     });
   },
 
@@ -324,7 +474,7 @@ Page({
       markers: [],
       hasMore: true
     }, () => {
-      this.loadStalls();
+      this.loadAllStallsForMap();
     });
   },
 
@@ -469,9 +619,12 @@ Page({
     this.setData({
       page: 1,
       stalls: [],
-      markers: []
+      markers: [],
+      hasMore: true
     });
-    this.loadStalls(true).then(() => {  // 强制刷新
+    // 强制刷新缓存
+    cachedApi.clearStallsCache();
+    this.loadAllStallsForMap().then(() => {
       wx.stopPullDownRefresh();
     });
   },
