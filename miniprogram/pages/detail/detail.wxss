@@ -126,35 +126,36 @@
 /* 操作按钮组 */
 .action-btns {
   display: flex;
-  gap: 20rpx;
+  flex-direction: column;
+  gap: 16rpx;
   margin-top: 20rpx;
 }
 
 .navigate-btn {
-  flex: 1;
   background-color: #FFF3E0;
   color: #FF6B35;
   text-align: center;
-  padding: 24rpx;
-  border-radius: 8rpx;
-  font-size: 30rpx;
+  padding: 28rpx;
+  border-radius: 12rpx;
+  font-size: 32rpx;
   font-weight: bold;
 }
 
 .favorite-btn {
-  flex: 1;
-  background-color: #F5F5F5;
-  color: #666;
+  background: linear-gradient(135deg, #FFF9E6 0%, #FFFBF0 100%);
+  color: #FFB800;
   text-align: center;
   padding: 24rpx;
-  border-radius: 8rpx;
-  font-size: 30rpx;
-  font-weight: bold;
+  border-radius: 12rpx;
+  font-size: 28rpx;
+  font-weight: 600;
+  border: 2rpx solid #FFE082;
 }
 
 .favorite-btn.favorited {
-  background-color: #FFF9E6;
-  color: #FFB800;
+  background: linear-gradient(135deg, #FFB800 0%, #FFC107 100%);
+  color: #FFF;
+  border-color: #FFB800;
 }
 
 /* 联系方式区 */
@@ -666,26 +667,4 @@
   line-height: 1.4;
 }
 
-/* 收藏按钮（固定在详情页右上角） */
-.favorite-btn {
-  position: fixed;
-  top: 20rpx;
-  right: 20rpx;
-  width: 80rpx;
-  height: 80rpx;
-  background: rgba(255, 255, 255, 0.95);
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.1);
-  z-index: 100;
-}
 
-.favorite-btn .star {
-  font-size: 40rpx;
-}
-
-.favorite-btn .star.active {
-  color: #FF6B35;
-}

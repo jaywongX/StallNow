@@ -1,6 +1,6 @@
 {
   "name": "stallnow",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "摆地摊了么",
   "main": "miniprogram/app.js",
   "scripts": {

@@ -87,7 +87,7 @@
         🧭 一键导航
       </view>
       <view class="favorite-btn {{isFavorite ? 'favorited' : ''}}" bindtap="{{isFavorite ? 'onUnfavoriteStall' : 'onFavoriteStall'}}">
-        {{isFavorite ? '⭐ 已收藏' : '☆ 收藏'}}
+        {{isFavorite ? '⭐ 已收藏' : '⭐ 收藏摊位'}}
       </view>
     </view>
   </view>
