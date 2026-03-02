@@ -1,0 +1,15 @@
+// 辅助函数
+function isGoodsTagSelected(tags, tag) {
+  if (!tags || !tags.length) return false;
+  return tags.indexOf(tag) > -1;
+}
+
+function isScheduleSelected(types, type) {
+  if (!types || !types.length) return false;
+  return types.indexOf(type) > -1;
+}
+
+module.exports = {
+  isGoodsTagSelected: isGoodsTagSelected,
+  isScheduleSelected: isScheduleSelected
+};

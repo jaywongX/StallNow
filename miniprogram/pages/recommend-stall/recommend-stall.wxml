@@ -1,0 +1,238 @@
+<wxs src="./recommend-stall.wxs" module="helper" />
+
+<view class="container">
+  <!-- 页面标题 -->
+  <view class="page-header">
+    <text class="header-title">推荐一个好摊位</text>
+    <text class="header-subtitle">发现了好吃的摊位？分享给大家吧</text>
+  </view>
+
+  <!-- 表单 -->
+  <view class="form-section">
+    <!-- Step 1: 摊位位置（最重要的信息） -->
+    <view class="form-group">
+      <view class="group-header">
+        <text class="group-title">你在哪发现了这个摊位？</text>
+        <text class="required">*</text>
+      </view>
+      
+      <!-- 定位选择区域 -->
+      <view class="location-selector" bindtap="{{form.location ? 'onReselectLocation' : 'onSelectLocation'}}">
+        <view wx:if="{{!form.location}}" class="location-empty">
+          <text class="location-icon">📍</text>
+          <text class="location-text">点击选择摊位位置</text>
+          <text class="location-hint">在地图上标记摊位位置</text>
+        </view>
+        
+        <view wx:if="{{form.location}}" class="location-selected">
+          <view class="location-header">
+            <text class="location-name">{{form.location.name || '已选择位置'}}</text>
+            <text class="location-change">重新选择</text>
+          </view>
+          <text class="location-address">{{form.location.address}}</text>
+        </view>
+      </view>
+      
+      <text wx:if="{{errors.location}}" class="error-text">{{errors.location}}</text>
+    </view>
+
+    <!-- Step 2: 摊位名称 -->
+    <view class="form-group">
+      <view class="group-header">
+        <text class="group-title">摊位名称</text>
+        <text class="required">*</text>
+      </view>
+      <input 
+        class="form-input"
+        placeholder="例如：路口烧烤摊、老王水果摊"
+        value="{{form.displayName}}"
+        bindinput="onNameInput"
+        maxlength="20"
+      />
+      <text class="input-hint">简单好记的名称，方便大家找到</text>
+      <text wx:if="{{errors.name}}" class="error-text">{{errors.name}}</text>
+    </view>
+
+    <!-- Step 3: 大致描述 -->
+    <view class="form-group">
+      <view class="group-header">
+        <text class="group-title">大致描述</text>
+        <text class="optional">（选填）</text>
+      </view>
+      <textarea 
+        class="form-textarea"
+        placeholder="例如：在XX路口，有个红色棚子的摊位"
+        value="{{form.landmark}}"
+        bindinput="onLandmarkInput"
+        maxlength="50"
+      />
+      <text class="input-hint">描述摊位的外观特征，帮助大家辨认</text>
+    </view>
+
+    <!-- Step 4: 摊位类型 -->
+    <view class="form-group">
+      <view class="group-header">
+        <text class="group-title">这是什么类型的摊位？</text>
+        <text class="required">*</text>
+      </view>
+      <view class="category-grid">
+        <view 
+          wx:for="{{categories}}" 
+          wx:key="id"
+          class="category-item {{form.categoryId === item.id ? 'active' : ''}}"
+          data-id="{{item.id}}"
+          data-name="{{item.name}}"
+          bindtap="onCategorySelect"
+        >
+          <text class="category-icon">{{item.icon}}</text>
+          <text class="category-name">{{item.name}}</text>
+        </view>
+      </view>
+      <text wx:if="{{errors.category}}" class="error-text">{{errors.category}}</text>
+    </view>
+
+    <!-- Step 5: 商品标签 -->
+    <view class="form-group" wx:if="{{form.categoryId}}">
+      <view class="group-header">
+        <text class="group-title">主要卖什么？（多选）</text>
+        <text class="required">*</text>
+      </view>
+      <view class="tags-container">
+        <view 
+          wx:for="{{currentGoodsOptions}}" 
+          wx:key="*this"
+          class="tag-item {{helper.isGoodsTagSelected(form.goodsTags, item) ? 'active' : ''}}"
+          data-tag="{{item}}"
+          bindtap="onGoodsTagSelect"
+        >
+          {{item}}
+        </view>
+      </view>
+      <text class="tags-hint">已选择 {{form.goodsTags.length}}/5 个</text>
+      
+      <!-- 自定义商品输入 -->
+      <view class="custom-goods-section">
+        <text class="custom-goods-label">没有找到？自定义商品：</text>
+        <view class="custom-goods-input-row">
+          <input 
+            class="custom-goods-input"
+            placeholder="输入商品名称"
+            value="{{customGoodsInput}}"
+            bindinput="onCustomGoodsInput"
+            maxlength="10"
+          />
+          <view class="custom-goods-add-btn" bindtap="onAddCustomGoods">添加</view>
+        </view>
+      </view>
+      
+      <text wx:if="{{errors.goods}}" class="error-text">{{errors.goods}}</text>
+    </view>
+
+    <!-- Step 6: 出摊时间（选填） -->
+    <view class="form-group">
+      <view class="group-header">
+        <text class="group-title">什么时候能遇到？</text>
+        <text class="optional">（选填）</text>
+      </view>
+      <view class="schedule-grid">
+        <view 
+          wx:for="{{scheduleOptions}}" 
+          wx:key="id"
+          class="schedule-item {{helper.isScheduleSelected(form.scheduleTypes, item.id) ? 'active' : ''}}"
+          data-id="{{item.id}}"
+          bindtap="onScheduleSelect"
+        >
+          <text class="schedule-icon">{{item.icon}}</text>
+          <text class="schedule-name">{{item.name}}</text>
+        </view>
+      </view>
+      
+      <!-- 自定义时间段选择（选择"不固定"时显示） -->
+      <view class="custom-time-section" wx:if="{{helper.isScheduleSelected(form.scheduleTypes, 'unfixed')}}">
+        <text class="custom-time-label">选择出摊时间段：</text>
+        <view class="time-picker-row">
+          <picker mode="selector" range="{{timePickerRange}}" bindchange="onCustomTimeStartChange">
+            <view class="time-picker-btn">
+              <text class="time-text">{{form.customTimeStart || '开始时间'}}</text>
+              <text class="time-icon">▼</text>
+            </view>
+          </picker>
+          <text class="time-separator">至</text>
+          <picker mode="selector" range="{{timePickerRange}}" bindchange="onCustomTimeEndChange">
+            <view class="time-picker-btn">
+              <text class="time-text">{{form.customTimeEnd || '结束时间'}}</text>
+              <text class="time-icon">▼</text>
+            </view>
+          </picker>
+        </view>
+      </view>
+      
+      <text class="input-hint">如果不固定出摊时间，可以不选</text>
+    </view>
+
+    <!-- Step 7: 拍张照片（选填） -->
+    <view class="form-group">
+      <view class="group-header">
+        <text class="group-title">拍张照片</text>
+        <text class="optional">（选填，最多3张）</text>
+      </view>
+      <!-- 合规提示 -->
+      <view class="compliance-notice">
+        <text class="notice-icon">💡</text>
+        <view class="notice-content">
+          <text class="notice-title">请上传摊位实拍照片</text>
+          <text class="notice-text">照片请不要包含：价格标签、收款码、促销广告</text>
+        </view>
+      </view>
+      <view class="image-upload-container">
+        <view 
+          class="image-item" 
+          wx:for="{{form.images}}" 
+          wx:key="index"
+          data-index="{{index}}"
+          bindtap="onPreviewImage"
+        >
+          <image src="{{item}}" mode="aspectFill" />
+          <view class="delete-btn" data-index="{{index}}" catchtap="onDeleteImage">×</view>
+        </view>
+        <view 
+          class="upload-btn-large"
+          bindtap="onChooseImages"
+          wx:if="{{form.images.length < 3}}"
+        >
+          <text class="icon">📷</text>
+          <text class="text">上传照片</text>
+          <text class="sub-text">{{form.images.length}}/3</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- Step 8: 联系方式（选填） -->
+    <view class="form-group">
+      <view class="group-header">
+        <text class="group-title">联系方式</text>
+        <text class="optional">（选填，仅用于用户联系摊主）</text>
+      </view>
+      <view class="contact-inputs">
+        <input 
+          class="form-input"
+          type="number"
+          maxlength="11"
+          placeholder="手机号码"
+          value="{{form.phone}}"
+          bindinput="onPhoneInput"
+        />
+      </view>
+      <text class="input-hint">如果有摊主联系方式，可以填写</text>
+    </view>
+  </view>
+
+  <!-- 提交按钮 -->
+  <view class="submit-section">
+    <button class="submit-btn" bindtap="onSubmit">提交推荐</button>
+    <text class="submit-tips">感谢您为平台贡献内容，审核通过后将上架展示</text>
+  </view>
+</view>
+
+<!-- 隐藏的 canvas 用于图片压缩 -->
+<canvas canvas-id="compressCanvas" class="compress-canvas"></canvas>

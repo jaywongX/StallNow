@@ -18,6 +18,13 @@
     代录入
   </view>
   <view
+    class="tab-item {{activeTab === 'recommendations' ? 'active' : ''}}"
+    data-tab="recommendations"
+    bindtap="onTabChange"
+  >
+    游客推荐
+  </view>
+  <view
     class="tab-item {{activeTab === 'claimAudit' ? 'active' : ''}}"
     data-tab="claimAudit"
     bindtap="onTabChange"
@@ -470,6 +477,132 @@
   <view class="empty" wx:if="{{applications.length === 0 && !loading}}">
     <image src="/images/empty.png" mode="aspectFit" />
     <text>暂无入驻申请</text>
+  </view>
+</view>
+
+<!-- 游客推荐列表 -->
+<view class="content-container" wx:if="{{activeTab === 'recommendations'}}">
+  <view class="card" wx:for="{{recommendations}}" wx:key="_id">
+    <!-- 推荐人信息 -->
+    <view class="applicant-info">
+      <image class="avatar" src="{{item.recommenderInfo.avatarUrl || '/images/default-avatar.png'}}" mode="aspectFill" />
+      <view class="info">
+        <text class="nickname">{{item.recommenderInfo.nickName || '游客'}}</text>
+        <text class="submit-time">推荐于 {{item.recommendedAt}}</text>
+      </view>
+      <text class="status status-pending">待审核</text>
+    </view>
+
+    <!-- 推荐详情 -->
+    <view class="application-detail">
+      <!-- 基本信息 -->
+      <view class="detail-section">
+        <view class="section-title">基本信息</view>
+        <view class="detail-row">
+          <text class="detail-label">摊位名称</text>
+          <text class="detail-value">{{item.displayName || '未命名'}}</text>
+        </view>
+        <view class="detail-row">
+          <text class="detail-label">商品类型</text>
+          <text class="detail-value">{{item.categoryName || '-'}}</text>
+        </view>
+        <view class="detail-row">
+          <text class="detail-label">外观特征</text>
+          <text class="detail-value">{{item.landmark || '-'}}</text>
+        </view>
+        <view class="detail-row">
+          <text class="detail-label">商品标签</text>
+          <text class="detail-value">{{helper.join(item.goodsTags, '、')}}</text>
+        </view>
+      </view>
+
+      <!-- 位置信息 -->
+      <view class="detail-section">
+        <view class="section-title">位置信息</view>
+        <view class="detail-row">
+          <text class="detail-label">推荐位置</text>
+          <text class="detail-value">{{item.address || '-'}}</text>
+        </view>
+        <!-- 地图展示 -->
+        <view class="map-container" wx:if="{{item.location}}">
+          <map
+            class="location-map"
+            latitude="{{item.location.latitude}}"
+            longitude="{{item.location.longitude}}"
+            markers="{{item.mapMarkers}}"
+            show-location="{{false}}"
+            enable-zoom="{{true}}"
+            enable-scroll="{{true}}"
+          />
+        </view>
+      </view>
+
+      <!-- 出摊时间 -->
+      <view class="detail-section" wx:if="{{item.schedule.display}}">
+        <view class="section-title">出摊时间</view>
+        <view class="detail-row">
+          <text class="detail-label">时间类型</text>
+          <text class="detail-value">{{item.schedule.display}}</text>
+        </view>
+        <view class="detail-row" wx:if="{{item.schedule.customTime}}">
+          <text class="detail-label">具体时段</text>
+          <text class="detail-value">{{item.schedule.customTime}}</text>
+        </view>
+      </view>
+
+      <!-- 联系方式 -->
+      <view class="detail-section" wx:if="{{item.contact && item.contact.phone}}">
+        <view class="section-title">联系方式</view>
+        <view class="detail-row">
+          <text class="detail-label">手机号码</text>
+          <text class="detail-value">{{item.contact.phone}}</text>
+        </view>
+      </view>
+
+      <!-- 图片 -->
+      <view class="detail-section" wx:if="{{item.images && item.images.length > 0}}">
+        <view class="section-title">摊位照片 ({{item.images.length}}张)</view>
+        <view class="image-list">
+          <image
+            wx:for="{{item.images}}"
+            wx:for-item="img"
+            wx:key="index"
+            class="stall-image"
+            src="{{img}}"
+            mode="aspectFill"
+            bindtap="onPreviewStallImage"
+            data-images="{{item.images}}"
+            data-current="{{img}}"
+          />
+        </view>
+      </view>
+    </view>
+
+    <!-- 操作按钮 -->
+    <view class="card-footer">
+      <view
+        class="btn btn-danger"
+        data-id="{{item._id}}"
+        data-action="reject"
+        bindtap="onAuditRecommendation"
+      >
+        拒绝
+      </view>
+      <view
+        class="btn btn-primary"
+        data-id="{{item._id}}"
+        data-action="approve"
+        bindtap="onAuditRecommendation"
+      >
+        通过
+      </view>
+    </view>
+  </view>
+
+  <!-- 空状态 -->
+  <view class="empty" wx:if="{{recommendations.length === 0 && !loading}}">
+    <image src="/images/empty.png" mode="aspectFit" />
+    <text>暂无游客推荐</text>
   </view>
 </view>
 

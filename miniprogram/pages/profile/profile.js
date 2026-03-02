@@ -133,6 +133,13 @@ Page({
         });
     },
 
+    // 推荐摊位
+    onRecommendTap() {
+        wx.navigateTo({
+            url: '/pages/recommend-stall/recommend-stall'
+        });
+    },
+
     // 关于我们
     onAboutTap() {
         wx.navigateTo({

@@ -6,6 +6,7 @@ Page({
     applications: [],
     stalls: [],
     feedbacks: [],
+    recommendations: [],
     loading: false,
     statusFilter: 0,
     
@@ -458,7 +459,7 @@ Page({
     }
   },
 
-  // 切换标签
+    // 切换标签
   onTabChange(e) {
     const tab = e.currentTarget.dataset.tab;
 
@@ -489,6 +490,9 @@ Page({
           break;
         case 'proxyApply':
           // 代录入页面不需要加载数据，显示表单即可
+          break;
+        case 'recommendations':
+          await this.loadRecommendations();
           break;
         case 'stalls':
           await this.loadStalls();
@@ -567,6 +571,115 @@ Page({
       console.error('加载反馈失败', err);
       wx.showToast({
         title: err.message || '加载反馈失败',
+        icon: 'none'
+      });
+    }
+  },
+
+  // 加载游客推荐列表
+  async loadRecommendations() {
+    try {
+      const db = wx.cloud.database();
+      const res = await db.collection('stalls')
+        .where({
+          createdBy: 'user_recommend',
+          status: 0 // 只加载待审核的
+        })
+        .orderBy('recommendedAt', 'desc')
+        .limit(50)
+        .get();
+
+      // 获取推荐人信息
+      const recommendations = res.data || [];
+      const recommenderIds = [...new Set(recommendations.map(r => r.recommendedBy).filter(Boolean))];
+
+      let recommenderMap = {};
+      if (recommenderIds.length > 0) {
+        const usersRes = await db.collection('users')
+          .where({
+            _id: db.command.in(recommenderIds)
+          })
+          .field({
+            _id: true,
+            nickName: true,
+            avatarUrl: true
+          })
+          .get();
+        
+        usersRes.data.forEach(user => {
+          recommenderMap[user._id] = user;
+        });
+      }
+
+      // 组装数据
+      const processedRecommendations = recommendations.map(item => {
+        // 添加地图标记
+        if (item.location) {
+          item.mapMarkers = [{
+            id: 1,
+            latitude: item.location.latitude,
+            longitude: item.location.longitude,
+            title: item.displayName || '摊位位置',
+            iconPath: '/images/marker.png',
+            width: 30,
+            height: 30
+          }];
+        }
+        // 添加推荐人信息
+        item.recommenderInfo = recommenderMap[item.recommendedBy] || {};
+        return item;
+      });
+
+      this.setData({ recommendations: processedRecommendations });
+    } catch (err) {
+      console.error('加载推荐失败', err);
+      wx.showToast({
+        title: '加载失败',
+        icon: 'none'
+      });
+    }
+  },
+
+  // 审核游客推荐
+  onAuditRecommendation(e) {
+    const id = e.currentTarget.dataset.id;
+    const action = e.currentTarget.dataset.action;
+
+    wx.showModal({
+      title: action === 'approve' ? '通过推荐' : '拒绝推荐',
+      content: '确认要' + (action === 'approve' ? '通过' : '拒绝') + '这个推荐吗？',
+      success: async (res) => {
+        if (res.confirm) {
+          await this.doAuditRecommendation(id, action);
+        }
+      }
+    });
+  },
+
+  // 执行推荐审核
+  async doAuditRecommendation(id, action) {
+    try {
+      const result = await wx.cloud.callFunction({
+        name: 'auditRecommendation',
+        data: {
+          stallId: id,
+          action: action
+        }
+      });
+
+      if (result.result.code !== 0) {
+        throw new Error(result.result.message || '操作失败');
+      }
+
+      wx.showToast({
+        title: '操作成功',
+        icon: 'success'
+      });
+      this.loadRecommendations();
+    } catch (err) {
+      console.error('审核失败', err);
+      wx.showToast({
+        title: err.message || '操作失败',
         icon: 'none'
       });
     }

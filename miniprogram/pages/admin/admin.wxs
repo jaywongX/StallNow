@@ -6,6 +6,21 @@ function includes(array, value) {
   return array.indexOf(value) > -1;
 }
 
+// 数组转字符串
+function join(array, separator) {
+  if (!array || !array.length) return '-';
+  separator = separator || '、';
+  var result = '';
+  for (var i = 0; i < array.length; i++) {
+    if (i > 0) {
+      result += separator;
+    }
+    result += array[i];
+  }
+  return result;
+}
+
 module.exports = {
-  includes: includes
+  includes: includes,
+  join: join
 };

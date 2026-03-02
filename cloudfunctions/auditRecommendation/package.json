@@ -1,0 +1,9 @@
+{
+  "name": "auditRecommendation",
+  "version": "1.0.0",
+  "description": "审核游客推荐的摊位",
+  "main": "index.js",
+  "dependencies": {
+    "wx-server-sdk": "~2.6.3"
+  }
+}

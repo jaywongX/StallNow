@@ -25,6 +25,7 @@
 - **列表排序**：支持距离排序、活跃度排序
 - **收藏功能**：收藏常用摊位，快速查看
 - **反馈机制**：用户可反馈信息不准确
+- **推荐摊位**：游客可推荐发现的摊位，丰富平台内容 ⭐新增
 
 ### 摊主端
 - **入驻申请**：7步完成申请，5分钟搞定
@@ -296,10 +297,12 @@ cacheManager.clearByPrefix('stalls_'); // 按前缀清理
 | lastConfirmedAt | Date | 最后确认时间 |
 | contact | Object | 联系方式 |
 | **ownerUserId** | String | **绑定的摊主用户ID（关联 users._id）** |
-| **createdBy** | String | **创建方式：vendor_self（摊主申请）/ admin_proxy（管理员代录）** |
+| **createdBy** | String | **创建方式：vendor_self（摊主申请）/ admin_proxy（管理员代录）/ user_recommend（游客推荐）** ⭐新增 |
 | **claimStatus** | String | **认领状态：unclaimed（待认领）/ pending（审核中）/ claimed（已认领）/ rejected（审核拒绝）** |
 | **claimedBy** | String | **认领人用户ID** |
 | **claimedAt** | Date | **认领时间** |
+| **recommendedBy** | String | **推荐用户ID（游客推荐时填写）** ⭐新增 |
+| **recommendedAt** | Date | **推荐时间** ⭐新增 |
 
 ### categories（分类表）
 
