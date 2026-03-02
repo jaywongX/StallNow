@@ -1,7 +1,7 @@
 {
   "name": "stallnow",
   "version": "1.0.3",
-  "description": "摆地摊了么",
+  "description": "小摊记",
   "main": "miniprogram/app.js",
   "scripts": {
     "dev": "echo '使用微信开发者工具打开项目'",

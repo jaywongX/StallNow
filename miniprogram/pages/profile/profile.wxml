@@ -106,7 +106,7 @@
 
   <!-- 版本信息 -->
   <view class="version-info">
-    <text>摆地摊了么 v1.0.3</text>
+    <text>小摊记 v1.0.3</text>
   </view>
 
   <!-- 使用说明弹窗 -->

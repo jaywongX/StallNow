@@ -1,7 +1,7 @@
 {
   "appid": "wx4f6a335c92efef3e",
   "projectname": "StallNow",
-  "description": "摆地摊了么 - 地摊分布与发现工具小程序",
+  "description": "小摊记 - 地摊分布与发现工具小程序",
   "cloudfunctionRoot": "cloudfunctions/",
   "miniprogramRoot": "miniprogram/",
   "setting": {

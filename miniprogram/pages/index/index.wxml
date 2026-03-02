@@ -160,7 +160,7 @@
   <view class="welcome-content">
     <view class="welcome-header">
       <text class="welcome-emoji">🎉</text>
-      <text class="welcome-title">欢迎来到摆地摊了么</text>
+      <text class="welcome-title">欢迎来到小摊记</text>
       <text class="welcome-desc">设置昵称，让我们认识你</text>
     </view>
     <view class="welcome-body">

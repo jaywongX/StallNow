@@ -1,6 +1,6 @@
 # 小程序上架发布完整流程指南
 
-> **项目名称**：摆地摊了么  
+> **项目名称**：小摊记  
 > **AppID**：wx4f6a335c92efef3e  
 > **项目类型**：微信小程序 + 微信云开发  
 > **文档更新时间**：2026-02-12
@@ -104,7 +104,7 @@ grep -r "debugger" miniprogram/ --include="*.js"
 {
   "appid": "wx4f6a335c92efef3e",
   "projectname": "StallNow",
-  "description": "摆地摊了么 - 地摊分布与发现工具小程序",
+  "description": "小摊记 - 地摊分布与发现工具小程序",
   "cloudfunctionRoot": "cloudfunctions/",
   "miniprogramRoot": "miniprogram/",
   "setting": {
@@ -154,7 +154,7 @@ grep -r "debugger" miniprogram/ --include="*.js"
   "window": {
     "backgroundTextStyle": "light",
     "navigationBarBackgroundColor": "#FF6B35",
-    "navigationBarTitleText": "摆地摊了么",
+    "navigationBarTitleText": "小摊记",
     "navigationBarTextStyle": "white",
     "backgroundColor": "#F5F5F5"
   },
@@ -238,7 +238,7 @@ miniprogram/
 **隐私协议内容模板**：
 
 ```
-本小程序（摆地摊了么）非常重视用户隐私保护。
+本小程序（小摊记）非常重视用户隐私保护。
 
 一、信息收集范围
 1. 位置信息：用于推荐附近摊位，仅在用户授权后使用
@@ -310,7 +310,7 @@ miniprogram/
 
 | 配置项 | 说明 |
 |--------|------|
-| 小程序名称 | 摆地摊了么 |
+| 小程序名称 | 小摊记 |
 | 小程序简称 | 摆地摊（如需要） |
 | 小程序头像 | 上传logo图片（建议144x144px） |
 | 介绍 | 发现身边的地摊，支持家乡小商贩 |
@@ -434,7 +434,7 @@ cities: [
 **模板**：
 
 ```
-【小程序名称】摆地摊了么
+【小程序名称】小摊记
 
 【小程序简介】
 本小程序是一个地摊分布与发现工具，帮助用户发现身边的地摊，支持家乡小商贩展示信息。
@@ -883,4 +883,4 @@ z: 修订号（bug修复）
 
 **文档版本**: v1.0  
 **最后更新**: 2026-02-12  
-**适用项目**: 摆地摊了么 (AppID: wx4f6a335c92efef3e)
+**适用项目**: 小摊记 (AppID: wx4f6a335c92efef3e)
