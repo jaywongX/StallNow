@@ -1,6 +1,6 @@
 {
   "name": "stallnow",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "小摊记",
   "main": "miniprogram/app.js",
   "scripts": {

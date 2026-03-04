@@ -300,11 +300,14 @@ Page({
           // 使用默认位置
           this.setData({
             latitude: CITY_CONFIG.defaultCity.location.latitude,
-            longitude: CITY_CONFIG.defaultCity.location.longitude
+            longitude: CITY_CONFIG.defaultCity.location.longitude,
+            page: 1,
+            stalls: [],
+            markers: [],
+            hasMore: true
           });
-          // 重新加载摊位
-          this.setData({ page: 1, stalls: [], markers: [] });
-          this.loadStalls();
+          // 重新加载地图标记
+          this.loadAllStallsForMap();
         }
       });
     }

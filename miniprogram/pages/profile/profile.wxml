@@ -113,7 +113,7 @@
 
   <!-- 版本信息 -->
   <view class="version-info">
-    <text>小摊记 v1.0.3</text>
+    <text>小摊记 v1.0.4</text>
   </view>
 
   <!-- 使用说明弹窗 -->
