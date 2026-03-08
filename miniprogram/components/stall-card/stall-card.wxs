@@ -119,17 +119,27 @@ function formatDistance(distance) {
   return rounded + 'km';
 }
 
-// 获取有效的图片URL（过滤 cloud:// 格式）
+// 获取有效的图片URL（过滤无效格式）
 function getValidImageUrl(stall) {
+  // 无数据时返回默认图片
   if (!stall || !stall.images || stall.images.length === 0) {
     return '/images/default-stall.png';
   }
+
   var img = stall.images[0];
-  // cloud:// 格式无法在小程序端直接显示，使用默认图片
-  if (img && img.indexOf('cloud://') === 0) {
+
+  // 空值检查
+  if (!img) {
     return '/images/default-stall.png';
   }
-  return img || '/images/default-stall.png';
+
+  // cloud:// 格式无法在小程序端直接显示
+  if (img.indexOf('cloud://') === 0) {
+    return '/images/default-stall.png';
+  }
+
+  // 返回图片URL（云函数已转换为 https:// 临时URL）
+  return img;
 }
 
 module.exports = {

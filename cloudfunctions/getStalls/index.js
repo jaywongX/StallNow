@@ -115,6 +115,8 @@ exports.main = async (event, context) => {
     });
 
     // 转换图片 URL（cloud:// -> 临时 URL）
+    // 分批处理，每批最多50个文件（微信API限制）
+    const BATCH_SIZE = 50;
     const fileIdList = [];
     validStalls.forEach(stall => {
       if (stall.images && stall.images.length > 0) {
@@ -126,12 +128,14 @@ exports.main = async (event, context) => {
       }
     });
 
-    if (fileIdList.length > 0) {
+    // 分批转换
+    const urlMap = {};
+    for (let i = 0; i < fileIdList.length; i += BATCH_SIZE) {
+      const batch = fileIdList.slice(i, i + BATCH_SIZE);
       try {
         const tempRes = await cloud.getTempFileURL({
-          fileList: fileIdList
+          fileList: batch
         });
-        const urlMap = {};
         if (tempRes.fileList) {
           tempRes.fileList.forEach(item => {
             if (item.status === 0 && item.tempFileURL) {
@@ -139,17 +143,17 @@ exports.main = async (event, context) => {
             }
           });
         }
-
-        // 替换图片URL
-        validStalls.forEach(stall => {
-          if (stall.images && stall.images.length > 0) {
-            stall.images = stall.images.map(img => urlMap[img] || img);
-          }
-        });
       } catch (urlErr) {
-        console.error('转换图片URL失败:', urlErr);
+        console.error(`转换图片URL失败(批次${Math.floor(i / BATCH_SIZE) + 1}):`, urlErr);
       }
     }
+
+    // 替换图片URL
+    validStalls.forEach(stall => {
+      if (stall.images && stall.images.length > 0) {
+        stall.images = stall.images.map(img => urlMap[img] || img);
+      }
+    });
 
     return {
       code: 0,

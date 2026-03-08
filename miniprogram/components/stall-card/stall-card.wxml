@@ -4,7 +4,7 @@
   <!-- 图片 -->
   <image
     class="stall-image"
-    src="{{stall.images && stall.images.length > 0 ? stall.images[0] : '/images/default-stall.png'}}"
+    src="{{utils.getValidImageUrl(stall)}}"
     mode="aspectFill"
   />
 
