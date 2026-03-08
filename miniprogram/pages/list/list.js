@@ -1,4 +1,4 @@
-const cachedApi = require('../../utils/cached-api.js');
+const api = require('../../utils/api.js');
 
 Page({
   data: {
@@ -86,9 +86,12 @@ Page({
   // 加载分类
   async loadCategories() {
     try {
-      const result = await cachedApi.getCategories();
+      const db = wx.cloud.database();
+      const res = await db.collection('categories')
+        .orderBy('sort', 'asc')
+        .get();
       this.setData({
-        categories: result.data || []
+        categories: res.data || []
       });
     } catch (err) {
       console.error('加载分类失败', err);
@@ -96,7 +99,7 @@ Page({
   },
 
   // 加载地摊列表
-  async loadStalls(forceRefresh = false) {
+  async loadStalls() {
     if (this.data.loading || !this.data.hasMore) return;
 
     this.setData({ loading: true });
@@ -125,7 +128,7 @@ Page({
         options.maxDistance = this.data.selectedDistance;
       }
 
-      const result = await cachedApi.getStalls(options, { forceRefresh });
+      const result = await api.getStalls(options);
       let newStalls = result.data || [];
       
       // 计算每个摊位的距离
@@ -360,27 +363,14 @@ Page({
     });
   },
 
-  // 搜索（带防抖）
-  searchTimer: null,
+  // 搜索
   onSearch(e) {
-    const keyword = e.detail.value;
-    
-    // 清除之前的定时器
-    if (this.searchTimer) {
-      clearTimeout(this.searchTimer);
-    }
-    
-    // 防抖：300ms 后执行搜索
-    this.searchTimer = setTimeout(() => {
-      this.setData({
-        keyword: keyword,
-        page: 1,
-        stalls: [],
-        hasMore: true
-      }, () => {
-        this.loadStalls();
-      });
-    }, 300);
+    this.setData({
+      keyword: e.detail.value,
+      page: 1,
+      stalls: []
+    });
+    this.loadStalls();
   },
 
   // 选择分类
@@ -433,7 +423,7 @@ Page({
       page: 1,
       stalls: []
     });
-    this.loadStalls(true).then(() => {  // 强制刷新
+    this.loadStalls().then(() => {
       wx.stopPullDownRefresh();
     });
   }

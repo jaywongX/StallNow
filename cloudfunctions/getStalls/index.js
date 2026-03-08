@@ -78,7 +78,7 @@ exports.main = async (event, context) => {
     }
 
     const result = await queryCommand
-      .orderBy('updateTime', 'desc')
+      .orderBy('updateTime', 'asc')
       .skip((page - 1) * pageSize)
       .limit(pageSize)
       .get();

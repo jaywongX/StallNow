@@ -10,11 +10,11 @@ const CACHE_PREFIX = 'stallnow_';
 const DEFAULT_TTL = 5 * 60 * 1000; // 5分钟
 
 // 缓存类型配置
-// 注意：云开发临时文件URL有效期约2小时，摊位相关缓存时间不宜过长
+// 注意：云开发临时文件URL有效期约2小时，摊位相关缓存需留安全余量
 const CACHE_CONFIG = {
   categories: { ttl: 7 * 24 * 60 * 60 * 1000, persist: true },  // 分类数据：7天
-  stalls: { ttl: 10 * 60 * 1000, persist: true },               // 摊位列表：10分钟（临时URL有效期限制）
-  stallDetail: { ttl: 30 * 60 * 1000, persist: true },          // 摊位详情：30分钟
+  stalls: { ttl: 30 * 60 * 1000, persist: true },               // 摊位列表：30分钟
+  stallDetail: { ttl: 60 * 60 * 1000, persist: true },          // 摊位详情：1小时
   userInfo: { ttl: 30 * 60 * 1000, persist: false },            // 用户信息：30分钟，仅内存
   favorites: { ttl: 5 * 60 * 1000, persist: false }             // 收藏列表：5分钟，仅内存
 };
