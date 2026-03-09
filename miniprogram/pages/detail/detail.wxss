@@ -141,7 +141,55 @@
   font-weight: bold;
 }
 
+/* 操作按钮行 */
+.action-row {
+  display: flex;
+  gap: 16rpx;
+}
+
+.like-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8rpx;
+  background: linear-gradient(135deg, #FFF0F0 0%, #FFF5F5 100%);
+  color: #FF4D4F;
+  text-align: center;
+  padding: 24rpx;
+  border-radius: 12rpx;
+  font-size: 28rpx;
+  font-weight: 600;
+  border: 2rpx solid #FFCCC7;
+}
+
+.like-btn.liked {
+  background: linear-gradient(135deg, #FF4D4F 0%, #FF7875 100%);
+  color: #FFF;
+  border-color: #FF4D4F;
+}
+
+.btn-icon {
+  font-size: 32rpx;
+}
+
+.btn-text {
+  font-size: 28rpx;
+}
+
+.btn-count {
+  background: rgba(255, 255, 255, 0.2);
+  padding: 2rpx 12rpx;
+  border-radius: 20rpx;
+  font-size: 24rpx;
+}
+
 .favorite-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8rpx;
   background: linear-gradient(135deg, #FFF9E6 0%, #FFFBF0 100%);
   color: #FFB800;
   text-align: center;
@@ -156,6 +204,12 @@
   background: linear-gradient(135deg, #FFB800 0%, #FFC107 100%);
   color: #FFF;
   border-color: #FFB800;
+}
+
+/* 价格文本 */
+.price-text {
+  color: #FF6B35;
+  font-weight: 500;
 }
 
 /* 联系方式区 */

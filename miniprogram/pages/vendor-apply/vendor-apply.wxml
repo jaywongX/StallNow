@@ -114,7 +114,52 @@
       <text class="input-hint">填写常出没的大致区域，帮助用户更容易找到你</text>
     </view>
 
-    <!-- Step 4: 出摊时间 -->
+    <!-- Step 4: 价格区间（选填） -->
+    <view class="form-group">
+      <view class="group-header">
+        <text class="group-title">价格区间</text>
+        <text class="optional">（选填）</text>
+      </view>
+      <text class="input-hint">告诉顾客大概的价格范围，帮助快速决策</text>
+      <view class="price-grid">
+        <view 
+          wx:for="{{priceOptions}}" 
+          wx:key="id"
+          class="price-item {{form.priceRangeType === item.id ? 'active' : ''}}"
+          data-id="{{item.id}}"
+          data-display="{{item.display}}"
+          bindtap="onPriceSelect"
+        >
+          <text class="price-name">{{item.name}}</text>
+        </view>
+      </view>
+      
+      <!-- 自定义价格输入（选择"自定义"时显示） -->
+      <view class="custom-price-section" wx:if="{{form.priceRangeType === 'custom'}}">
+        <view class="price-input-row">
+          <input 
+            class="price-input"
+            type="digit"
+            placeholder="最低"
+            value="{{form.customPriceMin}}"
+            bindinput="onCustomPriceMinInput"
+            maxlength="5"
+          />
+          <text class="price-separator">-</text>
+          <input 
+            class="price-input"
+            type="digit"
+            placeholder="最高"
+            value="{{form.customPriceMax}}"
+            bindinput="onCustomPriceMaxInput"
+            maxlength="5"
+          />
+          <text class="price-unit">元</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- Step 5: 出摊时间 -->
     <view class="form-group">
       <view class="group-header">
         <text class="group-title">一般什么时候出摊？</text>

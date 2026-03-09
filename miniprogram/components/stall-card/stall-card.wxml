@@ -46,5 +46,12 @@
       <text class="value">{{utils.getScheduleText(stall)}}</text>
       <text class="note" wx:if="{{stall.schedule && stall.schedule.note}}">{{stall.schedule.note}}</text>
     </view>
+
+    <!-- 价格区间 -->
+    <view class="info-row">
+      <text class="icon">💰</text>
+      <text class="label">价格：</text>
+      <text class="value">{{utils.getPriceRangeText(stall)}}</text>
+    </view>
   </view>
 </view>

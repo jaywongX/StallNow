@@ -79,6 +79,7 @@ exports.main = async (event, context) => {
         display: scheduleDisplay
       },
       contact: stallData.contact || {},
+      priceRange: stallData.priceRange || null,
       status: 0, // 0待审核 1已上架 2已下架 3已下线
       reliability: 1, // 1可能还在（游客推荐默认）
       lastConfirmedAt: now.toISOString(),

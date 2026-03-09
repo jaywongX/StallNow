@@ -243,7 +243,52 @@
       <text wx:if="{{errors.schedule}}" class="error-text">{{errors.schedule}}</text>
     </view>
     
-    <!-- Step 7: 摊位照片（选填） -->
+    <!-- Step 7: 价格区间（选填） -->
+    <view class="form-group">
+      <view class="group-header">
+        <text class="group-title">价格区间</text>
+        <text class="optional">（选填）</text>
+      </view>
+      <text class="input-hint">告诉顾客大概的价格范围，帮助快速决策</text>
+      <view class="price-grid">
+        <view 
+          wx:for="{{priceOptions}}" 
+          wx:key="id"
+          class="price-item {{proxyForm.priceRangeType === item.id ? 'active' : ''}}"
+          data-id="{{item.id}}"
+          data-display="{{item.display}}"
+          bindtap="onProxyPriceSelect"
+        >
+          <text class="price-name">{{item.name}}</text>
+        </view>
+      </view>
+      
+      <!-- 自定义价格输入（选择"自定义"时显示） -->
+      <view class="custom-price-section" wx:if="{{proxyForm.priceRangeType === 'custom'}}">
+        <view class="price-input-row">
+          <input 
+            class="price-input"
+            type="digit"
+            placeholder="最低"
+            value="{{proxyForm.customPriceMin}}"
+            bindinput="onProxyCustomPriceMinInput"
+            maxlength="5"
+          />
+          <text class="price-separator">-</text>
+          <input 
+            class="price-input"
+            type="digit"
+            placeholder="最高"
+            value="{{proxyForm.customPriceMax}}"
+            bindinput="onProxyCustomPriceMaxInput"
+            maxlength="5"
+          />
+          <text class="price-unit">元</text>
+        </view>
+      </view>
+    </view>
+    
+    <!-- Step 8: 摊位照片（选填） -->
     <view class="form-group">
       <view class="group-header">
         <text class="group-title">摊位照片</text>
@@ -281,7 +326,7 @@
       <text class="input-hint">上传摊位实拍照片，帮助大家认出摊位</text>
     </view>
 
-    <!-- Step 8: 摊位称呼（选填） -->
+    <!-- Step 9: 摊位称呼（选填） -->
     <view class="form-group">
       <view class="group-header">
         <text class="group-title">摊位称呼</text>
@@ -301,7 +346,7 @@
       <text class="input-hint">不填将由系统自动生成</text>
     </view>
     
-    <!-- Step 9: 联系方式（选填） -->
+    <!-- Step 10: 联系方式（选填） -->
     <view class="form-group">
       <view class="group-header">
         <text class="group-title">联系方式</text>
@@ -320,7 +365,7 @@
       </view>
     </view>
     
-    <!-- Step 10: 备注 -->
+    <!-- Step 11: 备注 -->
     <view class="form-group">
       <view class="group-header">
         <text class="group-title">备注</text>

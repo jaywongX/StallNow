@@ -12,9 +12,22 @@ Page({
             scheduleTypes: [],
             customTimeStart: '',
             customTimeEnd: '',
+            priceRangeType: 'not_provided',  // 价格区间类型
+            customPriceMin: '',  // 自定义最低价格
+            customPriceMax: '',  // 自定义最高价格
             images: [],
             phone: ''
         },
+        
+        // 价格区间选项
+        priceOptions: [
+            { id: 'under_10', name: '10元以内', display: '10元以内' },
+            { id: '10_20', name: '10-20元', display: '10-20元' },
+            { id: '20_30', name: '20-30元', display: '20-30元' },
+            { id: 'over_30', name: '30元以上', display: '30元以上' },
+            { id: 'custom', name: '自定义', display: '' },
+            { id: 'not_provided', name: '暂不提供', display: '暂无' }
+        ],
         
         // 时间选择器范围
         timePickerRange: ['06:00', '07:00', '08:00', '09:00', '10:00', '11:00', 
@@ -345,6 +358,31 @@ Page({
             'form.phone': e.detail.value
         });
     },
+    
+    // 选择价格区间
+    onPriceSelect(e) {
+        const { id } = e.currentTarget.dataset;
+        this.setData({
+            'form.priceRangeType': id,
+            // 如果不是自定义，清空自定义价格
+            'form.customPriceMin': id === 'custom' ? this.data.form.customPriceMin : '',
+            'form.customPriceMax': id === 'custom' ? this.data.form.customPriceMax : ''
+        });
+    },
+    
+    // 输入自定义最低价格
+    onCustomPriceMinInput(e) {
+        this.setData({
+            'form.customPriceMin': e.detail.value
+        });
+    },
+    
+    // 输入自定义最高价格
+    onCustomPriceMaxInput(e) {
+        this.setData({
+            'form.customPriceMax': e.detail.value
+        });
+    },
 
     // 验证表单
     validateForm() {
@@ -398,6 +436,29 @@ Page({
                 scheduleData.customTimeEnd = form.customTimeEnd;
             }
             
+            // 构建价格区间数据
+            let priceRangeData = null;
+            if (form.priceRangeType && form.priceRangeType !== 'not_provided') {
+                const priceOption = this.data.priceOptions.find(p => p.id === form.priceRangeType);
+                if (form.priceRangeType === 'custom') {
+                    const minPrice = parseFloat(form.customPriceMin) || 0;
+                    const maxPrice = parseFloat(form.customPriceMax) || 0;
+                    if (minPrice > 0 && maxPrice > 0 && minPrice <= maxPrice) {
+                        priceRangeData = {
+                            type: 'custom',
+                            display: `${minPrice}-${maxPrice}元`,
+                            customMin: minPrice,
+                            customMax: maxPrice
+                        };
+                    }
+                } else if (priceOption) {
+                    priceRangeData = {
+                        type: form.priceRangeType,
+                        display: priceOption.display
+                    };
+                }
+            }
+            
             // 调用云函数提交推荐
             const { result } = await wx.cloud.callFunction({
                 name: 'submitStallRecommendation',
@@ -411,6 +472,7 @@ Page({
                         location: form.location,
                         scheduleTypes: form.scheduleTypes,
                         schedule: scheduleData,
+                        priceRange: priceRangeData,    // 价格区间（可选）
                         images: form.images,
                         contact: {
                             phone: form.phone

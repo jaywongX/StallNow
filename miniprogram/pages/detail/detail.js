@@ -16,6 +16,10 @@ Page({
     isFavorite: false,
     fromScan: false,
     
+    // 点赞状态
+    isLiked: false,
+    likeCount: 0,
+    
     // 摊位状态
     isStallActive: true,
     stallStatusText: '',
@@ -51,6 +55,7 @@ Page({
       this.setData({ stallId: options.id });
       this.loadStallDetail();
       this.checkFavoriteStatus();
+      this.checkLikeStatus();
     } else {
       wx.showToast({
         title: '参数错误',
@@ -360,6 +365,64 @@ Page({
       }
     } catch (err) {
       console.error('检查收藏状态失败', err);
+    }
+  },
+
+  // 检查点赞状态
+  async checkLikeStatus() {
+    try {
+      const { result } = await wx.cloud.callFunction({
+        name: 'checkLike',
+        data: { stallId: this.data.stallId }
+      });
+      
+      if (result.code === 0) {
+        this.setData({
+          isLiked: result.data.isLiked,
+          likeCount: result.data.likeCount
+        });
+      }
+    } catch (err) {
+      console.error('检查点赞状态失败', err);
+    }
+  },
+
+  // 点赞/取消点赞
+  async onToggleLike() {
+    try {
+      const action = this.data.isLiked ? 'remove' : 'add';
+      
+      const { result } = await wx.cloud.callFunction({
+        name: 'toggleLike',
+        data: { 
+          stallId: this.data.stallId,
+          action
+        }
+      });
+      
+      if (result.code === 0) {
+        this.setData({
+          isLiked: result.data.isLiked,
+          likeCount: result.data.likeCount
+        });
+        
+        wx.showToast({
+          title: action === 'add' ? '点赞成功' : '已取消',
+          icon: 'none'
+        });
+        
+        // 清理缓存
+        const cachedApi = require('../../utils/cached-api.js');
+        cachedApi.clearStallDetailCache(this.data.stallId);
+      } else {
+        throw new Error(result.message);
+      }
+    } catch (err) {
+      console.error('点赞操作失败', err);
+      wx.showToast({
+        title: err.message || '操作失败',
+        icon: 'none'
+      });
     }
   },
 

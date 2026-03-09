@@ -72,7 +72,9 @@ exports.main = async (event, context) => {
       claimedAt: null,
       ownerUserId: '', // 暂未绑定摊主
       viewCount: 0,
+      likeCount: 0,
       favoriteCount: 0,
+      priceRange: stallData.priceRange || null, // 价格区间
       createTime: now,
       updateTime: now,
       // 记录代录入信息

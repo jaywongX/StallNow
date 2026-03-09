@@ -142,11 +142,20 @@ function getValidImageUrl(stall) {
   return img;
 }
 
+// 获取价格区间文本
+function getPriceRangeText(stall) {
+  if (!stall || !stall.priceRange || !stall.priceRange.display) {
+    return '暂无';
+  }
+  return stall.priceRange.display;
+}
+
 module.exports = {
   getGoodsTagsText: getGoodsTagsText,
   getScheduleText: getScheduleText,
   getReliabilityInfo: getReliabilityInfo,
   hasGoodsTags: hasGoodsTags,
   formatDistance: formatDistance,
-  getValidImageUrl: getValidImageUrl
+  getValidImageUrl: getValidImageUrl,
+  getPriceRangeText: getPriceRangeText
 };

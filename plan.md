@@ -1422,6 +1422,285 @@ stalls: {
 | P2 | 入驻合规提示 | 0.5天 | v2.1 | 原规划 |
 | P2 | 列表筛选增强 | 1.5天 | v2.1 | 原规划 |
 | **P0** | **数据缓存功能** | **2天** | **v2.0** | **用户明确需求 - 降低云函数成本** |
+| **P0** | **价格区间功能** | **1天** | **v2.1** | **用户明确需求 - 摊位消费水平展示** |
+| **P0** | **点赞功能** | **1天** | **v2.1** | **用户明确需求 - 用户互动增强** |
+
+---
+
+## 价格区间功能设计 💰 ✅ 已实现
+
+### 需求背景
+
+用户在浏览摊位时，希望快速了解摊位的消费水平，判断是否符合预期。部分摊主也希望能够告知顾客大概的价格范围，减少无效咨询。
+
+### 功能设计
+
+#### 1. 价格区间选项
+
+摊主入驻时选择价格区间（单选）：
+
+| 选项 | 显示文案 | 说明 |
+|------|----------|------|
+| `under_10` | 10元以内 | 适合小吃、小商品 |
+| `10_20` | 10-20元 | 中等消费 |
+| `20_30` | 20-30元 | 偏高消费 |
+| `over_30` | 30元以上 | 高消费摊位 |
+| `custom` | 自定义区间 | 摊主填写具体范围，如"15-50元" |
+| `not_provided` | 暂不提供 | 不显示价格信息（默认选项） |
+
+#### 2. 数据库变更
+
+**stalls 表新增字段**：
+
+```javascript
+{
+  // 价格区间
+  priceRange: {
+    type: String,        // 选项标识：under_10 / 10_20 / 20_30 / over_30 / custom / not_provided
+    display: String,     // 显示文案：如"10-20元"
+    customMin: Number,   // 自定义最小值（仅 type='custom' 时）
+    customMax: Number    // 自定义最大值（仅 type='custom' 时）
+  }
+}
+```
+
+**applications 表同步扩展**：
+
+```javascript
+{
+  stallData: {
+    // ...现有字段
+    priceRange: { type, display, customMin, customMax }
+  }
+}
+```
+
+#### 3. 入驻表单设计
+
+在 `vendor-apply.wxml` 中新增价格区间选择：
+
+```
+Step X：价格区间（选填）
+
+💰 你的商品大概多少钱？
+
+[  10元以内  ]  [  10-20元  ]  [  20-30元  ]
+[  30元以上  ]  [  自定义区间  ]  [  暂不提供  ]
+
+💡 提示：价格仅供参考，具体以现场为准
+```
+
+**自定义区间输入**（选择"自定义"时显示）：
+
+```
+价格范围：[  10  ] 元 至 [  50  ] 元
+```
+
+#### 4. 详情页展示
+
+在摊位详情页商品信息区域显示：
+
+```
+📦 商品：烧烤、臭豆腐
+💰 价格：10-20元（或"暂无"）
+📍 地址：老街夜市入口
+```
+
+#### 5. 云函数修改
+
+**submitApplication**：增加 `priceRange` 参数处理
+
+**createStallByAdmin**：增加 `priceRange` 参数处理
+
+**updateStall**：支持修改价格区间
+
+#### 6. 实施步骤
+
+| 步骤 | 任务 | 文件 | 预计时间 |
+|-----|------|------|---------|
+| 1 | 数据库字段扩展 | stalls / applications | 0.1天 |
+| 2 | 入驻表单增加价格选择 | vendor-apply.wxml/js | 0.3天 |
+| 3 | 云函数增加价格处理 | submitApplication 等 | 0.2天 |
+| 4 | 详情页展示价格 | detail.wxml/js | ✅ 已完成 |
+| 5 | 列表卡片展示价格（可选） | stall-card.wxml | 待实现 |
+
+---
+
+## 点赞功能设计 👍 ✅ 已实现
+
+### 需求背景
+
+用户在浏览摊位时，需要一种简单的互动方式表达喜欢，同时也希望看到摊位的受欢迎程度。点赞功能是最低成本的互动方式。
+
+### 功能设计
+
+#### 1. 点赞交互
+
+- **点赞按钮**：详情页操作区，点击即可点赞/取消
+- **点赞状态**：已点赞显示红色实心👍，未点赞显示空心👍
+- **点赞数显示**：显示"X人点赞"
+
+#### 2. 数据库变更
+
+**stalls 表新增字段**：
+
+```javascript
+{
+  likeCount: Number,  // 点赞数量，默认 0
+}
+```
+
+**users 表新增字段**：
+
+```javascript
+{
+  likes: Array,  // 点赞的摊位ID列表，如 ['stall_id_1', 'stall_id_2']
+}
+```
+
+#### 3. 云函数设计
+
+**新增云函数：`toggleLike`**
+
+```javascript
+/**
+ * 点赞/取消点赞摊位
+ * @param {String} stallId - 摊位ID
+ * @param {String} action - 'add' 或 'remove'
+ * @returns {Object} {code, data: {likeCount, isLiked}, message}
+ */
+exports.main = async (event, context) => {
+  const { stallId, action } = event;
+  
+  // 1. 获取用户信息（自动创建）
+  // 2. 验证摊位存在
+  // 3. 更新用户 likes 数组（addToSet/pull）
+  // 4. 更新摊位 likeCount（inc +1/-1）
+  // 5. 返回最新点赞数和状态
+};
+```
+
+#### 4. 详情页展示
+
+在操作按钮组中新增点赞按钮：
+
+```wxml
+<!-- detail.wxml -->
+<view class="action-btns">
+  <view class="navigate-btn" bindtap="onNavigate">
+    🧭 一键导航
+  </view>
+  <view class="like-btn {{isLiked ? 'liked' : ''}}" bindtap="onToggleLike">
+    👍 {{isLiked ? '已点赞' : '点赞'}} {{likeCount > 0 ? likeCount : ''}}
+  </view>
+  <view class="favorite-btn {{isFavorite ? 'favorited' : ''}}" bindtap="...">
+    {{isFavorite ? '⭐ 已收藏' : '⭐ 收藏'}}
+  </view>
+</view>
+```
+
+#### 5. 前端逻辑
+
+```javascript
+// detail.js
+data: {
+  isLiked: false,
+  likeCount: 0
+},
+
+// 检查点赞状态
+async checkLikeStatus() {
+  const res = await wx.cloud.callFunction({
+    name: 'checkLike',
+    data: { stallId: this.data.stallId }
+  });
+  this.setData({
+    isLiked: res.result.data.isLiked,
+    likeCount: res.result.data.likeCount
+  });
+},
+
+// 点赞/取消点赞
+async onToggleLike() {
+  const action = this.data.isLiked ? 'remove' : 'add';
+  const res = await wx.cloud.callFunction({
+    name: 'toggleLike',
+    data: { stallId: this.data.stallId, action }
+  });
+  
+  if (res.result.code === 0) {
+    this.setData({
+      isLiked: !this.data.isLiked,
+      likeCount: res.result.data.likeCount
+    });
+    
+    wx.showToast({
+      title: action === 'add' ? '点赞成功' : '已取消',
+      icon: 'none'
+    });
+  }
+}
+```
+
+#### 6. 缓存处理
+
+点赞操作后需清理相关缓存：
+
+```javascript
+// 点赞后清理详情缓存
+cachedApi.clearStallDetailCache(stallId);
+```
+
+#### 7. 实施步骤
+
+| 步骤 | 任务 | 文件 | 状态 |
+|-----|------|------|------|
+| 1 | 数据库字段扩展 | stalls.likeCount, users.likes | ✅ 已完成 |
+| 2 | 创建 toggleLike 云函数 | cloudfunctions/toggleLike | ✅ 已完成 |
+| 3 | 创建 checkLike 云函数 | cloudfunctions/checkLike | ✅ 已完成 |
+| 4 | 详情页点赞按钮UI | detail.wxml/wxss | ✅ 已完成 |
+| 5 | 详情页点赞逻辑 | detail.js | ✅ 已完成 |
+| 6 | 缓存清理集成 | cached-api.js | ✅ 已完成 |
+
+---
+
+## 收藏数和点赞数统计 📊
+
+### 当前状态
+
+| 统计项 | 实现状态 | 说明 |
+|--------|---------|------|
+| 收藏数 | ✅ 已实现 | `toggleFavorite` 云函数中已有 `favoriteCount` 增减 |
+| 点赞数 | ✅ 已实现 | `toggleLike` 云函数中实现 `likeCount` 增减 |
+
+### 数据展示位置
+
+**详情页**：
+```
+📦 商品：烧烤、臭豆腐
+💰 价格：10-20元
+👍 128人点赞  ⭐ 56人收藏
+📍 地址：老街夜市入口
+```
+
+**列表卡片（可选）**：
+```
+[图片]
+老王烧烤
+👍 128  ⭐ 56
+📍 老街夜市
+```
+
+### 数据库字段汇总
+
+```javascript
+// stalls 表统计字段
+{
+  viewCount: Number,      // 访问数（已实现）
+  likeCount: Number,      // 点赞数（待实现）
+  favoriteCount: Number   // 收藏数（已实现）
+}
+```
 
 ---
 

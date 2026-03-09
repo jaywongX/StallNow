@@ -24,6 +24,7 @@
 - **距离筛选**：参考美团样式，支持附近/500m/1km/3km/全城筛选
 - **列表排序**：支持距离排序、活跃度排序
 - **收藏功能**：收藏常用摊位，快速查看
+- **点赞功能**：点赞喜欢的摊位，表达支持 ⭐新增
 - **反馈机制**：用户可反馈信息不准确
 - **推荐摊位**：游客可推荐发现的摊位，丰富平台内容 ⭐新增
 
@@ -31,6 +32,7 @@
 - **入驻申请**：7步完成申请，5分钟搞定
   - 支持上传 1-3 张摊位照片（自动压缩，节省存储空间）
   - **出摊时间灵活选择**：选择"不固定"时可自定义具体时段（如 18:00-22:00）
+  - **价格区间设置**：设置商品价格区间（10元以内/10-20/20-30/30元以上/自定义/暂不提供）⭐新增
   - **合规提示**：引导摊主避免上传含价格、交易信息的图片
 - **摊位认领**：扫码认领管理员代录入的摊位
   - 提交认证信息：姓名、手机号、微信号、摊位照片
@@ -275,6 +277,7 @@ cacheManager.clearByPrefix('stalls_'); // 按前缀清理
 | vendorInfo | Object | 摊主信息 {realName, phone, applyTime, approvedTime} |
 | stallIds | Array | 绑定的摊位ID列表 |
 | favorites | Array | 收藏的摊位ID列表 |
+| likes | Array | 点赞的摊位ID列表 ⭐新增 |
 | createTime | Date | 注册时间 |
 | updateTime | Date | 更新时间 |
 
@@ -303,6 +306,9 @@ cacheManager.clearByPrefix('stalls_'); // 按前缀清理
 | **claimedAt** | Date | **认领时间** |
 | **recommendedBy** | String | **推荐用户ID（游客推荐时填写）** ⭐新增 |
 | **recommendedAt** | Date | **推荐时间** ⭐新增 |
+| **priceRange** | Object | **价格区间** {type, display, customMin, customMax} ⭐新增 |
+| **likeCount** | Number | **点赞数量** ⭐新增 |
+| **favoriteCount** | Number | **收藏数量** |
 
 ### categories（分类表）
 
@@ -319,7 +325,7 @@ cacheManager.clearByPrefix('stalls_'); // 按前缀清理
 | --- | --- | --- |
 | _id | String | 唯一标识 |
 | **userId** | String | **申请人用户ID** |
-| stallData | Object | 申请数据 |
+| stallData | Object | 申请数据（含 priceRange） |
 | status | Number | 0待审核 1已通过 2已拒绝 |
 | audit | Object | 审核信息 {adminId, result, remark, time} |
 | submitTime | Date | 申请时间 |

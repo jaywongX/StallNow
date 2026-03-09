@@ -89,6 +89,9 @@ exports.main = async (event, context) => {
         },
         ownerUserId: userId, // 关联摊主用户ID
         viewCount: 0,
+        likeCount: 0,
+        favoriteCount: 0,
+        priceRange: stallData.priceRange || null, // 价格区间
         createTime: now,
         updateTime: now
       };

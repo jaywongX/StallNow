@@ -128,7 +128,52 @@
       <text wx:if="{{errors.goods}}" class="error-text">{{errors.goods}}</text>
     </view>
 
-    <!-- Step 6: 出摊时间（选填） -->
+    <!-- Step 6: 价格区间（选填） -->
+    <view class="form-group">
+      <view class="group-header">
+        <text class="group-title">价格区间</text>
+        <text class="optional">（选填）</text>
+      </view>
+      <text class="input-hint">告诉顾客大概的价格范围，帮助快速决策</text>
+      <view class="price-grid">
+        <view 
+          wx:for="{{priceOptions}}" 
+          wx:key="id"
+          class="price-item {{form.priceRangeType === item.id ? 'active' : ''}}"
+          data-id="{{item.id}}"
+          data-display="{{item.display}}"
+          bindtap="onPriceSelect"
+        >
+          <text class="price-name">{{item.name}}</text>
+        </view>
+      </view>
+      
+      <!-- 自定义价格输入（选择"自定义"时显示） -->
+      <view class="custom-price-section" wx:if="{{form.priceRangeType === 'custom'}}">
+        <view class="price-input-row">
+          <input 
+            class="price-input"
+            type="digit"
+            placeholder="最低"
+            value="{{form.customPriceMin}}"
+            bindinput="onCustomPriceMinInput"
+            maxlength="5"
+          />
+          <text class="price-separator">-</text>
+          <input 
+            class="price-input"
+            type="digit"
+            placeholder="最高"
+            value="{{form.customPriceMax}}"
+            bindinput="onCustomPriceMaxInput"
+            maxlength="5"
+          />
+          <text class="price-unit">元</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- Step 7: 出摊时间（选填） -->
     <view class="form-group">
       <view class="group-header">
         <text class="group-title">什么时候能遇到？</text>
@@ -170,7 +215,7 @@
       <text class="input-hint">如果不固定出摊时间，可以不选</text>
     </view>
 
-    <!-- Step 7: 拍张照片（选填） -->
+    <!-- Step 8: 拍张照片（选填） -->
     <view class="form-group">
       <view class="group-header">
         <text class="group-title">拍张照片</text>
@@ -207,7 +252,7 @@
       </view>
     </view>
 
-    <!-- Step 8: 联系方式（选填） -->
+    <!-- Step 9: 联系方式（选填） -->
     <view class="form-group">
       <view class="group-header">
         <text class="group-title">联系方式</text>

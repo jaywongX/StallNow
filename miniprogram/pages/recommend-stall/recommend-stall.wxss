@@ -504,3 +504,73 @@
 .contact-inputs .form-input {
   margin-bottom: 0;
 }
+
+/* 价格区间网格 */
+.price-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16rpx;
+  margin-top: 16rpx;
+}
+
+.price-item {
+  width: calc(33.33% - 11rpx);
+  background: #F8F8F8;
+  border-radius: 12rpx;
+  padding: 20rpx 0;
+  text-align: center;
+  border: 2rpx solid transparent;
+  transition: all 0.3s;
+}
+
+.price-item.active {
+  background: #F6FFED;
+  border-color: #52c41a;
+}
+
+.price-name {
+  font-size: 26rpx;
+  color: #666;
+}
+
+.price-item.active .price-name {
+  color: #52c41a;
+  font-weight: 500;
+}
+
+/* 自定义价格输入 */
+.custom-price-section {
+  margin-top: 20rpx;
+  padding: 20rpx;
+  background: #F6FFED;
+  border-radius: 12rpx;
+  border: 2rpx solid #B7EB8F;
+}
+
+.price-input-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12rpx;
+}
+
+.price-input {
+  width: 140rpx;
+  height: 72rpx;
+  background: #fff;
+  border-radius: 8rpx;
+  padding: 0 20rpx;
+  font-size: 28rpx;
+  text-align: center;
+  border: 2rpx solid #B7EB8F;
+}
+
+.price-separator {
+  font-size: 28rpx;
+  color: #666;
+}
+
+.price-unit {
+  font-size: 28rpx;
+  color: #666;
+}

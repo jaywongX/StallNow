@@ -33,6 +33,15 @@ Page({
     currentGoodsOptions: [],
     // 自定义商品输入
     customGoodsInput: '',
+    // 价格区间选项
+    priceOptions: [
+      { id: 'under_10', name: '10元以下', display: '10元以下' },
+      { id: '10_20', name: '10-20元', display: '10-20元' },
+      { id: '20_30', name: '20-30元', display: '20-30元' },
+      { id: 'over_30', name: '30元以上', display: '30元以上' },
+      { id: 'custom', name: '自定义', display: '' },
+      { id: 'not_provided', name: '不提供', display: '不提供' }
+    ],
     proxyForm: {
       displayName: '',
       categoryId: '',
@@ -44,6 +53,9 @@ Page({
       scheduleTypes: [],
       customTimeStart: '',
       customTimeEnd: '',
+      priceRangeType: '',
+      customPriceMin: '',
+      customPriceMax: '',
       phone: '',
       images: [],
       remark: ''
@@ -156,6 +168,31 @@ Page({
     this.setData({
       'proxyForm.goodsTags': [...proxyForm.goodsTags, trimmedInput],
       customGoodsInput: ''
+    });
+  },
+  
+  // 选择价格区间
+  onProxyPriceSelect(e) {
+    const { id } = e.currentTarget.dataset;
+    this.setData({
+      'proxyForm.priceRangeType': id,
+      // 如果不是自定义，清空自定义价格输入
+      'proxyForm.customPriceMin': id === 'custom' ? this.data.proxyForm.customPriceMin : '',
+      'proxyForm.customPriceMax': id === 'custom' ? this.data.proxyForm.customPriceMax : ''
+    });
+  },
+  
+  // 输入自定义最低价格
+  onProxyCustomPriceMinInput(e) {
+    this.setData({
+      'proxyForm.customPriceMin': e.detail.value
+    });
+  },
+  
+  // 输入自定义最高价格
+  onProxyCustomPriceMaxInput(e) {
+    this.setData({
+      'proxyForm.customPriceMax': e.detail.value
     });
   },
   
@@ -393,6 +430,29 @@ Page({
         scheduleData.customTimeEnd = proxyForm.customTimeEnd;
       }
       
+      // 构建价格区间数据
+      let priceRangeData = null;
+      if (proxyForm.priceRangeType && proxyForm.priceRangeType !== 'not_provided') {
+        const priceOption = this.data.priceOptions.find(p => p.id === proxyForm.priceRangeType);
+        if (proxyForm.priceRangeType === 'custom') {
+          const minPrice = parseFloat(proxyForm.customPriceMin) || 0;
+          const maxPrice = parseFloat(proxyForm.customPriceMax) || 0;
+          if (minPrice > 0 && maxPrice > 0 && minPrice <= maxPrice) {
+            priceRangeData = {
+              type: 'custom',
+              display: `${minPrice}-${maxPrice}元`,
+              customMin: minPrice,
+              customMax: maxPrice
+            };
+          }
+        } else if (priceOption) {
+          priceRangeData = {
+            type: proxyForm.priceRangeType,
+            display: priceOption.display
+          };
+        }
+      }
+      
       const result = await wx.cloud.callFunction({
         name: 'createStallByAdmin',
         data: {
@@ -406,6 +466,7 @@ Page({
             address: proxyForm.address,
             scheduleTypes: proxyForm.scheduleTypes,
             schedule: scheduleData,
+            priceRange: priceRangeData,
             contact: {
               phone: proxyForm.phone
             },
@@ -436,6 +497,9 @@ Page({
                 scheduleTypes: [],
                 customTimeStart: '',
                 customTimeEnd: '',
+                priceRangeType: '',
+                customPriceMin: '',
+                customPriceMax: '',
                 phone: '',
                 images: [],
                 remark: ''

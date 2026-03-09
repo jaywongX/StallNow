@@ -101,6 +101,7 @@ exports.main = async (event, context) => {
           ...scheduleInfo,
           display: scheduleDisplay // 出摊时间显示文本
         },
+        priceRange: stallData.priceRange || null, // 价格区间
         contact: stallData.contact || {},
         vendorName: stallData.vendorName || '' // 商家名称
       },
