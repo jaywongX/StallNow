@@ -38,7 +38,8 @@ exports.main = async (event, context) => {
     }
 
     if (timeType) {
-      query['schedule.type'] = timeType;
+      // 查询 scheduleTypes 数组中是否包含 timeType
+      query.scheduleTypes = _.all([timeType]);
     }
 
     // 执行查询

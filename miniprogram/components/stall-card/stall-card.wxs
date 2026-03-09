@@ -17,7 +17,7 @@ function getGoodsTagsText(stall) {
     return '';
   }
   var result = [];
-  for (var i = 0; i < tags.length && i < 3; i++) {
+  for (var i = 0; i < tags.length && i < 5; i++) {
     result.push(tags[i]);
   }
   return result.join('、');
