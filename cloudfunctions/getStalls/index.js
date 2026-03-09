@@ -44,13 +44,14 @@ exports.main = async (event, context) => {
     // 执行查询
     let queryCommand = db.collection('stalls').where(query);
 
-    // 关键词搜索
+    // 关键词搜索（支持摊位名称、商家名称、商品标签）
     if (keyword) {
       try {
         queryCommand = queryCommand.where(
           _.or([
             { displayName: db.RegExp({ regexp: keyword, options: 'i' }) },
-            { vendorName: db.RegExp({ regexp: keyword, options: 'i' }) }
+            { vendorName: db.RegExp({ regexp: keyword, options: 'i' }) },
+            { goodsTags: db.RegExp({ regexp: keyword, options: 'i' }) }
           ])
         );
       } catch (regexpErr) {
