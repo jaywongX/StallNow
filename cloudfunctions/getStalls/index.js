@@ -37,13 +37,18 @@ exports.main = async (event, context) => {
       query.categoryId = categoryId;
     }
 
-    if (timeType) {
-      // 查询 scheduleTypes 数组中是否包含 timeType
-      query.scheduleTypes = _.all([timeType]);
-    }
-
     // 执行查询
     let queryCommand = db.collection('stalls').where(query);
+
+    // 时间筛选需要特殊处理（兼容两种数据结构）
+    if (timeType) {
+      queryCommand = queryCommand.where(
+        _.or([
+          { scheduleTypes: _.all([timeType]) },
+          { 'schedule.types': _.all([timeType]) }
+        ])
+      );
+    }
 
     // 关键词搜索（支持摊位名称、商家名称、商品标签）
     if (keyword) {
@@ -63,6 +68,20 @@ exports.main = async (event, context) => {
     // 分页查询
     const countResult = await queryCommand.count();
     const total = countResult.total;
+
+    // 调试日志：打印匹配数量
+    console.log('匹配记录数:', total);
+
+    // 如果有时间筛选但没有结果，尝试查看数据库中实际的 scheduleTypes 数据
+    if (timeType && total === 0) {
+      console.log('时间筛选无结果，尝试查看数据库中的数据...');
+      const sampleData = await db.collection('stalls')
+        .where({ status: 1 })
+        .limit(3)
+        .field({ scheduleTypes: true, schedule: true, displayName: true })
+        .get();
+      console.log('示例数据:', JSON.stringify(sampleData.data));
+    }
 
     // 记录搜索日志（异步执行，不影响主流程）
     if (keyword && keyword.trim()) {
