@@ -443,14 +443,31 @@ Page({
                 if (form.priceRangeType === 'custom') {
                     const minPrice = parseFloat(form.customPriceMin) || 0;
                     const maxPrice = parseFloat(form.customPriceMax) || 0;
-                    if (minPrice > 0 && maxPrice > 0 && minPrice <= maxPrice) {
-                        priceRangeData = {
-                            type: 'custom',
-                            display: `${minPrice}-${maxPrice}元`,
-                            customMin: minPrice,
-                            customMax: maxPrice
-                        };
+                    
+                    // 验证自定义价格
+                    if (minPrice <= 0 || maxPrice <= 0) {
+                        wx.showToast({
+                            title: '请输入有效的价格',
+                            icon: 'none'
+                        });
+                        wx.hideLoading();
+                        return;
                     }
+                    if (minPrice > maxPrice) {
+                        wx.showToast({
+                            title: '最低价不能大于最高价',
+                            icon: 'none'
+                        });
+                        wx.hideLoading();
+                        return;
+                    }
+                    
+                    priceRangeData = {
+                        type: 'custom',
+                        display: `${minPrice}-${maxPrice}元`,
+                        customMin: minPrice,
+                        customMax: maxPrice
+                    };
                 } else if (priceOption) {
                     priceRangeData = {
                         type: form.priceRangeType,

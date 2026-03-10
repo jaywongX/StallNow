@@ -49,14 +49,23 @@ exports.main = async (event, context) => {
     const now = new Date().toISOString();
     
     if (action === 'approve') {
-      // 通过：更新状态为已上架
+      // 通过：更新状态为已上架，同时保留所有原有字段
+      const originalStall = stallRes.data;
       await db.collection('stalls').doc(stallId).update({
         data: {
           status: 1,
           reliability: 1,
           updateTime: now,
           auditAt: now,
-          auditBy: userRes.data[0]._id
+          auditBy: userRes.data[0]._id,
+          // 确保保留关键字段
+          priceRange: originalStall.priceRange || null,
+          goodsTags: originalStall.goodsTags || [],
+          scheduleTypes: originalStall.scheduleTypes || [],
+          schedule: originalStall.schedule || {},
+          location: originalStall.location || null,
+          images: originalStall.images || [],
+          contact: originalStall.contact || {}
         }
       });
     } else if (action === 'reject') {

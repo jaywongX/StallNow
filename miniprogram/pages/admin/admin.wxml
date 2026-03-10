@@ -595,6 +595,15 @@
         </view>
       </view>
 
+      <!-- 价格区间 -->
+      <view class="detail-section" wx:if="{{item.priceRange && item.priceRange.display}}">
+        <view class="section-title">价格区间</view>
+        <view class="detail-row">
+          <text class="detail-label">价格范围</text>
+          <text class="detail-value">{{item.priceRange.display}}</text>
+        </view>
+      </view>
+
       <!-- 联系方式 -->
       <view class="detail-section" wx:if="{{item.contact && item.contact.phone}}">
         <view class="section-title">联系方式</view>
